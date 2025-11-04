@@ -1,0 +1,23 @@
+@model okem_social.Models.User
+@{
+    ViewData["Title"] = "Hồ sơ người dùng";
+    bool isMe = ViewBag.IsMe ?? false;
+    bool isFollowing = ViewBag.IsFollowing ?? false;
+}
+<h2>@Model.FullName</h2>
+<p><b>Email:</b> @Model.Email</p>
+
+@if (!isMe && User.Identity?.IsAuthenticated == true)
+{
+    <form asp-action="@(isFollowing ? "Unfollow" : "Follow")" asp-route-id="@Model.Id" method="post" class="d-inline">
+        @Html.AntiForgeryToken()
+        <button class="btn @(isFollowing ? "btn-outline-secondary" : "btn-primary")" type="submit">
+            @(isFollowing ? "Bỏ theo dõi" : "Theo dõi")
+        </button>
+    </form>
+}
+
+<div class="mt-3">
+    <a class="btn btn-link" asp-action="Followers" asp-route-id="@Model.Id">Xem followers</a>
+    <a class="btn btn-link" asp-action="Following" asp-route-id="@Model.Id">Xem following</a>
+</div>

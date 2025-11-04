@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using okem_social.Data;
 using okem_social.Models;
 
-// 👇 Thêm các using cho DI
+// DI cho Repo/Service
 using okem_social.Repositories;
 using okem_social.Services;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,14 +21,15 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         o.AccessDeniedPath = "/Account/AccessDenied";
         o.ExpireTimeSpan = TimeSpan.FromDays(7);
         o.SlidingExpiration = true;
-        // o.Cookie.Name = "okem_auth"; // (tuỳ chọn)
+        // o.Cookie.Name = "okem_auth"; // tuỳ chọn
     });
 
 builder.Services.AddControllersWithViews();
 
-// 👇 Đăng ký Repository/Service cho phần đăng nhập
+// Đăng ký Repository/Service
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>(); // <-- phục vụ Profile/Search
 
 var app = builder.Build();
 
@@ -52,12 +52,22 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (!app.Environment.IsDevelopment()) { app.UseExceptionHandler("/Home/Error"); app.UseHsts(); }
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
-app.UseAuthentication();     // ✅ phải trước Authorization
+
+app.UseAuthentication(); // phải trước Authorization
 app.UseAuthorization();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.Run();

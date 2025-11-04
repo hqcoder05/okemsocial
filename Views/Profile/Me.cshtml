@@ -1,0 +1,21 @@
+@model okem_social.Models.User
+@{
+    ViewData["Title"] = "Hồ sơ của tôi";
+}
+<h2>Hồ sơ của tôi</h2>
+
+@if (TempData["ok"] != null) { <div class="alert alert-success">@TempData["ok"]</div> }
+@if (TempData["err"] != null) { <div class="alert alert-danger">@TempData["err"]</div> }
+
+<form asp-action="Me" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input class="form-control" value="@Model.Email" disabled />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Họ tên</label>
+        <input class="form-control" name="fullName" value="@Model.FullName" />
+    </div>
+    <button class="btn btn-success" type="submit">Lưu</button>
+</form>
