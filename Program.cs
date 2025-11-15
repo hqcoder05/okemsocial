@@ -16,12 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Bật chế độ timestamp legacy cho Npgsql (tránh lỗi với DateTime)
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Lắng nghe trên tất cả interface (localhost + IP LAN + IP Radmin)
-// HTTP: 5070, HTTPS: 7061
-builder.WebHost.UseUrls(
-    "http://0.0.0.0:5070",
-    "https://0.0.0.0:7061"
-);
+// Lắng nghe trên tất cả interface
+// - Local: nếu không có biến PORT thì dùng 5070
+// - Render/Docker: Render set PORT sẵn (ví dụ 10000)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5070";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // Logging
 builder.Logging.ClearProviders();
@@ -133,33 +132,7 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Auto-migrate + seed Admin (đang tắt để an toàn)
-// using (var scope = app.Services.CreateScope())
-// {
-//     try
-//     {
-//         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//         db.Database.Migrate();
-//
-//         if (!db.Users.Any(u => u.Role == Role.Admin))
-//         {
-//             db.Users.Add(new User
-//             {
-//                 Email = "admin@okem.vn",
-//                 FullName = "Admin",
-//                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin!12345"),
-//                 Role = Role.Admin
-//             });
-//             db.SaveChanges();
-//         }
-//     }
-//     catch (Exception ex)
-//     {
-//         Console.WriteLine($"Seeding error: {ex.Message}");
-//         throw;
-//     }
-// }
-
+// Exception page & HSTS cho Production
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
