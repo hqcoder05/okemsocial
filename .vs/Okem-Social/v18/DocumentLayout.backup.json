@@ -50,8 +50,7 @@
               "RelativeToolTip": "Data\\ApplicationDbContext.cs",
               "ViewState": "AgIAACcAAAAAAAAAAADwvzMAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T09:03:43.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T09:03:43.85Z"
             },
             {
               "$type": "Document",
@@ -63,8 +62,7 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAEcAAAAAAAAAAAAqwOYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T09:03:06.765Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T09:03:06.765Z"
             },
             {
               "$type": "Document",
@@ -76,8 +74,7 @@
               "RelativeToolTip": "Views\\Messages\\Index.cshtml",
               "ViewState": "AgIAANwAAAAAAAAAAAAjwOMAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-15T08:26:22.649Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:26:22.649Z"
             },
             {
               "$type": "Document",
@@ -102,8 +99,7 @@
               "RelativeToolTip": "wwwroot\\js\\call.js",
               "ViewState": "AgIAAGwCAAAAAAAAAAAAwHECAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-15T08:25:50.668Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:25:50.668Z"
             },
             {
               "$type": "Document",
@@ -115,8 +111,7 @@
               "RelativeToolTip": "Hubs\\CallHub.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAAxwNUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T08:16:29.286Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:16:29.286Z"
             },
             {
               "$type": "Document",
@@ -128,8 +123,7 @@
               "RelativeToolTip": "wwwroot\\js\\chat.js",
               "ViewState": "AgIAAC4BAAAAAAAAAAAAwDoBAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-15T08:12:56.394Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:12:56.394Z"
             }
           ]
         }

@@ -1,9 +1,17 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+﻿# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
+
 WORKDIR /app
+
+# Tạo thư mục uploads và cấp quyền ghi (dev: cho phép mọi user ghi vào uploads)
+RUN mkdir -p /app/wwwroot/uploads/images /app/wwwroot/uploads/videos \
+    && chmod -R 777 /app/wwwroot/uploads
+
+# Chạy app bằng non-root user do VS/ảnh base cấu hình (APP_UID)
+USER $APP_UID
+
 EXPOSE 8080
 EXPOSE 8081
 

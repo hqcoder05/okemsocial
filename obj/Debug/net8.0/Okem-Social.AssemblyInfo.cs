@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Okem-Social")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+86eda51b16fb98b78a62cc122fd9b9b12b475755")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c64534c433669cc52abff1f3a0b259ee810d6ec3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Okem-Social")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Okem-Social")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

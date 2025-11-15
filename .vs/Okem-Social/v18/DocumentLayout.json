@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\CodeProjects\\School\\okemsocial\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -38,11 +42,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "Dockerfile",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Dockerfile",
+              "RelativeDocumentMoniker": "Dockerfile",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Dockerfile",
+              "RelativeToolTip": "Dockerfile",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAqwCYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-15T09:30:24.905Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",
@@ -50,12 +67,11 @@
               "RelativeToolTip": "Data\\ApplicationDbContext.cs",
               "ViewState": "AgIAACcAAAAAAAAAAADwvzMAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T09:03:43.85Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T09:03:43.85Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -63,12 +79,11 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAEcAAAAAAAAAAAAqwOYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T09:03:06.765Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T09:03:06.765Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Messages\\Index.cshtml",
@@ -76,12 +91,11 @@
               "RelativeToolTip": "Views\\Messages\\Index.cshtml",
               "ViewState": "AgIAANwAAAAAAAAAAAAjwOMAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-15T08:26:22.649Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:26:22.649Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Chat.cshtml",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Chat.cshtml",
               "RelativeDocumentMoniker": "Views\\Messages\\Chat.cshtml",
@@ -94,7 +108,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "call.js",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\call.js",
               "RelativeDocumentMoniker": "wwwroot\\js\\call.js",
@@ -102,12 +116,11 @@
               "RelativeToolTip": "wwwroot\\js\\call.js",
               "ViewState": "AgIAAGwCAAAAAAAAAAAAwHECAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-15T08:25:50.668Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:25:50.668Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "CallHub.cs",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Hubs\\CallHub.cs",
               "RelativeDocumentMoniker": "Hubs\\CallHub.cs",
@@ -115,12 +128,11 @@
               "RelativeToolTip": "Hubs\\CallHub.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAAxwNUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T08:16:29.286Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:16:29.286Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "chat.js",
               "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\chat.js",
               "RelativeDocumentMoniker": "wwwroot\\js\\chat.js",
@@ -128,8 +140,7 @@
               "RelativeToolTip": "wwwroot\\js\\chat.js",
               "ViewState": "AgIAAC4BAAAAAAAAAAAAwDoBAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-15T08:12:56.394Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T08:12:56.394Z"
             }
           ]
         }
