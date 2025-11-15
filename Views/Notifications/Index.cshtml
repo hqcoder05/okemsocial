@@ -1,0 +1,406 @@
+@{
+    ViewData["Title"] = "Thông báo";
+}
+
+<div class="page-transition">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Page Header -->
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-2">
+                            <i class="fa-solid fa-bell me-2"></i>Thông báo
+                        </h1>
+                        <p class="text-muted mb-0">Cập nhật hoạt động mới nhất của bạn</p>
+                    </div>
+                    <button class="btn btn-outline-primary" onclick="markAllAsRead()">
+                        <i class="fa-solid fa-check-double me-2"></i>Đánh dấu đã đọc
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="modern-card mb-4 animate-fadeIn">
+                <ul class="nav nav-pills" id="notificationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button">
+                            <i class="fa-solid fa-inbox me-2"></i>Tất cả
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="unread-tab" data-bs-toggle="pill" data-bs-target="#unread" type="button">
+                            <i class="fa-solid fa-circle me-2"></i>Chưa đọc
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="mentions-tab" data-bs-toggle="pill" data-bs-target="#mentions" type="button">
+                            <i class="fa-solid fa-at me-2"></i>Đề cập
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Notification List -->
+            <div class="tab-content" id="notificationTabContent">
+                <!-- TẤT CẢ -->
+                <div class="tab-pane fade show active" id="all">
+                    <div id="notificationsAll"></div>
+
+                    <!-- Empty State All -->
+                    <div class="modern-card text-center py-5 d-none" id="emptyAllState">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fa-solid fa-bell-slash"></i>
+                            </div>
+                            <h5>Không có thông báo</h5>
+                            <p>Bạn chưa có thông báo nào</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHƯA ĐỌC -->
+                <div class="tab-pane fade" id="unread">
+                    <div id="notificationsUnread"></div>
+
+                    <div class="modern-card text-center py-5 d-none" id="emptyUnreadState">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fa-solid fa-check-circle"></i>
+                            </div>
+                            <h5>Bạn đã đọc hết thông báo</h5>
+                            <p>Không có thông báo chưa đọc</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ĐỀ CẬP -->
+                <div class="tab-pane fade" id="mentions">
+                    <div id="notificationsMentions"></div>
+
+                    <div class="modern-card text-center py-5 d-none" id="emptyMentionsState">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fa-solid fa-at"></i>
+                            </div>
+                            <h5>Chưa có lượt đề cập</h5>
+                            <p>Chưa ai đề cập đến bạn trong bài viết</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .notification-item {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .notification-item:hover {
+            transform: translateX(5px);
+        }
+
+        .notification-item.unread {
+            border-left: 4px solid #4F46E5;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.05), white);
+        }
+
+    .notification-preview {
+        padding: 0.75rem;
+        background: #F9FAFB;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    #notificationTabs .nav-link {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        color: #6B7280;
+        transition: all 0.3s ease;
+    }
+
+        #notificationTabs .nav-link:hover {
+            background: #F3F4F6;
+            color: #4F46E5;
+        }
+
+        #notificationTabs .nav-link.active {
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: white;
+        }
+
+    .avatar-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .avatar-lg {
+        width: 52px;
+        height: 52px;
+    }
+</style>
+
+@section Scripts {
+    <!-- SignalR (nếu chưa nhúng ở layout) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+        let notifications = [];
+        let notiConn = null;
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            await loadNotifications();
+            await connectNotificationHub();
+        });
+
+        async function connectNotificationHub() {
+            try {
+                notiConn = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/notifications")
+                    .withAutomaticReconnect()
+                    .build();
+
+                notiConn.on("NotificationReceived", n => {
+                    // push thêm vào list và render lại
+                    notifications.unshift(n);
+                    renderAllTabs();
+                });
+
+                await notiConn.start();
+                console.log("NotificationHub connected");
+            } catch (e) {
+                console.error("NotificationHub error", e);
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                const res = await fetch("/api/NotificationsApi", {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to load notifications");
+                }
+
+                notifications = await res.json() ?? [];
+                renderAllTabs();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderAllTabs() {
+            const allContainer = document.getElementById("notificationsAll");
+            const unreadContainer = document.getElementById("notificationsUnread");
+            const mentionsContainer = document.getElementById("notificationsMentions");
+
+            const emptyAll = document.getElementById("emptyAllState");
+            const emptyUnread = document.getElementById("emptyUnreadState");
+            const emptyMentions = document.getElementById("emptyMentionsState");
+
+            allContainer.innerHTML = "";
+            unreadContainer.innerHTML = "";
+            mentionsContainer.innerHTML = "";
+
+            const listAll = notifications.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const listUnread = listAll.filter(n => !n.isRead);
+            const listMentions = listAll.filter(n =>
+                (n.type || "").toLowerCase() === "mention"
+            );
+
+            renderNotificationList(listAll, allContainer, emptyAll);
+            renderNotificationList(listUnread, unreadContainer, emptyUnread);
+            renderNotificationList(listMentions, mentionsContainer, emptyMentions);
+        }
+
+        function renderNotificationList(list, container, emptyElement) {
+            if (!list || list.length === 0) {
+                emptyElement.classList.remove("d-none");
+                return;
+            }
+
+            emptyElement.classList.add("d-none");
+
+            list.forEach(n => {
+                const card = document.createElement("div");
+                card.className = "modern-card mb-3 notification-item stagger-item" + (n.isRead ? "" : " unread");
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "d-flex gap-3";
+
+                const avatar = document.createElement("div");
+                avatar.className = "avatar-circle avatar-lg";
+                avatar.style.background = getAvatarGradient(n.type);
+                avatar.textContent = getAvatarText(n.type);
+
+                const body = document.createElement("div");
+                body.className = "flex-fill";
+
+                const pTitle = document.createElement("p");
+                pTitle.className = "mb-1";
+
+                const strong = document.createElement("strong");
+                strong.textContent = n.title || "(Thông báo)";
+
+                pTitle.appendChild(strong);
+
+                if (!n.isRead) {
+                    const badge = document.createElement("span");
+                    badge.className = "badge bg-primary ms-2";
+                    badge.textContent = "Mới";
+                    pTitle.appendChild(badge);
+                }
+
+                const pTime = document.createElement("p");
+                pTime.className = "text-muted small mb-2";
+                const iconClock = document.createElement("i");
+                iconClock.className = "fa-solid fa-clock me-1";
+                pTime.appendChild(iconClock);
+                pTime.appendChild(document.createTextNode(formatDateTime(n.createdAt)));
+
+                body.appendChild(pTitle);
+                body.appendChild(pTime);
+
+                if (n.content) {
+                    const preview = document.createElement("div");
+                    preview.className = "notification-preview";
+                    const pContent = document.createElement("p");
+                    pContent.className = "text-muted small mb-0";
+                    pContent.textContent = n.content;
+                    preview.appendChild(pContent);
+                    body.appendChild(preview);
+                }
+
+                const dropdownWrapper = document.createElement("div");
+                dropdownWrapper.className = "dropdown";
+
+                const btnDropdown = document.createElement("button");
+                btnDropdown.className = "btn btn-sm btn-light";
+                btnDropdown.setAttribute("data-bs-toggle", "dropdown");
+                btnDropdown.innerHTML = '<i class="fa-solid fa-ellipsis-v"></i>';
+
+                const menu = document.createElement("ul");
+                menu.className = "dropdown-menu dropdown-menu-end";
+
+                const liMark = document.createElement("li");
+                const aMark = document.createElement("a");
+                aMark.className = "dropdown-item";
+                aMark.href = "#";
+                aMark.innerHTML = '<i class="fa-solid fa-check me-2"></i>Đánh dấu đã đọc';
+                aMark.addEventListener("click", function (ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    markAsRead(n.id);
+                });
+                liMark.appendChild(aMark);
+                menu.appendChild(liMark);
+
+                dropdownWrapper.appendChild(btnDropdown);
+                dropdownWrapper.appendChild(menu);
+
+                wrapper.appendChild(avatar);
+                wrapper.appendChild(body);
+                wrapper.appendChild(dropdownWrapper);
+
+                card.appendChild(wrapper);
+
+                card.addEventListener("click", function () {
+                    handleClickNotification(n);
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function getAvatarText(type) {
+            if (!type) return "NT";
+            const t = type.trim();
+            if (t.length >= 2) return t.substring(0, 2).toUpperCase();
+            return t.toUpperCase() || "NT";
+        }
+
+        function getAvatarGradient(type) {
+            const t = (type || "").toLowerCase();
+
+            if (t === "friendrequest" || t === "friend_request") {
+                return "linear-gradient(135deg, #10B981, #3B82F6)";
+            }
+
+            if (t === "message") {
+                return "linear-gradient(135deg, #4F46E5, #6366F1)";
+            }
+
+            if (t === "mention") {
+                return "linear-gradient(135deg, #8B5CF6, #EC4899)";
+            }
+
+            return "linear-gradient(135deg, #F59E0B, #EF4444)";
+        }
+
+        function formatDateTime(dtStr) {
+            if (!dtStr) return "";
+            const d = new Date(dtStr);
+            if (isNaN(d.getTime())) return dtStr;
+            return d.toLocaleString();
+        }
+
+        async function markAsRead(id) {
+            try {
+                const res = await fetch(`/api/NotificationsApi/${id}/read`, {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to mark as read");
+                }
+
+                await loadNotifications();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                const res = await fetch("/api/NotificationsApi/read-all", {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Failed to mark all as read");
+                }
+
+                await loadNotifications();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function handleClickNotification(n) {
+            markAsRead(n.id);
+
+            if (n.url) {
+                window.location.href = n.url;
+            }
+        }
+    </script>
+}

@@ -1,4 +1,4 @@
-namespace Okem_Social.Models;
+namespace okem_social.Models;
 
 public class ErrorViewModel
 {

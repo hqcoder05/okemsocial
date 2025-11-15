@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using okem_social.Data;
 using okem_social.Models;
 
@@ -32,49 +32,107 @@ public class UserRepository(ApplicationDbContext db) : IUserRepository
                       .ToListAsync();
     }
 
-    // ---- Follow ----
-    public Task<bool> IsFollowingAsync(int followerId, int followeeId) =>
-        db.Follows.AnyAsync(f => f.FollowerId == followerId && f.FolloweeId == followeeId);
+    // ---- Friend / Kết bạn ----
 
-    public async Task AddFollowAsync(int followerId, int followeeId)
+    public async Task SendFriendRequestAsync(int fromId, int toId)
     {
-        if (followerId == followeeId) return;
+        if (fromId == toId) return;
 
-        var exists = await db.Follows.FindAsync(followerId, followeeId);
+        // Nếu đã là bạn rồi thì không gửi nữa
+        if (await AreFriendsAsync(fromId, toId)) return;
+
+        var exists = await db.FriendRequests.FindAsync(fromId, toId);
         if (exists == null)
         {
-            db.Follows.Add(new Follow
+            db.FriendRequests.Add(new FriendRequest
             {
-                FollowerId = followerId,
-                FolloweeId = followeeId
+                FromUserId = fromId,
+                ToUserId = toId
             });
             await db.SaveChangesAsync();
         }
     }
 
-    public async Task RemoveFollowAsync(int followerId, int followeeId)
+    public async Task AcceptFriendRequestAsync(int fromId, int toId)
     {
-        var exists = await db.Follows.FindAsync(followerId, followeeId);
-        if (exists != null)
+        var request = await db.FriendRequests.FindAsync(fromId, toId);
+        if (request != null && !request.IsAccepted)
         {
-            db.Follows.Remove(exists);
+            request.IsAccepted = true;
             await db.SaveChangesAsync();
         }
     }
 
-    public async Task<List<User>> GetFollowersAsync(int userId) =>
-        await db.Follows
-            .Where(f => f.FolloweeId == userId)
-            .Include(f => f.Follower)
-            .Select(f => f.Follower!)
-            .OrderBy(u => u.FullName)
+    public async Task CancelFriendRequestAsync(int fromId, int toId)
+    {
+        var exists = await db.FriendRequests.FindAsync(fromId, toId);
+        if (exists != null && !exists.IsAccepted)
+        {
+            db.FriendRequests.Remove(exists);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public async Task RemoveFriendAsync(int userId, int otherId)
+    {
+        var request = await db.FriendRequests.FirstOrDefaultAsync(fr =>
+            fr.IsAccepted &&
+            ((fr.FromUserId == userId && fr.ToUserId == otherId) ||
+             (fr.FromUserId == otherId && fr.ToUserId == userId)));
+
+        if (request != null)
+        {
+            db.FriendRequests.Remove(request);
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public Task<bool> AreFriendsAsync(int userId, int otherId) =>
+        db.FriendRequests.AnyAsync(fr =>
+            fr.IsAccepted &&
+            ((fr.FromUserId == userId && fr.ToUserId == otherId) ||
+             (fr.FromUserId == otherId && fr.ToUserId == userId)));
+
+    public Task<bool> HasPendingRequestAsync(int fromId, int toId) =>
+        db.FriendRequests.AnyAsync(fr =>
+            !fr.IsAccepted && fr.FromUserId == fromId && fr.ToUserId == toId);
+
+    public Task<bool> HasIncomingRequestAsync(int currentUserId, int otherId) =>
+        db.FriendRequests.AnyAsync(fr =>
+            !fr.IsAccepted && fr.FromUserId == otherId && fr.ToUserId == currentUserId);
+
+    public async Task<List<User>> GetFriendsAsync(int userId)
+    {
+        var friendRequests = await db.FriendRequests
+            .Include(fr => fr.FromUser)
+            .Include(fr => fr.ToUser)
+            .Where(fr => fr.IsAccepted &&
+                        (fr.FromUserId == userId || fr.ToUserId == userId))
             .ToListAsync();
 
-    public async Task<List<User>> GetFollowingAsync(int userId) =>
-        await db.Follows
-            .Where(f => f.FollowerId == userId)
-            .Include(f => f.Followee)
-            .Select(f => f.Followee!)
+        return friendRequests
+            .Select(fr => fr.FromUserId == userId ? fr.ToUser! : fr.FromUser!)
+            .OrderBy(u => u.FullName)
+            .ToList();
+    }
+
+    public async Task<List<User>> GetIncomingRequestsAsync(int userId)
+    {
+        return await db.FriendRequests
+            .Include(fr => fr.FromUser)
+            .Where(fr => !fr.IsAccepted && fr.ToUserId == userId)
+            .Select(fr => fr.FromUser!)
             .OrderBy(u => u.FullName)
             .ToListAsync();
+    }
+
+    public async Task<List<User>> GetOutgoingRequestsAsync(int userId)
+    {
+        return await db.FriendRequests
+            .Include(fr => fr.ToUser)
+            .Where(fr => !fr.IsAccepted && fr.FromUserId == userId)
+            .Select(fr => fr.ToUser!)
+            .OrderBy(u => u.FullName)
+            .ToListAsync();
+    }
 }

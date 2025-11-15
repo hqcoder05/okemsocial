@@ -1,8 +1,242 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <!-- User Dashboard -->
+    <div class="py-5">
+        <div class="row align-items-center mb-5">
+            <div class="col-md-8">
+                <h1 class="fw-bold mb-2">Xin chào, @User.Identity!.Name! 👋</h1>
+                <p class="text-muted lead mb-0">Chào mừng bạn quay trở lại với Okem Social</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                    <i class="fa-solid fa-calendar-check me-1"></i>
+                    Hôm nay: @DateTime.Now.ToString("dd/MM/yyyy")
+                </span>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="modern-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle me-3" style="width: 48px; height: 48px;">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Hồ sơ của tôi</h6>
+                            <small class="text-muted">Quản lý thông tin</small>
+                        </div>
+                    </div>
+                    <a asp-controller="Profile" asp-action="Me" class="btn btn-modern btn-modern-primary w-100">
+                        <i class="fa-solid fa-arrow-right me-2"></i>Xem hồ sơ
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #10B981, #059669);">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Tìm bạn bè</h6>
+                            <small class="text-muted">Kết nối mới</small>
+                        </div>
+                    </div>
+                    <a asp-controller="Users" asp-action="Search" class="btn btn-modern btn-modern-outline w-100">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i>Tìm kiếm
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-card h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-circle me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #F59E0B, #D97706);">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">API Documentation</h6>
+                            <small class="text-muted">Hướng dẫn API</small>
+                        </div>
+                    </div>
+                    <a href="/API_ENDPOINTS.md" target="_blank" class="btn btn-modern btn-modern-outline w-100">
+                        <i class="fa-solid fa-external-link me-2"></i>Xem tài liệu
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row g-4">
+            <div class="col-12 mb-4">
+                <h4 class="fw-bold text-center">Tính năng nổi bật</h4>
+            </div>
+            
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card">
+                    <div class="stats-icon mx-auto mb-3" style="background: rgba(79, 70, 229, 0.1); color: #4F46E5;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Kết nối</h6>
+                    <p class="text-muted small mb-0">Theo dõi bạn bè</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card">
+                    <div class="stats-icon mx-auto mb-3" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                        <i class="fa-solid fa-images"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Chia sẻ</h6>
+                    <p class="text-muted small mb-0">Đăng ảnh & video</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card">
+                    <div class="stats-icon mx-auto mb-3" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Trò chuyện</h6>
+                    <p class="text-muted small mb-0">Chat realtime</p>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+                <div class="stats-card">
+                    <div class="stats-icon mx-auto mb-3" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Tương tác</h6>
+                    <p class="text-muted small mb-0">Like & Comment</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Landing Page -->
+    <div class="py-5">
+        <!-- Hero Section -->
+        <div class="row align-items-center mb-5 pb-5">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3">
+                    <i class="fa-solid fa-sparkles me-1"></i>
+                    Nền tảng mạng xã hội hiện đại
+                </div>
+                <h1 class="display-4 fw-bold mb-4">
+                    Kết nối mọi người, <br/>
+                    <span style="background: linear-gradient(135deg, #4F46E5, #818CF8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Chia sẻ khoảnh khắc
+                    </span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Tham gia Okem Social - nơi bạn có thể kết nối với bạn bè, chia sẻ khoảnh khắc đáng nhớ và khám phá những điều thú vị mỗi ngày.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-modern btn-modern-primary btn-lg px-4">
+                        <i class="fa-solid fa-rocket me-2"></i>Bắt đầu ngay
+                    </a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-modern btn-modern-outline btn-lg px-4">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i>Đăng nhập
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="modern-card p-5 text-center">
+                        <div class="avatar-circle mx-auto mb-4" style="width: 120px; height: 120px; font-size: 3rem;">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <h3 class="fw-bold mb-3">Tham gia ngay hôm nay!</h3>
+                        <p class="text-muted mb-4">Hàng triệu người đã tin tưởng sử dụng Okem Social</p>
+                        
+                        <!-- Stats -->
+                        <div class="row g-3">
+                            <div class="col-4">
+                                <div class="p-3 rounded-3" style="background: rgba(79, 70, 229, 0.1);">
+                                    <h4 class="fw-bold mb-0" style="color: #4F46E5;">1M+</h4>
+                                    <small class="text-muted">Người dùng</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-3 rounded-3" style="background: rgba(16, 185, 129, 0.1);">
+                                    <h4 class="fw-bold mb-0" style="color: #10B981;">10M+</h4>
+                                    <small class="text-muted">Bài viết</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-3 rounded-3" style="background: rgba(245, 158, 11, 0.1);">
+                                    <h4 class="fw-bold mb-0" style="color: #F59E0B;">100M+</h4>
+                                    <small class="text-muted">Tương tác</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="row g-4 mb-5">
+            <div class="col-12 text-center mb-4">
+                <h2 class="fw-bold mb-3">Tại sao chọn Okem Social?</h2>
+                <p class="text-muted lead">Nền tảng mạng xã hội đầy đủ tính năng với công nghệ hiện đại</p>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-card h-100 text-center p-4">
+                    <div class="avatar-circle avatar-xl mx-auto mb-4" style="background: linear-gradient(135deg, #4F46E5, #818CF8);">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Nhanh chóng</h5>
+                    <p class="text-muted mb-0">
+                        Trải nghiệm siêu mượt mà với công nghệ SignalR realtime và ASP.NET Core 8.0
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-card h-100 text-center p-4">
+                    <div class="avatar-circle avatar-xl mx-auto mb-4" style="background: linear-gradient(135deg, #10B981, #059669);">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">An toàn</h5>
+                    <p class="text-muted mb-0">
+                        Bảo mật tối đa với JWT Authentication, BCrypt hashing và SQL Server
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="modern-card h-100 text-center p-4">
+                    <div class="avatar-circle avatar-xl mx-auto mb-4" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Responsive</h5>
+                    <p class="text-muted mb-0">
+                        Hoạt động mượt mà trên mọi thiết bị - Desktop, Tablet, và Mobile
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="modern-card text-center p-5" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(129, 140, 248, 0.05));">
+            <h3 class="fw-bold mb-3">Sẵn sàng bắt đầu?</h3>
+            <p class="text-muted lead mb-4">Tham gia cộng đồng Okem Social ngay hôm nay và kết nối với hàng triệu người dùng!</p>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-modern btn-modern-primary btn-lg px-5">
+                <i class="fa-solid fa-user-plus me-2"></i>Đăng ký miễn phí
+            </a>
+        </div>
+    </div>
+}

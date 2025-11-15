@@ -5,31 +5,51 @@ using okem_social.Services;
 
 namespace okem_social.Controllers;
 
-[Authorize]
 public class ProfileController(IUserService userService) : Controller
 {
-    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-    [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Me()
     {
-        var me = await userService.GetMeAsync(CurrentUserId);
-        return View(me);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var currentUserId))
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var user = await userService.GetMeAsync(currentUserId);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        return View(user);
     }
 
+    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Me(string fullName)
     {
-        try
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var currentUserId))
         {
-            await userService.UpdateProfileAsync(CurrentUserId, fullName);
-            TempData["ok"] = "Đã cập nhật hồ sơ.";
+            return RedirectToAction("Login", "Account");
         }
-        catch (Exception ex)
+
+        if (string.IsNullOrWhiteSpace(fullName))
         {
-            TempData["err"] = ex.Message;
+            TempData["err"] = "Họ và tên không được để trống.";
+            return RedirectToAction("Me");
         }
-        return RedirectToAction(nameof(Me));
+
+        await userService.UpdateProfileAsync(currentUserId, fullName);
+        TempData["ok"] = "Cập nhật hồ sơ thành công.";
+
+        return RedirectToAction("Me");
+    }
+
+    public IActionResult Index()
+    {
+        return View();
     }
 }

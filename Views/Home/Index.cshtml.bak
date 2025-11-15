@@ -1,0 +1,187 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+@if (User.Identity?.IsAuthenticated ?? false)
+{
+    <!-- Logged In View -->
+    <div class="py-4">
+        <div class="page-header text-center mb-5">
+            <h1 class="fw-bold mb-3">Xin chào, @User.Identity!.Name! 👋</h1>
+            <p class="text-muted lead">Chào mừng bạn quay trở lại với Okem Social</p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <!-- Profile Card -->
+            <div class="col-md-4">
+                <div class="modern-card h-100 text-center">
+                    <div class="avatar-circle avatar-xl mx-auto mb-3">
+                        @User.Identity!.Name?.Substring(0, 1).ToUpper()
+                    </div>
+                    <h5 class="fw-bold mb-2">Hồ sơ của tôi</h5>
+                    <p class="text-muted small mb-3">Xem và chỉnh sửa thông tin cá nhân</p>
+                    <a asp-controller="Profile" asp-action="Me" class="btn btn-modern btn-modern-primary w-100">
+                        <i class="fa-solid fa-user me-2"></i>Xem hồ sơ
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: all 0.3s ease;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3" style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fas fa-search fa-2x text-white"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-2">Tìm kiếm bạn bè</h5>
+                        <p class="card-text text-muted mb-3">Khám phá và kết nối với người mới</p>
+                        <a asp-controller="Users" asp-action="Search" class="btn w-100" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; padding: 0.7rem; font-weight: 600;">
+                            <i class="fas fa-arrow-right me-2"></i>Tìm bạn
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: all 0.3s ease;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3" style="width: 60px; height: 60px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fas fa-book fa-2x text-white"></i>
+                        </div>
+                        <h5 class="card-title fw-bold mb-2">API Documentation</h5>
+                        <p class="card-text text-muted mb-3">Tài liệu API và hướng dẫn sử dụng</p>
+                        <a href="/API_ENDPOINTS.md" target="_blank" class="btn w-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 12px; padding: 0.7rem; font-weight: 600;">
+                            <i class="fas fa-arrow-right me-2"></i>Xem API
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3 class="fw-bold mb-4 text-center">Tính năng nổi bật</h3>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3">
+                    <i class="fas fa-users fa-3x mb-3" style="color: var(--primary-color);"></i>
+                    <h6 class="fw-bold">Theo dõi bạn bè</h6>
+                    <p class="text-muted small">Kết nối và theo dõi người bạn quan tâm</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3">
+                    <i class="fas fa-image fa-3x mb-3" style="color: var(--success-color);"></i>
+                    <h6 class="fw-bold">Chia sẻ ảnh</h6>
+                    <p class="text-muted small">Đăng và chia sẻ khoảnh khắc đẹp</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3">
+                    <i class="fas fa-comments fa-3x mb-3" style="color: var(--warning-color);"></i>
+                    <h6 class="fw-bold">Chat realtime</h6>
+                    <p class="text-muted small">Trò chuyện trực tiếp với bạn bè</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="text-center p-3">
+                    <i class="fas fa-heart fa-3x mb-3" style="color: var(--danger-color);"></i>
+                    <h6 class="fw-bold">Like & Comment</h6>
+                    <p class="text-muted small">Tương tác với bài viết</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Not Logged In View -->
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="text-center text-lg-start">
+                    <h1 class="display-3 fw-bold mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Kết nối mọi người 🚀
+                    </h1>
+                    <p class="lead text-muted mb-4">
+                        Chia sẻ khoảnh khắc, kết nối bạn bè và khám phá thế giới xung quanh bạn với Okem Social
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                        </a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg" style="border-radius: 12px; border-width: 2px; font-weight: 600;">
+                            <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="card border-0 shadow-lg" style="border-radius: 24px; overflow: hidden;">
+                        <div class="card-body p-0">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 2rem; text-align: center;">
+                                <i class="fas fa-rocket fa-5x text-white mb-4"></i>
+                                <h3 class="text-white fw-bold mb-3">Tham gia ngay hôm nay!</h3>
+                                <p class="text-white opacity-75">Hàng triệu người đã tin tưởng sử dụng</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features for non-logged users -->
+        <div class="row mt-5 pt-5">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold mb-3">Tại sao chọn Okem Social?</h2>
+                <p class="text-muted">Nền tảng mạng xã hội hiện đại với đầy đủ tính năng</p>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3" style="width: 80px; height: 80px; background: rgba(99, 102, 241, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fas fa-bolt fa-3x" style="color: var(--primary-color);"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Nhanh chóng</h5>
+                        <p class="text-muted">Trải nghiệm siêu mượt với công nghệ SignalR realtime</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3" style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fas fa-shield-alt fa-3x" style="color: var(--success-color);"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">An toàn</h5>
+                        <p class="text-muted">Bảo mật cao với JWT authentication và BCrypt</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3" style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.1); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                            <i class="fas fa-mobile-alt fa-3x" style="color: var(--warning-color);"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Responsive</h5>
+                        <p class="text-muted">Hoạt động mượt mà trên mọi thiết bị</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+</style>

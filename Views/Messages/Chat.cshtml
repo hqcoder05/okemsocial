@@ -1,0 +1,137 @@
+﻿@model okem_social.Models.Conversation
+
+@{
+    // ID user hiện tại – được set từ MessagesController
+    var currentUserId = (int)(ViewBag.CurrentUserId ?? 0);
+
+    // Tên hiển thị trên header (tên người còn lại trong đoạn chat)
+    var otherMembers = Model.Members
+        .Where(m => m.UserId != currentUserId)
+        .Select(m => m.User?.FullName ?? m.User?.Email ?? "Người dùng")
+        .ToList();
+
+    var title = otherMembers.Any()
+        ? string.Join(", ", otherMembers)
+        : "Đoạn chat";
+}
+
+<div class="chat-root h-100"
+     data-chat-root="1"
+     data-conversation-id="@Model.Id"
+     data-current-user-id="@currentUserId">
+
+    <div class="d-flex flex-column h-100" style="min-height: 350px;">
+        <!-- HEADER -->
+        <div class="border-bottom px-3 py-2 d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-column">
+                <span class="fw-semibold">@title</span>
+                <small class="text-muted">
+                    Cuộc trò chuyện
+                </small>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH TIN NHẮN CŨ -->
+        <div id="chatMessages" class="flex-grow-1 overflow-auto px-3 py-3">
+            @if (Model.Messages != null && Model.Messages.Any())
+            {
+                foreach (var msg in Model.Messages.OrderBy(m => m.CreatedAt))
+                {
+                    // Xác định tin này có phải của mình không
+                    var isMine = msg.SenderId == currentUserId;
+                    var fullName = msg.Sender?.FullName ?? msg.Sender?.Email ?? "Người dùng";
+                    var initial = !string.IsNullOrEmpty(fullName)
+                    ? fullName.Substring(0, 1).ToUpper()
+                    : "?";
+
+                    <div class="message-item @(isMine ? "sent" : "received") mb-3"
+                         data-message-id="@msg.Id">
+                        @if (isMine)
+                        {
+                            <!-- Tin nhắn của mình (BÊN PHẢI) -->
+                            <div class="d-flex gap-2 align-items-start justify-content-end">
+                                <div class="message-bubble sent-bubble"
+                                     style="display:inline-block;padding:8px 12px;border-radius:16px;
+                                                        max-width:260px;min-width:80px;
+                                                        white-space:normal;word-break:break-word;text-align:left;">
+                                    <p class="message-text mb-1">@msg.Content</p>
+                                    <small class="message-time d-block">
+                                        @msg.CreatedAt.ToLocalTime().ToString("HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Tin nhắn của người kia (BÊN TRÁI) -->
+                            <div class="d-flex gap-2 align-items-start">
+                                <div class="avatar-circle avatar-sm">
+                                    @initial
+                                </div>
+                                <div class="message-bubble received-bubble"
+                                     style="display:inline-block;padding:8px 12px;border-radius:16px;
+                                                        max-width:260px;min-width:80px;
+                                                        white-space:normal;word-break:break-word;text-align:left;">
+                                    <div class="mb-1">
+                                        <strong>@fullName</strong>
+                                    </div>
+                                    <p class="message-text mb-1">@msg.Content</p>
+                                    <small class="text-muted message-time d-block">
+                                        @msg.CreatedAt.ToLocalTime().ToString("HH:mm")
+                                    </small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted py-4">
+                    Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện 👋
+                </div>
+            }
+        </div>
+
+        <!-- FORM GỬI TIN NHẮN -->
+        <form id="formSendMessage" class="border-top px-3 py-2">
+            <div class="input-group">
+                <textarea name="content"
+                          class="form-control"
+                          rows="1"
+                          placeholder="Nhập tin nhắn..."></textarea>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* avatar bên trái */
+    .chat-root .avatar-circle.avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #4f46e5;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* để chắc chắn không CSS global nào làm chữ đứng dọc / siêu hẹp */
+    .chat-root .message-item.sent .message-bubble,
+    .chat-root .message-item.received .message-bubble {
+        display: inline-block !important;
+        max-width: 260px !important;
+        min-width: 80px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        writing-mode: horizontal-tb !important;
+        text-align: left !important;
+    }
+</style>

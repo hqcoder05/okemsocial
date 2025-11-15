@@ -1,14 +1,209 @@
 @{
     ViewData["Title"] = "Đăng ký";
 }
-<h2>Đăng ký</h2>
-@if (TempData["err"] != null) { <p style="color:red">@TempData["err"]</p> }
-@if (TempData["ok"]  != null) { <p style="color:green">@TempData["ok"]</p> }
-<form asp-action="Register" method="post">
-    @Html.AntiForgeryToken()
-    <div>Email: <input name="email" type="email" /></div>
-    <div>Họ tên: <input name="fullName" /></div>
-    <div>Mật khẩu: <input name="password" type="password" /></div>
-    <div>Nhập lại: <input name="confirmPassword" type="password" /></div>
-    <button type="submit">Tạo tài khoản</button>
-</form>
+
+<div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%);">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <!-- Logo/Brand -->
+                <div class="text-center mb-4">
+                    <div class="mb-3">
+                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h2 class="fw-bold mb-2" style="color: #1f2937;">Tạo tài khoản mới</h2>
+                    <p class="text-muted">Tham gia cộng đồng Okem Social ngay hôm nay</p>
+                </div>
+
+                <!-- Register Card -->
+                <div class="modern-card p-4">
+                    @if (TempData["err"] != null)
+                    {
+                        <div class="alert-modern alert-modern-danger mb-4">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            @TempData["err"]
+                        </div>
+                    }
+                    @if (TempData["ok"] != null)
+                    {
+                        <div class="alert-modern alert-modern-success mb-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            @TempData["ok"]
+                        </div>
+                    }
+
+                    <form asp-action="Register" method="post" id="registerForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label fw-semibold text-sm" style="color: #374151;">
+                                <i class="fas fa-user me-1" style="color: #10b981;"></i>
+                                Họ và tên
+                            </label>
+                            <input type="text" 
+                                   class="input-modern" 
+                                   id="fullName" 
+                                   name="fullName" 
+                                   placeholder="Nguyễn Văn A" 
+                                   required
+                                   autocomplete="name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold text-sm" style="color: #374151;">
+                                <i class="fas fa-envelope me-1" style="color: #10b981;"></i>
+                                Email
+                            </label>
+                            <input type="email" 
+                                   class="input-modern" 
+                                   id="email" 
+                                   name="email" 
+                                   placeholder="your.email@example.com" 
+                                   required
+                                   autocomplete="email">
+                            <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                Sử dụng email hợp lệ để xác thực tài khoản
+                            </small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password" class="form-label fw-semibold text-sm" style="color: #374151;">
+                                    <i class="fas fa-lock me-1" style="color: #10b981;"></i>
+                                    Mật khẩu
+                                </label>
+                                <div class="position-relative">
+                                    <input type="password" 
+                                           class="input-modern" 
+                                           id="password" 
+                                           name="password" 
+                                           placeholder="••••••••" 
+                                           required
+                                           autocomplete="new-password"
+                                           style="padding-right: 3rem;">
+                                    <button type="button" 
+                                            class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-3 toggle-password" 
+                                            data-target="password"
+                                            style="text-decoration: none; z-index: 10;">
+                                        <i class="fas fa-eye text-muted"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                                    Tối thiểu 6 ký tự
+                                </small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmPassword" class="form-label fw-semibold text-sm" style="color: #374151;">
+                                    <i class="fas fa-check-circle me-1" style="color: #10b981;"></i>
+                                    Xác nhận
+                                </label>
+                                <div class="position-relative">
+                                    <input type="password" 
+                                           class="input-modern" 
+                                           id="confirmPassword" 
+                                           name="confirmPassword" 
+                                           placeholder="••••••••" 
+                                           required
+                                           autocomplete="new-password"
+                                           style="padding-right: 3rem;">
+                                    <button type="button" 
+                                            class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-3 toggle-password" 
+                                            data-target="confirmPassword"
+                                            style="text-decoration: none; z-index: 10;">
+                                        <i class="fas fa-eye text-muted"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;" id="passwordMatch"></small>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="terms" 
+                                   required
+                                   style="border-radius: 4px; border: 1.5px solid #d1d5db;">
+                            <label class="form-check-label text-sm text-muted" for="terms">
+                                Tôi đồng ý với <a href="#" style="color: #10b981; text-decoration: none; font-weight: 600;">Điều khoản</a> 
+                                và <a href="#" style="color: #10b981; text-decoration: none; font-weight: 600;">Chính sách</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-100 mb-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; padding: 0.875rem 1.5rem; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Tạo tài khoản
+                        </button>
+
+                        <div class="text-center">
+                            <p class="text-sm text-muted mb-0">
+                                Đã có tài khoản? 
+                                <a asp-action="Login" class="fw-bold" style="color: #10b981; text-decoration: none;">
+                                    Đăng nhập ngay
+                                </a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                    icon.style.color = '#10b981';
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                    icon.style.color = '#9ca3af';
+                }
+            });
+        });
+
+        // Password match validation
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const passwordMatch = document.getElementById('passwordMatch');
+
+        confirmPassword.addEventListener('input', function() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Mật khẩu không khớp');
+                confirmPassword.style.borderColor = '#ef4444';
+                passwordMatch.textContent = '✗ Mật khẩu không khớp';
+                passwordMatch.style.color = '#ef4444';
+            } else {
+                confirmPassword.setCustomValidity('');
+                confirmPassword.style.borderColor = '#10b981';
+                passwordMatch.textContent = '✓ Mật khẩu khớp';
+                passwordMatch.style.color = '#10b981';
+            }
+        });
+
+        // Add hover effect to submit button
+        const submitBtn = document.querySelector('button[type="submit"]');
+        submitBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.4)';
+        });
+        submitBtn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+        });
+    </script>
+}

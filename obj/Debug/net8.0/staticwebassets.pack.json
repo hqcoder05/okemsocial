@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\Okem-Social\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Okem-Social.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Okem-Social.bundle.scp.css"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\css\\animations.css",
+      "PackagePath": "staticwebassets\\css\\animations.css"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\css\\modern.css",
+      "PackagePath": "staticwebassets\\css\\modern.css"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\js\\header-animations.js",
+      "PackagePath": "staticwebassets\\js\\header-animations.js"
+    },
+    {
+      "Id": "D:\\Okem-Social\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Okem-Social.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Okem-Social.props",
+      "PackagePath": "build\\Okem-Social.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Okem-Social.props",
+      "PackagePath": "buildMultiTargeting\\Okem-Social.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Okem-Social.props",
+      "PackagePath": "buildTransitive\\Okem-Social.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

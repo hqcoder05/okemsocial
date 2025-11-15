@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using okem_social.Data;
-using okem_social.Services;   
+using okem_social.Services;
 using okem_social.Models;
 
 namespace okem_social.Controllers;

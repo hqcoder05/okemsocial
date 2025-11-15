@@ -1,21 +1,628 @@
 @model okem_social.Models.User
+
 @{
-    ViewData["Title"] = "Hồ sơ của tôi";
+    ViewData["Title"] = "Hồ sơ";
+    var userId = Model.Id;
 }
-<h2>Hồ sơ của tôi</h2>
 
-@if (TempData["ok"] != null) { <div class="alert alert-success">@TempData["ok"]</div> }
-@if (TempData["err"] != null) { <div class="alert alert-danger">@TempData["err"]</div> }
+<div class="page-transition">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
 
-<form asp-action="Me" method="post">
-    @Html.AntiForgeryToken()
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input class="form-control" value="@Model.Email" disabled />
+            <!-- PROFILE HEADER -->
+            <div class="modern-card mb-4">
+                <div class="d-flex align-items-center flex-wrap gap-4">
+                    <!-- Avatar -->
+                    <div class="profile-avatar-wrapper">
+                        <div class="profile-avatar-circle">
+                            @{
+                                var displayName = string.IsNullOrWhiteSpace(Model.FullName)
+                                ? Model.Email
+                                : Model.FullName;
+                                var avatarText = !string.IsNullOrWhiteSpace(displayName)
+                                ? displayName.Trim()[0].ToString().ToUpper()
+                                : "U";
+                            }
+                            @avatarText
+                        </div>
+                    </div>
+
+                    <!-- Info + actions -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center flex-wrap gap-3 mb-2">
+                            <h2 class="mb-0 h4">@Model.FullName</h2>
+                            <span class="badge bg-light text-muted">@Model.Email</span>
+
+                            <button class="btn btn-outline-secondary btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editProfileModal">
+                                <i class="fa-regular fa-pen-to-square me-1"></i>Chỉnh sửa hồ sơ
+                            </button>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="d-flex flex-wrap gap-4 mb-2">
+                            <div>
+                                <span class="fw-semibold" id="stat-posts">0</span>
+                                <span class="text-muted">bài viết</span>
+                            </div>
+                            <div>
+                                <span class="fw-semibold" id="stat-friends">0</span>
+                                <span class="text-muted">bạn bè</span>
+                            </div>
+                            <div>
+                                <span class="fw-semibold" id="stat-requests">0</span>
+                                <span class="text-muted">lời mời</span>
+                            </div>
+                        </div>
+
+                        <div class="text-muted small">
+                            Tham gia ngày @Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABS -->
+            <div class="modern-card mb-3">
+                <ul class="nav nav-pills profile-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-posts" data-bs-toggle="pill" data-bs-target="#pane-posts" type="button">
+                            <i class="fa-solid fa-border-all me-1"></i>Bài viết
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-friends" data-bs-toggle="pill" data-bs-target="#pane-friends" type="button">
+                            <i class="fa-solid fa-user-group me-1"></i>Bạn bè
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- TAB CONTENT -->
+            <div class="tab-content">
+
+                <!-- POSTS GRID -->
+                <div class="tab-pane fade show active" id="pane-posts">
+                    <div id="profile-posts-grid" class="row g-1">
+                        <!-- Grid items load bằng JS -->
+                    </div>
+
+                    <div id="profile-posts-empty" class="modern-card text-center py-5 d-none">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fa-regular fa-image"></i>
+                            </div>
+                            <h5>Chưa có bài viết nào</h5>
+                            <p>Bắt đầu chia sẻ khoảnh khắc đầu tiên của bạn.</p>
+                            <a asp-controller="Posts" asp-action="Create" class="btn btn-primary mt-2">
+                                <i class="fa-solid fa-pen-to-square me-2"></i>Tạo bài viết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FRIENDS LIST -->
+                <div class="tab-pane fade" id="pane-friends">
+                    <div id="profile-friends-list" class="modern-card">
+                        <div class="text-muted small">Đang tải danh sách bạn bè...</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Họ tên</label>
-        <input class="form-control" name="fullName" value="@Model.FullName" />
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Me" asp-controller="Profile" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Chỉnh sửa hồ sơ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text"
+                               class="form-control"
+                               name="fullName"
+                               value="@Model.FullName"
+                               required />
+                    </div>
+                    <div class="mb-2 text-muted small">
+                        Email đăng nhập: <strong>@Model.Email</strong> (không thể đổi)
+                    </div>
+                    @if (TempData["err"] != null)
+                    {
+                        <div class="alert alert-danger py-1 mt-2 mb-0">@TempData["err"]</div>
+                    }
+                    @if (TempData["ok"] != null)
+                    {
+                        <div class="alert alert-success py-1 mt-2 mb-0">@TempData["ok"]</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <button class="btn btn-success" type="submit">Lưu</button>
-</form>
+</div>
+
+<!-- POST MODAL -->
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-circle" id="postModalUserAvatar">U</div>
+                    <div>
+                        <div class="fw-semibold" id="postModalUserName">Người dùng</div>
+                        <div class="text-muted small" id="postModalCreatedAt"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div id="postModalMediaWrapper" class="mb-3"></div>
+
+                <div id="postModalCaptionWrapper" class="mb-3 d-none">
+                    <blockquote class="quote-block mb-0">
+                        <span id="postModalCaption" class="fst-italic"></span>
+                    </blockquote>
+                </div>
+
+                <div class="d-flex gap-3 text-muted small mb-3">
+                    <span><i class="fa-solid fa-heart me-1"></i><span id="postModalLikes">0</span> lượt thích</span>
+                    <span><i class="fa-solid fa-comment-dots me-1"></i><span id="postModalCommentsCount">0</span> bình luận</span>
+                </div>
+
+                <hr />
+
+                <div id="postModalComments">
+                    <div class="comments-list small" id="postModalCommentsList">
+                        <!-- comment sẽ load bằng JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-avatar-wrapper {
+        flex: 0 0 auto;
+    }
+
+    .profile-avatar-circle {
+        width: 96px;
+        height: 96px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #3B82F6, #6366F1);
+        color: #fff;
+        font-weight: 700;
+        font-size: 2rem;
+        text-transform: uppercase;
+    }
+
+    .profile-tabs .nav-link {
+        padding: 0.5rem 1.25rem;
+        border-radius: 999px;
+        font-weight: 600;
+        color: #6B7280;
+    }
+
+        .profile-tabs .nav-link.active {
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: #fff;
+        }
+
+    /* GRID 3 cột, tile vuông như Instagram */
+    #profile-posts-grid .profile-post-tile {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        overflow: hidden;
+        background: #111;
+        cursor: pointer;
+    }
+
+    .profile-post-media {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-post-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
+        color: #fff;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        padding: 0.35rem 0.45rem;
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+
+    .profile-post-tile:hover .profile-post-overlay {
+        opacity: 1;
+    }
+
+    .profile-post-icon {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
+
+    .profile-post-quote-only {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+
+        .profile-post-quote-only span {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #3B82F6, #6366F1);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .quote-block {
+        border-left: 4px solid #4F46E5;
+        padding-left: 0.75rem;
+    }
+
+    .post-media-content {
+        display: block;
+        width: 100%;
+        max-height: 480px;
+        object-fit: cover;
+        border-radius: 1rem;
+    }
+
+    .comments-list .comment-item {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .comments-list .comment-author {
+        font-weight: 600;
+    }
+
+    .comments-list .comment-time {
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+
+    .friend-item {
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+        .friend-item:hover {
+            background-color: #f3f4f6;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userId = @userId;
+
+            loadProfileStats(userId);
+            loadProfilePosts(userId);
+            loadFriends(userId);
+        });
+
+        async function loadProfileStats(userId) {
+            try {
+                const [postsRes, friendsRes, incomingRes] = await Promise.all([
+                    fetch(`/api/posts/user/${userId}?skip=0&take=100`, { headers: { "X-Requested-With": "XMLHttpRequest" } }),
+                    fetch(`/api/users/${userId}/friends`, { headers: { "X-Requested-With": "XMLHttpRequest" } }),
+                    fetch(`/api/users/me/friend-requests/incoming`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+                ]);
+
+                const posts = postsRes.ok ? await postsRes.json() : [];
+                const friends = friendsRes.ok ? await friendsRes.json() : [];
+                const incoming = incomingRes.ok ? await incomingRes.json() : [];
+
+                document.getElementById("stat-posts").textContent = posts.length;
+                document.getElementById("stat-friends").textContent = friends.length;
+                document.getElementById("stat-requests").textContent = incoming.length;
+            } catch (e) {
+                console.error("loadProfileStats error", e);
+            }
+        }
+
+        // GLOBAL để modal dùng lại dữ liệu post
+        window.profilePosts = [];
+
+        async function loadProfilePosts(userId) {
+            const grid = document.getElementById("profile-posts-grid");
+            const empty = document.getElementById("profile-posts-empty");
+            if (!grid || !empty) return;
+
+            grid.innerHTML = "";
+
+            try {
+                const res = await fetch(`/api/posts/user/${userId}?skip=0&take=100`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Không thể tải bài viết.");
+                }
+
+                const posts = await res.json();
+                window.profilePosts = posts;
+
+                if (!posts || posts.length === 0) {
+                    empty.classList.remove("d-none");
+                    return;
+                }
+
+                empty.classList.add("d-none");
+
+                posts.forEach(p => {
+                    const col = document.createElement("div");
+                    col.className = "col-4";
+
+                    const tile = document.createElement("div");
+                    tile.className = "profile-post-tile";
+                    tile.dataset.postId = p.id;
+
+                    tile.addEventListener("click", function () {
+                        openPostModal(p.id);
+                    });
+
+                    if (p.imageUrl) {
+                        const img = document.createElement("img");
+                        img.src = p.imageUrl;
+                        img.alt = "Ảnh bài viết";
+                        img.className = "profile-post-media";
+                        tile.appendChild(img);
+                    } else if (p.videoUrl) {
+                        const video = document.createElement("video");
+                        video.src = p.videoUrl;
+                        video.className = "profile-post-media";
+                        video.muted = true;
+                        tile.appendChild(video);
+
+                        const icon = document.createElement("div");
+                        icon.className = "profile-post-icon";
+                        icon.innerHTML = '<i class="fa-solid fa-play"></i>';
+                        tile.appendChild(icon);
+                    } else {
+                        const quote = document.createElement("div");
+                        quote.className = "profile-post-quote-only";
+                        const span = document.createElement("span");
+                        span.textContent = p.caption || "(Không có nội dung)";
+                        quote.appendChild(span);
+                        tile.appendChild(quote);
+                    }
+
+                    const overlay = document.createElement("div");
+                    overlay.className = "profile-post-overlay";
+                    overlay.innerHTML = `
+                        <span><i class="fa-solid fa-heart me-1"></i>${p.likesCount ?? 0}</span>
+                        <span><i class="fa-solid fa-comment-dots me-1"></i>${p.commentsCount ?? 0}</span>
+                    `;
+                    tile.appendChild(overlay);
+
+                    col.appendChild(tile);
+                    grid.appendChild(col);
+                });
+            } catch (e) {
+                console.error("loadProfilePosts error", e);
+                grid.innerHTML = '<div class="col-12 text-center text-danger small py-3">Lỗi khi tải bài viết.</div>';
+            }
+        }
+
+        async function loadFriends(userId) {
+            const container = document.getElementById("profile-friends-list");
+            if (!container) return;
+
+            try {
+                const res = await fetch(`/api/users/${userId}/friends`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) {
+                    throw new Error();
+                }
+
+                const friends = await res.json();
+                if (!friends || friends.length === 0) {
+                    container.innerHTML = '<div class="text-muted small px-3 py-3">Bạn chưa có người bạn nào. Hãy gửi lời mời kết bạn để bắt đầu kết nối.</div>';
+                    return;
+                }
+
+                const list = document.createElement("div");
+                list.className = "list-group list-group-flush";
+
+                friends.forEach(f => {
+                    // mỗi item là <a> để click sang trang profile bạn bè
+                    const item = document.createElement("a");
+                    item.href = `/Users/Details/${f.id}`;
+                    item.className = "list-group-item d-flex align-items-center gap-3 text-decoration-none text-reset friend-item";
+
+                    const avatar = document.createElement("div");
+                    avatar.className = "avatar-circle";
+                    const name = (f.fullName || f.email || "U").trim();
+                    avatar.textContent = name[0].toUpperCase();
+
+                    const body = document.createElement("div");
+                    const title = document.createElement("div");
+                    title.className = "fw-semibold";
+                    title.textContent = f.fullName || f.email || "Người dùng";
+
+                    const meta = document.createElement("div");
+                    meta.className = "text-muted small";
+                    meta.textContent = f.email || "";
+
+                    body.appendChild(title);
+                    body.appendChild(meta);
+
+                    item.appendChild(avatar);
+                    item.appendChild(body);
+
+                    list.appendChild(item);
+                });
+
+                container.innerHTML = "";
+                container.appendChild(list);
+            } catch (e) {
+                console.error("loadFriends error", e);
+                container.innerHTML = '<div class="text-danger small px-3 py-3">Lỗi khi tải danh sách bạn bè.</div>';
+            }
+        }
+
+        async function openPostModal(postId) {
+            const post = (window.profilePosts || []).find(p => p.id === postId);
+            if (!post) {
+                console.warn("Không tìm thấy post", postId);
+                return;
+            }
+
+            const userName = (post.user?.fullName || post.user?.email || "Người dùng").trim();
+            const avatarChar = userName ? userName[0].toUpperCase() : "U";
+
+            document.getElementById("postModalUserName").textContent = userName;
+            document.getElementById("postModalUserAvatar").textContent = avatarChar;
+
+            const createdAtEl = document.getElementById("postModalCreatedAt");
+            if (post.createdAt) {
+                const d = new Date(post.createdAt);
+                createdAtEl.textContent = d.toLocaleString();
+            } else {
+                createdAtEl.textContent = "";
+            }
+
+            const captionWrapper = document.getElementById("postModalCaptionWrapper");
+            const captionEl = document.getElementById("postModalCaption");
+            const hasCaption = !!(post.caption && post.caption.trim().length > 0);
+            if (hasCaption) {
+                captionEl.textContent = post.caption;
+                captionWrapper.classList.remove("d-none");
+            } else {
+                captionWrapper.classList.add("d-none");
+                captionEl.textContent = "";
+            }
+
+            document.getElementById("postModalLikes").textContent = post.likesCount ?? 0;
+            document.getElementById("postModalCommentsCount").textContent = post.commentsCount ?? 0;
+
+            const mediaWrapper = document.getElementById("postModalMediaWrapper");
+            mediaWrapper.innerHTML = "";
+            if (post.imageUrl) {
+                const img = document.createElement("img");
+                img.src = post.imageUrl;
+                img.alt = "Ảnh bài viết";
+                img.className = "post-media-content";
+                mediaWrapper.appendChild(img);
+            } else if (post.videoUrl) {
+                const video = document.createElement("video");
+                video.src = post.videoUrl;
+                video.className = "post-media-content";
+                video.controls = true;
+                video.preload = "metadata";
+                mediaWrapper.appendChild(video);
+            }
+
+            await loadPostModalComments(postId);
+
+            const modalEl = document.getElementById("postModal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        async function loadPostModalComments(postId) {
+            const list = document.getElementById("postModalCommentsList");
+            if (!list) return;
+            list.innerHTML = '<div class="text-muted small">Đang tải bình luận...</div>';
+
+            try {
+                const res = await fetch(`/api/comments/post/${postId}`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Không thể tải bình luận.");
+                }
+
+                const comments = await res.json();
+                list.innerHTML = "";
+
+                if (!comments || comments.length === 0) {
+                    list.innerHTML = '<div class="text-muted small">Chưa có bình luận nào.</div>';
+                    return;
+                }
+
+                comments.forEach(c => {
+                    const item = document.createElement("div");
+                    item.className = "comment-item";
+
+                    const author = document.createElement("div");
+                    author.className = "comment-author";
+                    const name = (c.user?.fullName || c.user?.email || "Người dùng").trim();
+                    author.textContent = name;
+
+                    const content = document.createElement("div");
+                    content.textContent = c.content || "";
+
+                    const meta = document.createElement("div");
+                    meta.className = "comment-time";
+                    const d = c.createdAt ? new Date(c.createdAt) : null;
+                    meta.textContent = d ? d.toLocaleString() : "";
+
+                    item.appendChild(author);
+                    item.appendChild(content);
+                    item.appendChild(meta);
+
+                    list.appendChild(item);
+                });
+            } catch (e) {
+                console.error("loadPostModalComments error", e);
+                list.innerHTML = '<div class="text-danger small">Lỗi khi tải bình luận.</div>';
+            }
+        }
+    </script>
+}

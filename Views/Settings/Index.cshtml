@@ -1,0 +1,186 @@
+﻿@{
+    ViewData["Title"] = "Cài đặt";
+}
+
+<div class="page-transition">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="modern-card mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-gear text-primary"></i>
+                        <h5 class="mb-0">Cài đặt tài khoản</h5>
+                    </div>
+                    <span class="text-muted small" id="settings-email-label"></span>
+                </div>
+                <p class="text-muted small mb-0">
+                    Quản lý thông tin cơ bản của tài khoản. Các thay đổi sẽ áp dụng cho toàn hệ thống.
+                </p>
+            </div>
+
+            <!-- FORM PROFILE -->
+            <div class="modern-card">
+                <form id="settings-profile-form">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Họ và tên</label>
+                        <input type="text"
+                               class="form-control"
+                               id="settings-fullname"
+                               name="fullName"
+                               placeholder="Nhập họ tên hiển thị"
+                               required
+                               minlength="2" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email đăng nhập</label>
+                        <input type="email"
+                               class="form-control"
+                               id="settings-email"
+                               disabled />
+                        <div class="form-text">
+                            Email dùng để đăng nhập, không thể thay đổi.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ngày tham gia</label>
+                        <input type="text"
+                               class="form-control"
+                               id="settings-created-at"
+                               disabled />
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted small" id="settings-message"></div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-floppy-disk me-1"></i>Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadSettingsProfile();
+
+            const form = document.getElementById("settings-profile-form");
+            if (form) {
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    await submitSettingsProfile();
+                });
+            }
+        });
+
+        async function loadSettingsProfile() {
+            const msg = document.getElementById("settings-message");
+            if (msg) msg.textContent = "Đang tải dữ liệu...";
+
+            try {
+                const res = await fetch("/api/settings/me", {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                if (res.status === 401) {
+                    if (msg) msg.textContent = "Bạn cần đăng nhập để xem trang cài đặt.";
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error("Không thể tải dữ liệu.");
+                }
+
+                const data = await res.json();
+
+                const fullnameInput = document.getElementById("settings-fullname");
+                const emailInput = document.getElementById("settings-email");
+                const createdAtInput = document.getElementById("settings-created-at");
+                const emailLabel = document.getElementById("settings-email-label");
+
+                if (fullnameInput) fullnameInput.value = data.fullName || "";
+                if (emailInput) emailInput.value = data.email || "";
+                if (emailLabel) emailLabel.textContent = data.email || "";
+
+                if (createdAtInput && data.createdAt) {
+                    // createdAt kiểu ISO, format lại dd/MM/yyyy
+                    const d = new Date(data.createdAt);
+                    const formatted = d.toLocaleDateString("vi-VN");
+                    createdAtInput.value = formatted;
+                }
+
+                if (msg) msg.textContent = "";
+            } catch (err) {
+                console.error("loadSettingsProfile error", err);
+                if (msg) msg.textContent = "Lỗi khi tải dữ liệu cài đặt.";
+                if (msg) msg.classList.add("text-danger");
+            }
+        }
+
+        async function submitSettingsProfile() {
+            const msg = document.getElementById("settings-message");
+            const fullnameInput = document.getElementById("settings-fullname");
+            if (!fullnameInput) return;
+
+            const fullName = fullnameInput.value.trim();
+            if (fullName.length < 2) {
+                if (msg) {
+                    msg.textContent = "Họ và tên phải có ít nhất 2 ký tự.";
+                    msg.classList.remove("text-success");
+                    msg.classList.add("text-danger");
+                }
+                return;
+            }
+
+            try {
+                if (msg) {
+                    msg.textContent = "Đang lưu thay đổi...";
+                    msg.classList.remove("text-danger", "text-success");
+                }
+
+                const res = await fetch("/api/settings/me", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ fullName: fullName })
+                });
+
+                if (!res.ok) {
+                    let txt = "Lưu thất bại.";
+                    try {
+                        const err = await res.json();
+                        if (err && err.message) txt = err.message;
+                    } catch { }
+                    throw new Error(txt);
+                }
+
+                const data = await res.json();
+
+                if (msg) {
+                    msg.textContent = "Đã cập nhật thông tin thành công.";
+                    msg.classList.remove("text-danger");
+                    msg.classList.add("text-success");
+                }
+
+                // Nếu bạn có hiển thị tên user trên header layout, có thể update DOM ở đây
+                // ví dụ: document.getElementById("header-user-name").textContent = data.fullName;
+            } catch (err) {
+                console.error("submitSettingsProfile error", err);
+                if (msg) {
+                    msg.textContent = err.message || "Có lỗi xảy ra khi lưu.";
+                    msg.classList.remove("text-success");
+                    msg.classList.add("text-danger");
+                }
+            }
+        }
+    </script>
+}

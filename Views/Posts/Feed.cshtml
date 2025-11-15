@@ -1,0 +1,468 @@
+@model IEnumerable<okem_social.Models.Post>
+
+@{
+    ViewData["Title"] = "Bảng tin";
+    var currentUserId = (int)(ViewBag.CurrentUserId ?? 0);
+}
+
+<div class="page-transition">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-2">
+                        <i class="fa-solid fa-house me-2"></i>Bảng tin
+                    </h1>
+                    <p class="text-muted mb-0">Xem bài viết từ bạn bè và những người bạn theo dõi</p>
+                </div>
+                <a asp-controller="Posts" asp-action="Create" class="btn btn-primary">
+                    <i class="fa-solid fa-pen-to-square me-2"></i>Tạo bài viết
+                </a>
+            </div>
+
+            <!-- Danh sách bài viết -->
+            @if (!Model.Any())
+            {
+                <div class="modern-card text-center py-5">
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fa-solid fa-newspaper"></i>
+                        </div>
+                        <h5>Chưa có bài viết nào</h5>
+                        <p>Hãy kết bạn hoặc tự đăng một bài viết đầu tiên!</p>
+                        <a asp-controller="Posts" asp-action="Create" class="btn btn-primary mt-2">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Tạo bài viết
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var post in Model)
+                {
+                    var displayName = post.User?.FullName ?? post.User?.Email ?? "Người dùng";
+                    var avatarText = !string.IsNullOrWhiteSpace(displayName)
+                    ? displayName.Trim()[0].ToString().ToUpper()
+                    : "U";
+
+                    // Đếm like / comment từ navigation (nhớ Include trong repo)
+                    var likesCount = post.Likes?.Count ?? 0;
+                    var commentsCount = post.Comments?.Count ?? 0;
+                    var isLiked = post.Likes?.Any(l => l.UserId == currentUserId) ?? false;
+
+                    <div class="modern-card mb-3" id="post-@post.Id">
+                        <!-- Header post -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar-circle avatar-lg me-3"
+                                 style="background: linear-gradient(135deg, #3B82F6, #6366F1);">
+                                @avatarText
+                            </div>
+                            <div>
+                                <div class="fw-semibold">
+                                    @displayName
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fa-solid fa-clock me-1"></i>
+                                    @post.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quote / Caption -->
+                        @if (!string.IsNullOrWhiteSpace(post.Caption))
+                        {
+                            <div class="mb-3">
+                                <blockquote class="mb-0 quote-block">
+                                    <span class="fst-italic">@post.Caption</span>
+                                </blockquote>
+                            </div>
+                        }
+
+                        <!-- MEDIA -->
+                        @if (!string.IsNullOrEmpty(post.ImageUrl))
+                        {
+                            <div class="post-media mb-3">
+                                <img src="@post.ImageUrl"
+                                     alt="Post image"
+                                     class="post-media-content" />
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(post.VideoUrl))
+                        {
+                            <div class="post-media mb-3">
+                                <video src="@post.VideoUrl"
+                                       class="post-media-content"
+                                       controls
+                                       preload="metadata"></video>
+                            </div>
+                        }
+
+                        <!-- Actions -->
+                        <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
+                            <button type="button"
+                                    class="btn btn-sm btn-link text-decoration-none px-0 btn-like-post @(isLiked ? "text-danger fw-semibold" : "text-muted")"
+                                    data-post-id="@post.Id"
+                                    data-liked="@(isLiked.ToString().ToLower())">
+                                <i class="@(isLiked ? "fa-solid" : "fa-regular") fa-heart me-1"></i>
+                                <span class="like-label">Thích</span>
+                                <span class="like-count ms-1">@likesCount</span>
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-link text-decoration-none px-0 text-muted btn-toggle-comments"
+                                    data-post-id="@post.Id">
+                                <i class="fa-regular fa-comment-dots me-1"></i>
+                                Bình luận
+                                <span class="comment-count ms-1">@commentsCount</span>
+                            </button>
+
+                            @if (post.UserId == currentUserId)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
+                                        <i class="fa-solid fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item text-danger"
+                                               href="#"
+                                               onclick="deletePost(@post.Id); return false;">
+                                                <i class="fa-solid fa-trash me-2"></i>Xóa bài viết
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Comments box -->
+                        <div class="post-comments mt-2 d-none" id="comments-@post.Id">
+                            <div class="comments-list small" data-post-id="@post.Id">
+                                <!-- comment sẽ load bằng JS -->
+                            </div>
+                            <div class="mt-2 d-flex">
+                                <input type="text"
+                                       class="form-control form-control-sm comment-input"
+                                       placeholder="Viết bình luận..."
+                                       autocomplete="off" />
+                                <button type="button"
+                                        class="btn btn-primary btn-sm ms-2 btn-send-comment"
+                                        data-post-id="@post.Id">
+                                    Gửi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .avatar-lg {
+        width: 48px;
+        height: 48px;
+    }
+
+    .quote-block {
+        border-left: 4px solid #4F46E5;
+        padding-left: 0.75rem;
+    }
+
+    .post-media {
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #000;
+    }
+
+    .post-media-content {
+        display: block;
+        width: 100%;
+        max-height: 480px;
+        object-fit: cover;
+    }
+
+    .btn-like-post.text-danger i {
+        color: #dc3545;
+    }
+
+    .comments-list .comment-item {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .comments-list .comment-author {
+        font-weight: 600;
+    }
+
+    .comments-list .comment-time {
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+</style>
+
+@section Scripts {
+    <!-- SignalR (nếu chưa nhúng ở layout) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+        let likeConn = null;
+        let commentConn = null;
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            // LIKE
+            document.querySelectorAll(".btn-like-post").forEach(btn => {
+                btn.addEventListener("click", async function () {
+                    const postId = this.dataset.postId;
+                    try {
+                        const res = await fetch(`/api/likes/post/${postId}/toggle`, {
+                            method: "POST",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!res.ok) {
+                            throw new Error("Không thể like bài viết.");
+                        }
+
+                        const data = await res.json();
+                        const liked = !!data.liked;
+                        const likesCount = data.likesCount ?? 0;
+
+                        this.dataset.liked = liked ? "true" : "false";
+                        this.querySelector(".like-count").textContent = likesCount;
+
+                        this.classList.toggle("text-danger", liked);
+                        this.classList.toggle("fw-semibold", liked);
+                        this.classList.toggle("text-muted", !liked);
+
+                        const icon = this.querySelector("i");
+                        if (icon) {
+                            icon.classList.toggle("fa-regular", !liked);
+                            icon.classList.toggle("fa-solid", liked);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert(e.message || "Đã xảy ra lỗi khi like.");
+                    }
+                });
+            });
+
+            // TOGGLE COMMENTS
+            document.querySelectorAll(".btn-toggle-comments").forEach(btn => {
+                btn.addEventListener("click", async function () {
+                    const postId = this.dataset.postId;
+                    const container = document.getElementById(`comments-${postId}`);
+                    if (!container) return;
+
+                    const isHidden = container.classList.contains("d-none");
+                    container.classList.toggle("d-none");
+
+                    if (isHidden) {
+                        await loadComments(postId);
+                    }
+                });
+            });
+
+            // GỬI COMMENT
+            document.querySelectorAll(".btn-send-comment").forEach(btn => {
+                btn.addEventListener("click", async function () {
+                    const postId = this.dataset.postId;
+                    await submitComment(postId, this);
+                });
+            });
+
+            // ===== SignalR: Like / Comment realtime =====
+            try {
+                likeConn = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/likes")
+                    .withAutomaticReconnect()
+                    .build();
+
+                commentConn = new signalR.HubConnectionBuilder()
+                    .withUrl("/hubs/comments")
+                    .withAutomaticReconnect()
+                    .build();
+
+                likeConn.on("LikeChanged", data => {
+                    const postId = data.postId;
+                    const likesCount = data.likesCount ?? 0;
+                    const btn = document.querySelector(`.btn-like-post[data-post-id="${postId}"]`);
+                    if (!btn) return;
+                    const span = btn.querySelector(".like-count");
+                    if (span) span.textContent = likesCount;
+                });
+
+                commentConn.on("CommentAdded", c => {
+                    const postId = c.postId;
+                    // Tăng count trên nút nếu có
+                    const btnToggle = document.querySelector(`.btn-toggle-comments[data-post-id="${postId}"]`);
+                    if (btnToggle) {
+                        const spanCount = btnToggle.querySelector(".comment-count");
+                        if (spanCount) {
+                            const current = parseInt(spanCount.textContent || "0");
+                            spanCount.textContent = (current + 1).toString();
+                        }
+                    }
+
+                    // Nếu box đang mở thì load lại
+                    const container = document.getElementById(`comments-${postId}`);
+                    if (container && !container.classList.contains("d-none")) {
+                        loadComments(postId);
+                    }
+                });
+
+                await likeConn.start();
+                await commentConn.start();
+
+                // Join vào group của mỗi post
+                document.querySelectorAll(".btn-like-post").forEach(btn => {
+                    const postId = parseInt(btn.dataset.postId);
+                    if (postId > 0) {
+                        likeConn.invoke("JoinPost", postId);
+                        commentConn.invoke("JoinPost", postId);
+                    }
+                });
+            } catch (e) {
+                console.error("SignalR Feed error:", e);
+            }
+        });
+
+        async function loadComments(postId) {
+            const list = document.querySelector(`#comments-${postId} .comments-list`);
+            if (!list) return;
+
+            list.innerHTML = '<div class="text-muted small">Đang tải bình luận...</div>';
+
+            try {
+                const res = await fetch(`/api/comments/post/${postId}`, {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                });
+
+                if (!res.ok) {
+                    throw new Error("Không thể tải bình luận.");
+                }
+
+                const comments = await res.json();
+                list.innerHTML = "";
+
+                if (!comments || comments.length === 0) {
+                    list.innerHTML = '<div class="text-muted small">Chưa có bình luận nào.</div>';
+                    return;
+                }
+
+                comments.forEach(c => {
+                    const item = document.createElement("div");
+                    item.className = "comment-item";
+
+                    const author = document.createElement("div");
+                    author.className = "comment-author";
+                    author.textContent = c.user?.fullName || c.user?.email || "Người dùng";
+
+                    const content = document.createElement("div");
+                    content.textContent = c.content || "";
+
+                    const meta = document.createElement("div");
+                    meta.className = "comment-time";
+                    const d = c.createdAt ? new Date(c.createdAt) : null;
+                    meta.textContent = d ? d.toLocaleString() : "";
+
+                    item.appendChild(author);
+                    item.appendChild(content);
+                    item.appendChild(meta);
+
+                    list.appendChild(item);
+                });
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<div class="text-danger small">Lỗi khi tải bình luận.</div>';
+            }
+        }
+
+        async function submitComment(postId, button) {
+            const container = document.getElementById(`comments-${postId}`);
+            if (!container) return;
+
+            const input = container.querySelector(".comment-input");
+            const text = (input?.value || "").trim();
+            if (!text) return;
+
+            button.disabled = true;
+
+            try {
+                const res = await fetch(`/api/comments/post/${postId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify({ content: text })
+                });
+
+                if (!res.ok) {
+                    throw new Error("Không thể gửi bình luận.");
+                }
+
+                input.value = "";
+                await loadComments(postId);
+
+                // tăng count trên nút (local)
+                const btnToggle = document.querySelector(`.btn-toggle-comments[data-post-id="${postId}"]`);
+                if (btnToggle) {
+                    const spanCount = btnToggle.querySelector(".comment-count");
+                    if (spanCount) {
+                        const current = parseInt(spanCount.textContent || "0");
+                        spanCount.textContent = (current + 1).toString();
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                alert(e.message || "Đã xảy ra lỗi khi gửi bình luận.");
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function deletePost(id) {
+            if (!confirm("Bạn có chắc muốn xóa bài viết này?")) {
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/posts/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || "Xóa bài viết thất bại");
+                }
+
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert(e.message || "Có lỗi xảy ra khi xóa.");
+            }
+        }
+    </script>
+}

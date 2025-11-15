@@ -1,0 +1,221 @@
+@using System.Security.Claims
+@model IEnumerable<okem_social.Models.Conversation>
+
+@{
+    ViewData["Title"] = "Tin nhắn";
+    var currentUserEmail = User.Identity?.Name;
+    var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+}
+
+<div class="page-transition">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="modern-card" style="height: calc(100vh - 150px); display:flex; flex-direction:column;">
+                <div class="row flex-grow-1 g-0" style="height: 100%;">
+                    <!-- LEFT: DANH SÁCH CUỘC TRÒ CHUYỆN + BẠN BÈ -->
+                    <div class="col-md-4 border-end d-flex flex-column" style="height: 100%;">
+                        <!-- Header -->
+                        <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-envelope-open-text text-primary"></i>
+                                <h5 class="mb-0">Tin nhắn</h5>
+                            </div>
+                            <button id="btnRefreshConversations" class="btn btn-light btn-sm" type="button">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="px-3 pt-3">
+                            <div class="input-group input-group-sm shadow-sm rounded-3 overflow-hidden">
+                                <span class="input-group-text border-0 bg-light">
+                                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control border-0"
+                                       id="conversationSearch"
+                                       placeholder="Tìm kiếm theo tên hoặc email...">
+                            </div>
+                        </div>
+
+                        <!-- DANH SÁCH CUỘC TRÒ CHUYỆN -->
+                        <div id="conversationList" class="px-2 pb-2 mt-3" style="max-height: 45%; overflow-y:auto;">
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var conv in Model.OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt))
+                                {
+                                    var otherMember = conv.Members?.FirstOrDefault(m => m.User != null && m.User.Email != currentUserEmail);
+                                    var otherUser = otherMember?.User;
+                                    var lastMessage = conv.Messages?.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
+
+                                    var otherName = otherUser?.FullName ?? "Người dùng";
+                                    var otherEmail = otherUser?.Email ?? "";
+                                    var initial = otherName.Substring(0, 1).ToUpper();
+
+                                    <a href="javascript:void(0)"
+                                       class="conversation-item d-flex align-items-center gap-3 p-2 rounded-3 mb-1"
+                                       data-conversation-id="@conv.Id"
+                                       data-other-name="@otherName"
+                                       data-other-email="@otherEmail"
+                                       data-open-conversation-url="@Url.Action("Chat", "Messages", new { id = conv.Id })">
+                                        <div class="avatar-circle avatar-sm flex-shrink-0">
+                                            @initial
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-semibold">@otherName</span>
+                                                @if (lastMessage != null)
+                                                {
+                                                    <small class="text-muted">
+                                                        @lastMessage.CreatedAt.ToString("HH:mm")
+                                                    </small>
+                                                }
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted text-truncate conv-last-message me-2" style="max-width: 180px;">
+                                                    @(lastMessage?.Content ?? "Chưa có tin nhắn")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-muted small px-3 py-4">
+                                    Chưa có cuộc trò chuyện.
+                                </div>
+                            }
+                        </div>
+
+                        <!-- DANH SÁCH BẠN BÈ -->
+                        <div class="px-3 mt-3">
+                            <h6 class="text-muted mb-2">Bạn bè</h6>
+                        </div>
+
+                        <div id="friendList" class="flex-grow-1 overflow-auto px-2 pb-3">
+                            @if (ViewBag.Friends != null && ((List<okem_social.Models.User>)ViewBag.Friends).Any())
+                            {
+                                foreach (var fr in (List<okem_social.Models.User>)ViewBag.Friends)
+                                {
+                                    var fname = fr.FullName ?? fr.Email;
+                                    var initial = fname.Substring(0, 1).ToUpper();
+
+                                    <a href="javascript:void(0)"
+                                       class="friend-item d-flex align-items-center gap-3 p-2 rounded-3 mb-1"
+                                       data-friend-id="@fr.Id"
+                                       data-chat-with-url="@Url.Action("ChatWith", "Messages", new { friendId = fr.Id })">
+                                        <div class="avatar-circle avatar-sm flex-shrink-0">
+                                            @initial
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <span class="fw-semibold">@fname</span>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-muted small px-3">
+                                    Chưa có bạn bè.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: PANEL CHAT (CHỈ LÀ KHUNG, NỘI DUNG SẼ ĐƯỢC CHAT.cshtml LOAD VÀO) -->
+                    <div id="chatPanel" class="col-md-8 d-flex flex-column" style="height: 100%;">
+                        <div class="chat-messages flex-grow-1 p-3 d-flex flex-column justify-content-center align-items-center text-center"
+                             style="overflow-y: auto; min-height: 0;">
+                            <div class="empty-icon mb-3">
+                                <i class="fa-regular fa-message" style="font-size: 3rem; color: #9CA3AF;"></i>
+                            </div>
+                            <h5>Chọn cuộc trò chuyện</h5>
+                            <p class="text-muted mb-0">
+                                Hãy chọn một cuộc trò chuyện hoặc bạn bè ở bên trái để bắt đầu nhắn tin.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-messages {
+        background: linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%);
+    }
+
+    .message-bubble {
+        max-width: 65%;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        word-wrap: break-word;
+        font-size: 0.9375rem;
+    }
+
+    .received-bubble {
+        background: #ffffff;
+        border: 1px solid #E5E7EB;
+    }
+
+    .sent-bubble {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: #ffffff;
+    }
+
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+    }
+
+        .avatar-circle.avatar-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 0.8rem;
+        }
+
+    .conversation-item,
+    .friend-item {
+        text-decoration: none;
+        color: inherit;
+        transition: background-color .15s ease, transform .1s ease, box-shadow .15s ease;
+    }
+
+        .conversation-item:hover,
+        .friend-item:hover {
+            background-color: #EEF2FF;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.25);
+        }
+
+        .conversation-item.active {
+            background-color: #E0E7FF;
+            box-shadow: 0 0 0 1px #4F46E5;
+        }
+
+    .message-item.sent {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .message-item.received {
+        display: flex;
+        justify-content: flex-start;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.14/signalr.min.js"></script>
+    <script src="~/js/chat.js"></script>
+}
