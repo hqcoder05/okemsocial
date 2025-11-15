@@ -3,14 +3,13 @@
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 
+# CHẠY BẰNG ROOT CHO ĐƠN GIẢN
+USER root
 WORKDIR /app
 
-# Tạo thư mục uploads và cấp quyền ghi (dev: cho phép mọi user ghi vào uploads)
+# Tạo thư mục uploads và cấp quyền ghi
 RUN mkdir -p /app/wwwroot/uploads/images /app/wwwroot/uploads/videos \
     && chmod -R 777 /app/wwwroot/uploads
-
-# Chạy app bằng non-root user do VS/ảnh base cấu hình (APP_UID)
-USER $APP_UID
 
 EXPOSE 8080
 EXPOSE 8081
@@ -20,19 +19,26 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
 COPY ["Okem-Social.csproj", "."]
 RUN dotnet restore "./Okem-Social.csproj"
+
 COPY . .
 WORKDIR "/src/."
 RUN dotnet build "./Okem-Social.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Okem-Social.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
+
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+
 COPY --from=publish /app/publish .
+
+# Ở đây KHÔNG ĐỔI USER NỮA → vẫn là root từ stage base
 ENTRYPOINT ["dotnet", "Okem-Social.dll"]
