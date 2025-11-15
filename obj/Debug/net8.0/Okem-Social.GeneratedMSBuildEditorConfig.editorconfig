@@ -11,93 +11,93 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Okem_Social
 build_property.RootNamespace = Okem_Social
-build_property.ProjectDir = C:\Users\Hoang Quoc\Downloads\Okem-Social\
+build_property.ProjectDir = D:\CodeProjects\School\okemsocial\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\Hoang Quoc\Downloads\Okem-Social
+build_property.MSBuildProjectDirectory = D:\CodeProjects\School\okemsocial
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Account/Login.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Account/Register.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Home/Index.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Home/Privacy.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Messages/Chat.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Messages/Chat.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVzc2FnZXNcQ2hhdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Messages/Index.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Messages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVzc2FnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Notifications/Index.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Notifications/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Posts/Create.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Posts/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9zdHNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Posts/Feed.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Posts/Feed.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9zdHNcRmVlZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Profile/Me.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Profile/Me.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxNZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Settings/Index.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Settings/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ3NcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Shared/Error.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Shared/_ValidationScriptsPartial.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Users/Details.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Users/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Users/IncomingRequests.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Users/IncomingRequests.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcSW5jb21pbmdSZXF1ZXN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Users/OutgoingRequests.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Users/OutgoingRequests.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcT3V0Z29pbmdSZXF1ZXN0cy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Users/Search.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Users/Search.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlcnNcU2VhcmNoLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/_ViewImports.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/_ViewStart.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Hoang Quoc/Downloads/Okem-Social/Views/Shared/_Layout.cshtml]
+[D:/CodeProjects/School/okemsocial/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-rvw6lr8pid

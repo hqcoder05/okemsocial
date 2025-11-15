@@ -33,7 +33,7 @@ async function startChatConnection() {
     if (chatConnection) return;
 
     chatConnection = new signalR.HubConnectionBuilder()
-        .withUrl("/hubs/chat") // phải trùng app.MapHub<ChatHub>("/hubs/chat");
+        .withUrl("/hubs/chat")
         .withAutomaticReconnect()
         .build();
 
@@ -76,10 +76,27 @@ async function joinConversationGroup(conversationId) {
 function handleReceiveMessage(msg) {
     if (!msg || !msg.conversationId) return;
 
+    // QUAN TRỌNG: Bỏ qua tin nhắn của chính mình để tránh duplicate
+    // vì đã có local echo khi gửi
+    if (isMyMessage(msg)) {
+        console.log("Skipping own message (already shown via local echo)");
+
+        // Chỉ cập nhật last message trong conversation list
+        const convItem = document.querySelector(
+            `[data-conversation-id="${msg.conversationId}"] .conv-last-message`
+        );
+        if (convItem) {
+            convItem.textContent = msg.content || "";
+        }
+        return;
+    }
+
+    // Chỉ hiển thị tin nhắn của người khác
     if (msg.conversationId === currentConversationId) {
         appendMessageToUi(msg);
     }
 
+    // Cập nhật last message
     const convItem = document.querySelector(
         `[data-conversation-id="${msg.conversationId}"] .conv-last-message`
     );
@@ -295,7 +312,7 @@ function wireIndexEvents() {
             );
             const url = friendItem.getAttribute("data-chat-with-url");
             if (friendId && url) {
-                loadConversation(0, url);
+                loadConversation(0, url);   
             }
         }
     });

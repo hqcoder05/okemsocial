@@ -4,7 +4,14 @@
 @{
     ViewData["Title"] = "Tin nhắn";
     var currentUserEmail = User.Identity?.Name;
-    var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    // Lấy currentUserId dạng int để so sánh với m.UserId
+    var currentUserIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var currentUserId = 0;
+    if (!string.IsNullOrEmpty(currentUserIdStr))
+    {
+        int.TryParse(currentUserIdStr, out currentUserId);
+    }
 }
 
 <div class="page-transition">
@@ -44,11 +51,16 @@
                             {
                                 foreach (var conv in Model.OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt))
                                 {
-                                    var otherMember = conv.Members?.FirstOrDefault(m => m.User != null && m.User.Email != currentUserEmail);
+                                    // Tìm member KHÁC MÌNH theo UserId
+                                    var otherMember = conv.Members?
+                                    .FirstOrDefault(m => m.User != null && m.UserId != currentUserId);
+
                                     var otherUser = otherMember?.User;
                                     var lastMessage = conv.Messages?.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
 
-                                    var otherName = otherUser?.FullName ?? "Người dùng";
+                                    var otherName = otherUser?.FullName
+                                    ?? otherUser?.Email
+                                    ?? "Người dùng";
                                     var otherEmail = otherUser?.Email ?? "";
                                     var initial = otherName.Substring(0, 1).ToUpper();
 
@@ -218,4 +230,5 @@
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.14/signalr.min.js"></script>
     <script src="~/js/chat.js"></script>
+    <script src="~/js/call.js"></script>
 }

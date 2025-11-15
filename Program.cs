@@ -17,8 +17,6 @@ var builder = WebApplication.CreateBuilder(args);
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // Lắng nghe trên tất cả interface
-// - Local: nếu không có biến PORT thì dùng 5070
-// - Render/Docker: Render set PORT sẵn (ví dụ 10000)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5070";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
@@ -40,7 +38,6 @@ var secretKey = jwtSettings["SecretKey"]
 // Authentication: Cookie cho MVC, JWT cho API/SignalR
 builder.Services.AddAuthentication(options =>
 {
-    // Mặc định dùng Cookie cho MVC
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -96,8 +93,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// SignalR
-builder.Services.AddSignalR();
+// SignalR với cấu hình tối ưu cho calling
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+    options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB cho WebRTC signaling
+});
 
 builder.Services.AddControllersWithViews();
 
@@ -163,5 +167,65 @@ app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<LikeHub>("/hubs/likes");
 app.MapHub<CommentHub>("/hubs/comments");
 app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<CallHub>("/hubs/call"); // ← THÊM DÒNG NÀY cho chức năng gọi thoại/video
 
 app.Run();
+
+
+// ==========================================
+// HOẶC nếu bạn dùng Startup.cs pattern:
+// ==========================================
+
+// Startup.cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // ... các services khác
+
+        // SignalR với cấu hình tối ưu
+        services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+            options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+            options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+
+            // Tăng message size nếu cần (cho video calling)
+            options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB
+        });
+
+        // CORS nếu cần (cho development)
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+        });
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        // ... middleware khác
+
+        app.UseRouting();
+
+        // CORS
+        app.UseCors("AllowAll");
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+            endpoints.MapRazorPages();
+
+            // SignalR Hubs
+            endpoints.MapHub<ChatHub>("/hubs/chat");
+            endpoints.MapHub<CallHub>("/hubs/call");
+        });
+    }
+}

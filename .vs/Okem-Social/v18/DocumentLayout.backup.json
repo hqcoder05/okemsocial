@@ -1,0 +1,139 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\CodeProjects\\School\\okemsocial\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\wwwroot\\js\\call.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:wwwroot\\js\\call.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\views\\messages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|d:\\codeprojects\\school\\okemsocial\\wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAADwvzMAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T09:03:43.85Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAqwOYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T09:03:06.765Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Messages\\Index.cshtml",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Index.cshtml",
+              "RelativeToolTip": "Views\\Messages\\Index.cshtml",
+              "ViewState": "AgIAANwAAAAAAAAAAAAjwOMAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-15T08:26:22.649Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Chat.cshtml",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Chat.cshtml",
+              "RelativeDocumentMoniker": "Views\\Messages\\Chat.cshtml",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Views\\Messages\\Chat.cshtml",
+              "RelativeToolTip": "Views\\Messages\\Chat.cshtml",
+              "ViewState": "AgIAAEkBAAAAAAAAAADwv1UBAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-11-15T08:26:11.786Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "call.js",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\call.js",
+              "RelativeDocumentMoniker": "wwwroot\\js\\call.js",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\call.js",
+              "RelativeToolTip": "wwwroot\\js\\call.js",
+              "ViewState": "AgIAAGwCAAAAAAAAAAAAwHECAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-15T08:25:50.668Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CallHub.cs",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\Hubs\\CallHub.cs",
+              "RelativeDocumentMoniker": "Hubs\\CallHub.cs",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\Hubs\\CallHub.cs",
+              "RelativeToolTip": "Hubs\\CallHub.cs",
+              "ViewState": "AgIAAL4AAAAAAAAAAAAxwNUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T08:16:29.286Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "chat.js",
+              "DocumentMoniker": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\chat.js",
+              "RelativeDocumentMoniker": "wwwroot\\js\\chat.js",
+              "ToolTip": "D:\\CodeProjects\\School\\okemsocial\\wwwroot\\js\\chat.js",
+              "RelativeToolTip": "wwwroot\\js\\chat.js",
+              "ViewState": "AgIAAC4BAAAAAAAAAAAAwDoBAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-15T08:12:56.394Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
