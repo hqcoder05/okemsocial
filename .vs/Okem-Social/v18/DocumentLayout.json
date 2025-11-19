@@ -3,28 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\wwwroot\\js\\call.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:wwwroot\\js\\call.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:hubs\\callhub.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\chat.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\views\\messages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:views\\messages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|solutionrelative:wwwroot\\js\\chat.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{07DFAE31-AB08-49F9-BD85-8B004150D1E6}|Okem-Social.csproj|c:\\users\\hoang quoc\\downloads\\okemsocial\\dockerfile||{8B382828-6202-11D1-8870-0000F87579D2}",
@@ -42,7 +42,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
@@ -70,7 +70,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -83,56 +83,59 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Views\\Messages\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Messages\\Index.cshtml",
               "ToolTip": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Views\\Messages\\Index.cshtml",
               "RelativeToolTip": "Views\\Messages\\Index.cshtml",
-              "ViewState": "AgIAANMAAAAAAAAAAAAAwOMAAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAANUAAAAAAAAAAAAAwOoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-11-15T08:26:22.649Z"
+              "WhenOpened": "2025-11-15T08:26:22.649Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Chat.cshtml",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Views\\Messages\\Chat.cshtml",
               "RelativeDocumentMoniker": "Views\\Messages\\Chat.cshtml",
               "ToolTip": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Views\\Messages\\Chat.cshtml",
               "RelativeToolTip": "Views\\Messages\\Chat.cshtml",
-              "ViewState": "AgIAANkBAAAAAAAAAAAjwOQBAAASAAAAAAAAAA==",
+              "ViewState": "AgIAANABAAAAAAAAAAAAwOUBAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-11-15T08:26:11.786Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "call.js",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\wwwroot\\js\\call.js",
               "RelativeDocumentMoniker": "wwwroot\\js\\call.js",
               "ToolTip": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\wwwroot\\js\\call.js",
               "RelativeToolTip": "wwwroot\\js\\call.js",
-              "ViewState": "AgIAAFsAAAAAAAAAAAAEwGQAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAHoBAAAAAAAAAAAAAI4BAAA/AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-15T08:25:50.668Z"
+              "WhenOpened": "2025-11-15T08:25:50.668Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 0,
               "Title": "CallHub.cs",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Hubs\\CallHub.cs",
               "RelativeDocumentMoniker": "Hubs\\CallHub.cs",
               "ToolTip": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Hubs\\CallHub.cs",
               "RelativeToolTip": "Hubs\\CallHub.cs",
-              "ViewState": "AgIAANEAAAAAAAAAAAAqwOMAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAANEAAAAAAAAAAAAmwNgAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T08:16:29.286Z"
+              "WhenOpened": "2025-11-15T08:16:29.286Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "chat.js",
               "DocumentMoniker": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\wwwroot\\js\\chat.js",
               "RelativeDocumentMoniker": "wwwroot\\js\\chat.js",
