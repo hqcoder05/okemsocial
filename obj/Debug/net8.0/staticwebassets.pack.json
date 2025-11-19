@@ -1,32 +1,72 @@
 {
   "Files": [
     {
-      "Id": "D:\\Okem-Social\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Okem-Social.bundle.scp.css",
+      "Id": "D:\\okemsocial\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Okem-Social.bundle.scp.css",
       "PackagePath": "staticwebassets\\Okem-Social.bundle.scp.css"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\css\\animations.css",
+      "Id": "D:\\okemsocial\\wwwroot\\css\\animations.css",
       "PackagePath": "staticwebassets\\css\\animations.css"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\css\\modern.css",
+      "Id": "D:\\okemsocial\\wwwroot\\css\\modern.css",
       "PackagePath": "staticwebassets\\css\\modern.css"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\css\\site.css",
+      "Id": "D:\\okemsocial\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\favicon.ico",
+      "Id": "D:\\okemsocial\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\js\\header-animations.js",
+      "Id": "D:\\okemsocial\\wwwroot\\js\\call.js",
+      "PackagePath": "staticwebassets\\js\\call.js"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\js\\chat.js",
+      "PackagePath": "staticwebassets\\js\\chat.js"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\js\\header-animations.js",
       "PackagePath": "staticwebassets\\js\\header-animations.js"
     },
     {
-      "Id": "D:\\Okem-Social\\wwwroot\\js\\site.js",
+      "Id": "D:\\okemsocial\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u1_127063c998f7449bb3d16f0afd88a1f0.webp",
+      "PackagePath": "staticwebassets\\uploads\\images\\u1_127063c998f7449bb3d16f0afd88a1f0.webp"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u1_43653e00d52441d99167eaf551fd157d.png",
+      "PackagePath": "staticwebassets\\uploads\\images\\u1_43653e00d52441d99167eaf551fd157d.png"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u1_924174566201490fa7d9d0f7d3555eb0.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u1_924174566201490fa7d9d0f7d3555eb0.jpg"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u1_d857e92dc40547afb783ec4d4ef8c53f.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u1_d857e92dc40547afb783ec4d4ef8c53f.jpg"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u3_42ecfd8e347d45cdb2a71ed3bce2b798.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u3_42ecfd8e347d45cdb2a71ed3bce2b798.jpg"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u3_f32e02c9040a483880dc822a4f585693.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u3_f32e02c9040a483880dc822a4f585693.jpg"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u5_0a30791fa40448a5ada594995a0803f2.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u5_0a30791fa40448a5ada594995a0803f2.jpg"
+    },
+    {
+      "Id": "D:\\okemsocial\\wwwroot\\uploads\\images\\u5_8566c749db5d418d975985eb98b335a3.jpg",
+      "PackagePath": "staticwebassets\\uploads\\images\\u5_8566c749db5d418d975985eb98b335a3.jpg"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Okem-Social.Microsoft.AspNetCore.StaticWebAssets.props",

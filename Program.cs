@@ -16,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Bật chế độ timestamp legacy cho Npgsql (tránh lỗi với DateTime)
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Lắng nghe trên tất cả interface
+// Lắng nghe trên tất cả network interfaces (0.0.0.0) để hỗ trợ Radmin VPN
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5070";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
@@ -102,6 +102,9 @@ builder.Services.AddSignalR(options =>
     options.HandshakeTimeout = TimeSpan.FromSeconds(15);
     options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB cho WebRTC signaling
 });
+
+// Đăng ký CustomUserIdProvider để SignalR có thể map UserId
+builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, okem_social.Hubs.CustomUserIdProvider>();
 
 builder.Services.AddControllersWithViews();
 

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\CodeProjects\\School\\okemsocial\\Okem-Social.csproj": {}
+    "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Okem-Social.csproj": {}
   },
   "projects": {
-    "D:\\CodeProjects\\School\\okemsocial\\Okem-Social.csproj": {
+    "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Okem-Social.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\CodeProjects\\School\\okemsocial\\Okem-Social.csproj",
+        "projectUniqueName": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Okem-Social.csproj",
         "projectName": "Okem-Social",
-        "projectPath": "D:\\CodeProjects\\School\\okemsocial\\Okem-Social.csproj",
+        "projectPath": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\Okem-Social.csproj",
         "packagesPath": "C:\\Users\\Hoang Quoc\\.nuget\\packages\\",
-        "outputPath": "D:\\CodeProjects\\School\\okemsocial\\obj\\",
+        "outputPath": "C:\\Users\\Hoang Quoc\\Downloads\\okemsocial\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

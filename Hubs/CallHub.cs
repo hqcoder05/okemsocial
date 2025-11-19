@@ -10,10 +10,19 @@ public class CallHub : Hub
     public override async Task OnConnectedAsync()
     {
         var userId = Context.UserIdentifier;
+        var userName = Context.User?.Identity?.Name;
+        
         if (!string.IsNullOrEmpty(userId))
         {
-            Console.WriteLine($"User {userId} connected to CallHub");
+            Console.WriteLine($"User {userId} (Name: {userName}) connected to CallHub");
         }
+        else
+        {
+            Console.WriteLine($"WARNING: User connected to CallHub but UserIdentifier is null!");
+            Console.WriteLine($"ConnectionId: {Context.ConnectionId}");
+            Console.WriteLine($"User authenticated: {Context.User?.Identity?.IsAuthenticated}");
+        }
+        
         await base.OnConnectedAsync();
     }
 
@@ -46,8 +55,11 @@ public class CallHub : Hub
     {
         var callerId = Context.UserIdentifier;
 
+        Console.WriteLine($"CallUser invoked: Caller={callerId}, Target={targetUserId}, IsVideo={isVideo}");
+
         if (string.IsNullOrEmpty(callerId))
         {
+            Console.WriteLine("ERROR: CallUser - callerId is null!");
             await Clients.Caller.SendAsync("CallError", new { message = "Unauthorized" });
             return;
         }
@@ -55,6 +67,7 @@ public class CallHub : Hub
         // Kiểm tra xem target có đang trong cuộc gọi khác không
         if (ActiveCalls.ContainsKey(targetUserId))
         {
+            Console.WriteLine($"Target {targetUserId} is busy");
             await Clients.Caller.SendAsync("CallError", new { message = "User is busy" });
             return;
         }
@@ -68,6 +81,7 @@ public class CallHub : Hub
         };
 
         // Gửi thông báo cuộc gọi đến
+        Console.WriteLine($"Sending IncomingCall to user {targetUserId}");
         await Clients.User(targetUserId).SendAsync("IncomingCall", new
         {
             FromUserId = callerId,
