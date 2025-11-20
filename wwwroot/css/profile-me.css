@@ -1,0 +1,95 @@
+/* ===== Me page only ===== */
+/* dùng biến màu đã có trong site.css: --bg-soft, --text, --line, ... */
+
+.profile-me { color: var(--text); }
+
+/* Card */
+.profile-me .card-me{
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1rem 1rem 1.25rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+.profile-me .card-header-me{
+    border-bottom: 1px solid var(--line);
+    margin: -1rem -1rem 1rem;
+    padding: .9rem 1rem;
+    background: #0b0c0f;
+    border-radius: 12px 12px 0 0;
+}
+.profile-me .card-title-me{
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Form */
+.profile-me .form-me .form-label{
+    color: var(--text);
+    margin-bottom: .35rem;
+    font-weight: 500;
+}
+.profile-me .form-me .form-control{
+    background-color: #111214;
+    border-color: var(--line);
+    color: var(--text);
+}
+.profile-me .form-me .form-control::placeholder{ color: #6b7280; }
+.profile-me .form-me .form-control:focus{
+    background-color: #111214;
+    border-color: #334155;
+    box-shadow: 0 0 0 2px rgba(51,65,85,.25);
+    color: var(--text);
+}
+.profile-me .form-hint{
+    color: var(--muted);
+    font-size: .875rem;
+    margin-top: .35rem;
+}
+
+/* Alerts */
+.profile-me .alert{
+    border-radius: 10px;
+    border: 1px solid var(--line);
+}
+
+/* Actions */
+.profile-me .actions-row{
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+    margin-top: .75rem;
+}
+.profile-me .btn-save{
+    min-width: 120px;
+    font-weight: 600;
+}
+
+/* Avatar uploader */
+.profile-me .avatar-box .avatar-ring{
+    padding: 3px;
+    background: radial-gradient(circle at 30% 107%, #feda75, #fa7e1e 45%, #d62976 60%, #962fbf 90%);
+    border-radius: 50%; width: 150px; height: 150px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.profile-me .avatar-box .avatar-lg{
+    width: 140px; height: 140px; border-radius: 50%;
+    object-fit: cover; background: #111827; border: 2px solid #000;
+}
+
+/* IG-like button (chỉ dùng ở Me) */
+.profile-me .btn-ig{
+    background:#262b33; border:1px solid #3a3f47; color:#e5e7eb;
+    padding:.35rem .75rem; border-radius:.5rem; font-weight:600;
+}
+.profile-me .btn-ig:hover{ background:#2e3440; }
+
+/* Responsive */
+@media (max-width: 576px){
+    .profile-me .card-me{ padding: .9rem; }
+    .profile-me .actions-row{ justify-content: stretch; }
+    .profile-me .btn-save{ width: 100%; }
+}

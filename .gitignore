@@ -1,0 +1,44 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vs/
+.idea/
+*.suo
+*.user
+*.rsuser
+*.DotSettings.user
+
+# Build/Artifacts
+bin/
+obj/
+out/
+*.log
+
+# Tools/Packages
+*.nupkg
+packages/
+.nuget/
+
+# Node/LibMan (bỏ nếu bạn commit lib thủ công)
+node_modules/
+wwwroot/lib/
+
+# Secrets / Local config
+.env
+*.env.local
+appsettings.Development.json
+appsettings.*.local.json
+secrets.json
+
+# Runtime uploads/logs
+wwwroot/uploads/
+wwwroot/logs/
+
+# Misc
+*.swp
+*.tmp
+*.bak
+packages-microsoft-prod.deb
+dotnet-install.sh

@@ -1,0 +1,104 @@
+@model okem_social.Models.User
+@{
+    ViewData["Title"] = "Edit profile";
+    string avatar = ViewBag.AvatarUrl as string ?? "/img/avatar-default.png";
+    string handle = ViewBag.Handle    as string ?? ("@" + (Model.Email?.Split('@')[0] ?? "user"));
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/profile-me.css" asp-append-version="true" />
+}
+
+<div class="container py-4 profile-me">
+    <div class="card-dark card-me">
+        <div class="d-flex align-items-center justify-content-between card-header-me">
+            <div class="d-flex align-items-center gap-2">
+                <a class="btn btn-sm btn-outline-secondary" asp-controller="Profile" asp-action="Me">← Back</a>
+                <h5 class="card-title-me mb-0">Edit profile</h5>
+            </div>
+            <span class="badge-soft">ID #@Model.Id</span>
+        </div>
+
+        @if (TempData["ok"] != null) { <div class="alert alert-success">@TempData["ok"]</div> }
+        @if (TempData["err"] != null) { <div class="alert alert-danger">@TempData["err"]</div> }
+
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editForm" class="form-me" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="row g-4">
+                <!-- Avatar -->
+                <div class="col-12 col-md-4 text-center">
+                    <div class="avatar-box">
+                        <div class="avatar-ring">
+                            <img id="avatarPreview" src="@avatar" alt="avatar" class="avatar-lg">
+                        </div>
+                        <label class="btn btn-ig mt-2">
+                            <input type="file" id="avatarInput" name="avatar" accept="image/*" hidden>
+                            Đổi ảnh
+                        </label>
+                        <div class="text-muted small mt-1">JPG/PNG ≤ 2MB</div>
+                        <div class="ig-handle-chip mt-3">@handle</div>
+
+                        <form asp-action="DeleteAvatar" method="post" class="mt-2">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-outline-secondary" type="submit">Xoá ảnh</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Fields -->
+                <div class="col-12 col-md-8">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Họ tên</label>
+                        <input id="fullName" name="fullName" class="form-control"
+                               value="@Model.FullName" required minlength="2" maxlength="120"
+                               placeholder="Nhập họ tên..." />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nickname" class="form-label">Nickname</label>
+                        <input id="nickname" name="nickname" class="form-control"
+                               value="@Model.Nickname" placeholder="vd: quoc_uth"
+                               minlength="3" maxlength="30" pattern="[a-z0-9._]{3,30}" />
+                        <div class="form-hint">3–30 ký tự, chỉ a–z, 0–9, dấu chấm (.) và gạch dưới (_).</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bio" class="form-label">Bio</label>
+                        <textarea id="bio" name="bio" class="form-control" rows="3" maxlength="300"
+                                  placeholder="Giới thiệu ngắn...">@Model.Bio</textarea>
+                    </div>
+
+                    <div class="actions-row">
+                        <a class="btn btn-outline-secondary" asp-controller="Profile" asp-action="Me">Hủy</a>
+                        <button class="btn btn-success btn-save" type="submit">Lưu thay đổi</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  const form = document.getElementById('editForm');
+  const fullName = document.getElementById('fullName');
+  const nickname = document.getElementById('nickname');
+  const file  = document.getElementById('avatarInput');
+  const img   = document.getElementById('avatarPreview');
+
+  form?.addEventListener('submit', function(){
+    if (fullName) fullName.value = fullName.value.trim();
+    if (nickname) nickname.value = nickname.value.trim().toLowerCase();
+  });
+
+  file?.addEventListener('change', function(){
+    const f = file.files?.[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { alert('File không phải ảnh.'); file.value=''; return; }
+    if (f.size > 2 * 1024 * 1024) { alert('Ảnh tối đa 2MB.'); file.value=''; return; }
+    img.src = URL.createObjectURL(f);
+  });
+})();
+</script>
+}
