@@ -78,18 +78,13 @@
                        playsinline>
                 </video>
 
-                <!-- Hidden audio element specifically for voice-only calls -->
                 <audio id="remoteAudio" autoplay style="display:none;"></audio>
 
-                <!-- Added id for backward compatibility and ARIA attributes.
-                     JS uses .call-overlay but older code referenced #loadingOverlay — keep both. -->
                 <div id="loadingOverlay" class="call-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" role="status" aria-hidden="true">
                     <div class="text-center text-white">
                         <div class="avatar-circle-large mb-3">
                             @{
-                                var initial = !string.IsNullOrEmpty(otherName)
-                                ? otherName.Substring(0, 1).ToUpper()
-                                : "?";
+                                var initial = !string.IsNullOrEmpty(otherName) ? otherName.Substring(0, 1).ToUpper() : "?";
                             }
                             @initial
                         </div>
@@ -111,7 +106,7 @@
                 </button>
 
                 <button type="button"
-                        class="btn btn-light btn-lg rounded-circle call-control-btn d-none"
+                        class="btn btn-light btn-lg rounded-circle call-control-btn"
                         title="Tắt/Bật camera"
                         data-call="toggle-video"
                         id="btnToggleVideo">
@@ -134,22 +129,15 @@
                 {
                     var isMine = msg.SenderId == currentUserId;
                     var fullName = msg.Sender?.FullName ?? msg.Sender?.Email ?? "Người dùng";
-                    var msgInitial = !string.IsNullOrEmpty(fullName)
-                    ? fullName.Substring(0, 1).ToUpper()
-                    : "?";
-                    <div class="message-item @(isMine ? "sent" : "received") mb-3"
-                         data-message-id="@msg.Id">
+                    var msgInitial = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "?";
+                    <div class="message-item @(isMine ? "sent" : "received") mb-3" data-message-id="@msg.Id">
                         @if (isMine)
                         {
                             <div class="d-flex gap-2 align-items-start justify-content-end">
                                 <div class="message-bubble sent-bubble"
-                                     style="display:inline-block;padding:8px 12px;border-radius:16px;
-                                                                      max-width:260px;min-width:80px;
-                                                                    white-space:normal;word-break:break-word;text-align:left;">
+                                     style="display:inline-block;padding:8px 12px;border-radius:16px;max-width:260px;min-width:80px;white-space:normal;word-break:break-word;text-align:left;">
                                     <p class="message-text mb-1">@msg.Content</p>
-                                    <small class="message-time d-block">
-                                        @msg.CreatedAt.ToLocalTime().ToString("HH:mm")
-                                    </small>
+                                    <small class="message-time d-block">@msg.CreatedAt.ToLocalTime().ToString("HH:mm")</small>
                                 </div>
                             </div>
                         }
@@ -158,16 +146,10 @@
                             <div class="d-flex gap-2 align-items-start">
                                 <div class="avatar-circle avatar-sm">@msgInitial</div>
                                 <div class="message-bubble received-bubble"
-                                     style="display:inline-block;padding:8px 12px;border-radius:16px;
-                                                                    max-width:260px;min-width:80px;
-                                                                    white-space:normal;word-break:break-word;text-align:left;">
-                                    <div class="mb-1">
-                                        <strong>@fullName</strong>
-                                    </div>
+                                     style="display:inline-block;padding:8px 12px;border-radius:16px;max-width:260px;min-width:80px;white-space:normal;word-break:break-word;text-align:left;">
+                                    <div class="mb-1"><strong>@fullName</strong></div>
                                     <p class="message-text mb-1">@msg.Content</p>
-                                    <small class="text-muted message-time d-block">
-                                        @msg.CreatedAt.ToLocalTime().ToString("HH:mm")
-                                    </small>
+                                    <small class="text-muted message-time d-block">@msg.CreatedAt.ToLocalTime().ToString("HH:mm")</small>
                                 </div>
                             </div>
                         }
@@ -189,8 +171,7 @@
                           rows="1"
                           placeholder="Nhập tin nhắn..."
                           style="resize: none;"></textarea>
-                <button type="submit" class="btn btn-primary rounded-circle ms-2"
-                        style="width: 40px; height: 40px;">
+                <button type="submit" class="btn btn-primary rounded-circle ms-2" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -199,153 +180,34 @@
 </div>
 
 <style>
-    .chat-root .avatar-circle.avatar-sm {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #4f46e5, #6366f1);
-        color: #fff;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .chat-root .message-item.sent .message-bubble, .chat-root .message-item.received .message-bubble {
-        display: inline-block !important;
-        max-width: 260px !important;
-        min-width: 80px !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-        text-align: left !important;
-    }
-
-    .call-container {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        max-height: 500px;
-    }
-
-    .call-header {
-        background: rgba(15, 23, 42, 0.8);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .call-status {
-        color: #94a3b8;
-        font-size: 0.875rem;
-    }
-
-    .call-video-container {
-        flex: 1;
-        background: #000;
-        overflow: hidden;
-        min-height: 300px;
-    }
-
-    .remote-video {
-        object-fit: cover;
-        background: #111827;
-    }
-
-    .local-video {
-        top: 16px;
-        right: 16px;
-        width: 120px;
-        height: 160px;
-        border-radius: 12px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        object-fit: cover;
-        background: #1f2937;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        z-index: 10;
-    }
-
-    .call-overlay {
-        background: rgba(15, 23, 42, 0.95);
-        z-index: 5;
-        transition: opacity 0.3s ease;
-    }
-
-        .call-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-    .avatar-circle-large {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #4f46e5, #6366f1);
-        font-size: 2rem;
-        font-weight: 700;
-    }
-
-    .call-controls {
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(10px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .call-control-btn {
-        width: 56px;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-        .call-control-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .call-control-btn:active {
-            transform: scale(0.95);
-        }
-
-        .call-control-btn i {
-            font-size: 1.25rem;
-        }
-
-        .call-control-btn.active {
-            background: #ef4444 !important;
-            color: white !important;
-        }
-
+    /* Các Style giữ nguyên của bạn */
+    .chat-root .avatar-circle.avatar-sm { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; font-weight: 600; font-size: 0.9rem; }
+    .chat-root .message-item.sent .message-bubble, .chat-root .message-item.received .message-bubble { display: inline-block !important; max-width: 260px !important; min-width: 80px !important; white-space: normal !important; word-break: break-word !important; text-align: left !important; }
+    .call-container { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); color: #fff; display: flex; flex-direction: column; max-height: 500px; }
+    .call-header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .call-status { color: #94a3b8; font-size: 0.875rem; }
+    .call-video-container { flex: 1; background: #000; overflow: hidden; min-height: 300px; }
+    .remote-video { object-fit: cover; background: #111827; }
+    .local-video { top: 16px; right: 16px; width: 120px; height: 160px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.3); object-fit: cover; background: #1f2937; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); z-index: 10; }
+    .call-overlay { background: rgba(15, 23, 42, 0.95); z-index: 5; transition: opacity 0.3s ease; }
+    .call-overlay.hidden { opacity: 0; pointer-events: none; }
+    .avatar-circle-large { width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #4f46e5, #6366f1); font-size: 2rem; font-weight: 700; }
+    .call-controls { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .call-control-btn { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+    .call-control-btn:hover { transform: scale(1.1); }
+    .call-control-btn:active { transform: scale(0.95); }
+    .call-control-btn i { font-size: 1.25rem; }
+    .call-control-btn.active { background: #ef4444 !important; color: white !important; }
     @@media (max-width: 768px) {
-        .call-video-container {
-            min-height: 250px;
-        }
-
-        .local-video {
-            width: 90px;
-            height: 120px;
-            top: 12px;
-            right: 12px;
-        }
-
-        .call-control-btn {
-            width: 48px;
-            height: 48px;
-        }
-
-            .call-control-btn i {
-                font-size: 1.1rem;
-            }
+        .call-video-container { min-height: 250px; }
+        .local-video { width: 90px; height: 120px; top: 12px; right: 12px; }
+        .call-control-btn { width: 48px; height: 48px; }
+        .call-control-btn i { font-size: 1.1rem; }
     }
 </style>
 
 <script>
-    // 1. Xử lý sự kiện click nút Audio/Video
+    // 1. Xử lý UI nút Audio/Video (toggle icon)
     document.addEventListener('click', function(e) {
         const audioBtn = e.target.closest('#btnToggleAudio');
         if (audioBtn) {
@@ -362,124 +224,18 @@
         }
     });
 
-    // 2. HÀM TOÀN CỤC ĐỂ CALL.JS GỌI (QUAN TRỌNG)
-    // Đổi tên từ hideOverlay -> window.forceHideOverlay
-    window.forceHideOverlay = function(stream = null) {
-        const overlay = document.querySelector('.call-overlay') || document.getElementById('loadingOverlay');
-        const statusText = document.getElementById('callStatusText');
-
-        // find or create remoteAudio element
-        let remoteAudio = document.getElementById('remoteAudio');
-        if (!remoteAudio) {
-            remoteAudio = document.createElement('audio');
-            remoteAudio.id = 'remoteAudio';
-            remoteAudio.autoplay = true;
-            remoteAudio.style.display = 'none';
-            const container = document.querySelector('.call-video-container') || document.getElementById('callContainer') || document.body;
-            container.appendChild(remoteAudio);
-        }
-
-        const remoteVideo = document.getElementById('remoteVideo');
-
-        // hide overlay with transition and remove from layout after transition
-        if (overlay && !overlay.classList.contains('hidden')) {
-            console.log("✅ forceHideOverlay executed");
-            overlay.classList.add('hidden');
-            setTimeout(() => {
-                if (overlay.classList.contains('hidden')) overlay.style.display = 'none';
-            }, 300);
-            if (statusText) statusText.innerText = "Đang trong cuộc gọi";
-        }
-
-        // if a stream is provided: attach to appropriate element
-        if (stream) {
-            try {
-                // If the stream contains any video track, attach to video element
-                const hasVideo = typeof stream.getVideoTracks === 'function' && stream.getVideoTracks().length > 0;
-                if (hasVideo && remoteVideo) {
-                    if (remoteVideo.srcObject !== stream) remoteVideo.srcObject = stream;
-                    remoteVideo.play().catch(e => console.log("Autoplay remoteVideo (forceHideOverlay):", e));
-                } else {
-                    // audio-only -> attach to remoteAudio
-                    if (remoteAudio.srcObject !== stream) remoteAudio.srcObject = stream;
-                    remoteAudio.play().catch(e => console.log("Autoplay remoteAudio (forceHideOverlay):", e));
-                }
-            } catch (e) {
-                console.warn("forceHideOverlay attach error:", e);
-            }
-        }
-    };
-
-    // 3. Hàm theo dõi trạng thái Video (Fallback)
-    function monitorRemoteVideo() {
-        const remoteVideo = document.getElementById('remoteVideo');
-        const remoteAudio = document.getElementById('remoteAudio');
-
-        if (remoteVideo && remoteVideo.paused && remoteVideo.srcObject) {
-            remoteVideo.play().catch(e => console.log("Autoplay video:", e));
-        }
-
-        if (remoteAudio && remoteAudio.paused && remoteAudio.srcObject) {
-            remoteAudio.play().catch(e => console.log("Autoplay audio:", e));
-        }
-
-        if ((remoteVideo && remoteVideo.srcObject) || (remoteAudio && remoteAudio.srcObject)) {
-            const stream = remoteVideo && remoteVideo.srcObject ? remoteVideo.srcObject : remoteAudio && remoteAudio.srcObject ? remoteAudio.srcObject : null;
-            if (stream) window.forceHideOverlay(stream);
-        }
-    }
-
-    // 4. Khởi tạo chính
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof initCallConnection === 'function') {
-            initCallConnection().then(() => console.log('✅ CallHub ready'));
-        }
-
-        const chatRoot = document.querySelector('[data-chat-root="1"]');
-        if (chatRoot) {
-            const observer = new MutationObserver(function(mutations) {
-                const callContainer = document.getElementById('callContainer');
-                const videoBtn = document.getElementById('btnToggleVideo');
-
-                if (callContainer && !callContainer.classList.contains('d-none')) {
-                    console.log("📞 Giao diện cuộc gọi đã mở");
-
-                    // --- CƠ CHẾ BOM HẸN GIỜ 3 GIÂY ---
-                    setTimeout(() => {
-                        console.log("⏰ Hết 3 giây: Ép ẩn Overlay");
-                        window.forceHideOverlay();
-                    }, 3000);
-
-                    const checkInterval = setInterval(() => {
-                        monitorRemoteVideo();
-                        const overlay = document.querySelector('.call-overlay') || document.getElementById('loadingOverlay');
-                        if (!overlay || overlay.classList.contains('hidden') || callContainer.classList.contains('d-none')) {
-                            clearInterval(checkInterval);
-                        }
-                    }, 500);
-
-                    const localVideo = document.getElementById('localVideo');
-                    if (localVideo && localVideo.srcObject && videoBtn) {
-                        videoBtn.classList.remove('d-none');
-                    }
-                } else {
-                    const overlay = document.querySelector('.call-overlay') || document.getElementById('loadingOverlay');
-                    if (overlay) {
-                        overlay.classList.remove('hidden');
-                        // ensure visible in layout until JS hides it
-                        overlay.style.display = 'flex';
-                    }
-                    if (videoBtn) videoBtn.classList.add('d-none');
-                }
-            });
-
-            observer.observe(chatRoot, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-        }
-    });
-
+    // 2. Tính năng thu nhỏ màn hình gọi (Minimize)
     function minimizeCall() {
-        document.getElementById('callContainer').classList.add('d-none');
+        const container = document.getElementById('callContainer');
+        if (container) {
+            container.classList.add('d-none');
+            // Có thể thêm logic hiển thị nút "Quay lại cuộc gọi" nhỏ ở góc màn hình nếu cần
+            console.log("Đã thu nhỏ cuộc gọi");
+        }
     }
+
+    // Đã xóa toàn bộ đoạn code MutationObserver phức tạp gây lỗi
+    // Mọi logic ẩn/hiện overlay giờ do call.js đảm nhiệm
 </script>
 
 @* Load call.js *@
