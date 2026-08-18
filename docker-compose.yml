@@ -7,17 +7,42 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"     
-      SA_PASSWORD: ${SA_PASSWORD}
-    ports:
-      - "1433:1433"             
+      SA_PASSWORD: "${SA_PASSWORD}"
+    # XÓA EXPOSE PORT ĐỂ DB CHỈ TRUY CẬP ĐƯỢC TỪ MẠNG INTERNAL DOCKER
+    # ports:
+    #   - "1433:1433"             
     volumes:
       - mssql_data:/var/opt/mssql
     restart: unless-stopped
     healthcheck:
+      # SỬ DỤNG BIẾN MÔI TRƯỜNG HOẶC TCP CHECK THAY VÌ HARDCODE PASS TRONG HEALTHCHECK
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/1433'"]
       interval: 10s
-      timeout: 3s
+      timeout: 5s
       retries: 10
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: okem-web
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - PORT=5070
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=OkemSocialDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - Jwt__SecretKey=${JWT_SECRET}
+      - Jwt__Issuer=OkemSocial
+      - Jwt__Audience=OkemSocialClient
+    ports:
+      - "5070:5070"
+    volumes:
+      - uploads_data:/app/wwwroot/uploads
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   mssql_data:
+  uploads_data:

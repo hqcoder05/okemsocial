@@ -6,17 +6,12 @@ using System.Text;
 using okem_social.Data;
 using okem_social.Models;
 using okem_social.Hubs;
-
-// DI cho Repo/Service
 using okem_social.Repositories;
 using okem_social.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Bật chế độ timestamp legacy cho Npgsql (tránh lỗi với DateTime)
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-// Lắng nghe trên tất cả network interfaces (0.0.0.0) để hỗ trợ Radmin VPN
+// Lắng nghe trên tất cả network interfaces (0.0.0.0)
 var port = Environment.GetEnvironmentVariable("PORT") ?? "5070";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
@@ -24,11 +19,11 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-// EF Core + PostgreSQL (Supabase)
+// EF Core + SQL Server (Local / Docker)
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
-    o.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT Auth configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -49,7 +44,22 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    
+    // Cookie Hardening
+    options.Cookie.SecurePolicy = builder.Environment.IsProduction() 
+        ? CookieSecurePolicy.Always 
+        : CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Google:ClientId"] ?? "dummy-client-id";
+    options.ClientSecret = builder.Configuration["Google:ClientSecret"] ?? "dummy-client-secret";
+})
+.AddFacebook(options =>
+{
+    options.AppId = builder.Configuration["Facebook:AppId"] ?? "dummy-app-id";
+    options.AppSecret = builder.Configuration["Facebook:AppSecret"] ?? "dummy-app-secret";
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
@@ -93,7 +103,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// SignalR với cấu hình tối ưu cho calling
+// SignalR với cấu hình tối ưu cho chat & calling
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
@@ -103,10 +113,35 @@ builder.Services.AddSignalR(options =>
     options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB cho WebRTC signaling
 });
 
-// Đăng ký CustomUserIdProvider để SignalR có thể map UserId
-builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, okem_social.Hubs.CustomUserIdProvider>();
+// Đăng ký CustomUserIdProvider để SignalR map UserId theo ClaimTypes.NameIdentifier
+builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, CustomUserIdProvider>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
+
+builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// Add Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                QueueLimit = 2,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 // Đăng ký Repository/Service
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -124,42 +159,44 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
-// Global exception handling
-app.UseExceptionHandler(errorApp =>
+app.UseForwardedHeaders();
+
+// Auto migrate and seed initial demo data
+await DataSeeder.SeedAsync(app);
+
+// Exception page & HSTS
+if (!app.Environment.IsDevelopment())
 {
-    errorApp.Run(async context =>
+    app.UseExceptionHandler(exceptionHandlerApp =>
     {
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        var exception = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>()?.Error;
-
-        logger.LogError(exception, "Unhandled exception occurred");
-
-        context.Response.StatusCode = 500;
-        await context.Response.WriteAsync("Internal Server Error");
+        exceptionHandlerApp.Run(async context =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(new { message = "Lỗi máy chủ nội bộ. Vui lòng thử lại sau." });
+            }
+            else
+            {
+                context.Response.Redirect("/Home/Error");
+            }
+        });
     });
-});
-
-// Exception page & HSTS cho Production
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
-}
-
-// Redirect HTTP -> HTTPS khi không phải Development
-if (!app.Environment.IsDevelopment())
-{
     app.UseHttpsRedirection();
 }
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
+app.UseRateLimiter();
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.MapControllerRoute(
     name: "default",
@@ -170,65 +207,6 @@ app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<LikeHub>("/hubs/likes");
 app.MapHub<CommentHub>("/hubs/comments");
 app.MapHub<NotificationHub>("/hubs/notifications");
-app.MapHub<CallHub>("/hubs/call"); // ← THÊM DÒNG NÀY cho chức năng gọi thoại/video
+app.MapHub<CallHub>("/hubs/call");
 
 app.Run();
-
-
-// ==========================================
-// HOẶC nếu bạn dùng Startup.cs pattern:
-// ==========================================
-
-// Startup.cs
-public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // ... các services khác
-
-        // SignalR với cấu hình tối ưu
-        services.AddSignalR(options =>
-        {
-            options.EnableDetailedErrors = true;
-            options.KeepAliveInterval = TimeSpan.FromSeconds(10);
-            options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-            options.HandshakeTimeout = TimeSpan.FromSeconds(15);
-
-            // Tăng message size nếu cần (cho video calling)
-            options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB
-        });
-
-        // CORS nếu cần (cho development)
-        services.AddCors(options =>
-        {
-            options.AddPolicy("AllowAll",
-                builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader());
-        });
-    }
-
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        // ... middleware khác
-
-        app.UseRouting();
-
-        // CORS
-        app.UseCors("AllowAll");
-
-        app.UseAuthentication();
-        app.UseAuthorization();
-
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-            endpoints.MapRazorPages();
-
-            // SignalR Hubs
-            endpoints.MapHub<ChatHub>("/hubs/chat");
-            endpoints.MapHub<CallHub>("/hubs/call");
-        });
-    }
-}

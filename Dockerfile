@@ -1,21 +1,14 @@
-﻿# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-
-# CHẠY BẰNG ROOT CHO ĐƠN GIẢN
-USER root
 WORKDIR /app
 
-# Tạo thư mục uploads và cấp quyền ghi
+# Configure permissions for the built-in 'app' user
 RUN mkdir -p /app/wwwroot/uploads/images /app/wwwroot/uploads/videos \
-    && chmod -R 777 /app/wwwroot/uploads
+    && chown -R app:app /app/wwwroot/uploads
 
-EXPOSE 8080
-EXPOSE 8081
+USER app
+ENV PORT=5070
+EXPOSE 5070
 
-
-# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -24,21 +17,15 @@ COPY ["Okem-Social.csproj", "."]
 RUN dotnet restore "./Okem-Social.csproj"
 
 COPY . .
-WORKDIR "/src/."
+WORKDIR "/src"
 RUN dotnet build "./Okem-Social.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Okem-Social.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+COPY --from=publish --chown=app:app /app/publish .
 
-COPY --from=publish /app/publish .
-
-# Ở đây KHÔNG ĐỔI USER NỮA → vẫn là root từ stage base
 ENTRYPOINT ["dotnet", "Okem-Social.dll"]
