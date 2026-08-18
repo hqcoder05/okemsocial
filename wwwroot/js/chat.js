@@ -1,4 +1,4 @@
-﻿// wwwroot/js/chat.js
+// wwwroot/js/chat.js
 
 let chatConnection = null;
 let currentConversationId = 0;
@@ -112,19 +112,16 @@ function appendMessageToUi(msg) {
 
     const mine = isMyMessage(msg);
     const wrapper = document.createElement("div");
-    wrapper.className = `message-item ${mine ? "sent" : "received"} mb-3`;
+    wrapper.className = `message-item ${mine ? "sent" : "received"}`;
     wrapper.dataset.messageId = msg.id ?? "";
 
     if (mine) {
         // Tin nhắn của mình (bên phải)
         wrapper.innerHTML = `
-            <div class="d-flex gap-2 align-items-start justify-content-end">
-                <div class="message-bubble sent-bubble"
-                     style="display:inline-block;padding:8px 12px;border-radius:16px;
-                            max-width:260px;min-width:80px;
-                            white-space:normal;word-break:break-word;text-align:left;">
-                    <p class="message-text mb-1"></p>
-                    <small class="message-time d-block"></small>
+            <div class="flex justify-end">
+                <div class="message-bubble sent-bubble max-w-[75%] sm:max-w-[65%] rounded-2xl rounded-br-sm bg-slate-950 text-white px-4 py-2.5 shadow-sm" dark:bg-white dark:text-black>
+                    <p class="message-text text-sm leading-relaxed text-white break-words"></p>
+                    <small class="message-time block text-[10px] text-slate-400 mt-1 text-right"></small>
                 </div>
             </div>
         `;
@@ -134,23 +131,23 @@ function appendMessageToUi(msg) {
             (msg.sender && (msg.sender.fullName || msg.sender.email)) ||
             msg.senderFullName ||
             msg.senderName ||
-            "";
+            "Người dùng";
         const initial = fullName ? fullName.charAt(0).toUpperCase() : "?";
+        const avatarUrl = msg.sender?.avatarUrl;
+        
+        const avatarHtml = avatarUrl
+            ? `<img src="${avatarUrl}" alt="${fullName}" class="avatar-circle avatar-sm h-8 w-8 rounded-full object-cover shrink-0 mt-0.5" />`
+            : `<div class="avatar-circle avatar-sm flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-600 text-white text-xs font-bold shrink-0 mt-0.5">
+                   ${initial}
+               </div>`;
 
         wrapper.innerHTML = `
-            <div class="d-flex gap-2 align-items-start">
-                <div class="avatar-circle avatar-sm">
-                    ${initial}
-                </div>
-                <div class="message-bubble received-bubble"
-                     style="display:inline-block;padding:8px 12px;border-radius:16px;
-                            max-width:260px;min-width:80px;
-                            white-space:normal;word-break:break-word;text-align:left;">
-                    <div class="mb-1">
-                        <strong>${fullName}</strong>
-                    </div>
-                    <p class="message-text mb-1"></p>
-                    <small class="text-muted message-time d-block"></small>
+            <div class="flex items-start gap-2.5 justify-start">
+                ${avatarHtml}
+                <div class="message-bubble received-bubble max-w-[75%] sm:max-w-[65%] rounded-2xl rounded-bl-sm bg-white border border-slate-100 text-slate-900 px-4 py-2.5 shadow-card" dark:text-slate-100 dark:border-white/10 dark:bg-black>
+                    <div class="text-[11px] font-bold text-slate-900 mb-0.5" dark:text-slate-100>${fullName}</div>
+                    <p class="message-text text-sm leading-relaxed text-slate-800 break-words" dark:text-slate-100></p>
+                    <small class="message-time text-muted block text-[10px] text-slate-400 mt-1"></small>
                 </div>
             </div>
         `;

@@ -1,26 +1,26 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
+using Microsoft.AspNetCore.SignalR;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace okem_social.Hubs;
 
 public class CallHub : Hub
 {
-    // Dictionary để track các cuộc gọi đang diễn ra
-    private static readonly Dictionary<string, CallInfo> ActiveCalls = new();
+    private static readonly ConcurrentDictionary<string, CallInfo> ActiveCalls = new();
+    public static readonly ConcurrentDictionary<string, int> OnlineUsers = new();
 
     public override async Task OnConnectedAsync()
     {
         var userId = Context.UserIdentifier;
-        var userName = Context.User?.Identity?.Name;
         
         if (!string.IsNullOrEmpty(userId))
         {
-            Console.WriteLine($"User {userId} (Name: {userName}) connected to CallHub");
-        }
-        else
-        {
-            Console.WriteLine($"WARNING: User connected to CallHub but UserIdentifier is null!");
-            Console.WriteLine($"ConnectionId: {Context.ConnectionId}");
-            Console.WriteLine($"User authenticated: {Context.User?.Identity?.IsAuthenticated}");
+            OnlineUsers.AddOrUpdate(userId, 1, (key, count) => count + 1);
+            if (OnlineUsers[userId] == 1)
+            {
+                await Clients.All.SendAsync("UserOnline", userId);
+            }
         }
         
         await base.OnConnectedAsync();
@@ -31,8 +31,21 @@ public class CallHub : Hub
         var userId = Context.UserIdentifier;
         if (!string.IsNullOrEmpty(userId))
         {
+            if (OnlineUsers.TryGetValue(userId, out int count))
+            {
+                if (count <= 1)
+                {
+                    OnlineUsers.TryRemove(userId, out _);
+                    await Clients.All.SendAsync("UserOffline", userId);
+                }
+                else
+                {
+                    OnlineUsers.TryUpdate(userId, count - 1, count);
+                }
+            }
+
             // Nếu user disconnect mà đang trong cuộc gọi, thông báo cho peer
-            if (ActiveCalls.TryGetValue(userId, out var callInfo))
+            if (ActiveCalls.TryRemove(userId, out var callInfo))
             {
                 await Clients.User(callInfo.PeerUserId).SendAsync("CallEnded", new
                 {
@@ -40,14 +53,15 @@ public class CallHub : Hub
                     Reason = "disconnected"
                 });
 
-                // Xóa cả 2 chiều
-                ActiveCalls.Remove(userId);
-                ActiveCalls.Remove(callInfo.PeerUserId);
+                ActiveCalls.TryRemove(callInfo.PeerUserId, out _);
             }
-
-            Console.WriteLine($"User {userId} disconnected from CallHub");
         }
         await base.OnDisconnectedAsync(exception);
+    }
+
+    public List<string> GetOnlineUsers()
+    {
+        return OnlineUsers.Keys.ToList();
     }
 
     // Bắt đầu cuộc gọi
@@ -150,8 +164,8 @@ public class CallHub : Hub
         }
 
         // Xóa thông tin cuộc gọi
-        ActiveCalls.Remove(userId);
-        ActiveCalls.Remove(targetUserId);
+        ActiveCalls.TryRemove(userId, out _);
+        ActiveCalls.TryRemove(targetUserId, out _);
 
         await Clients.User(targetUserId).SendAsync("CallEnded", new
         {
@@ -173,8 +187,8 @@ public class CallHub : Hub
         }
 
         // Xóa thông tin cuộc gọi
-        ActiveCalls.Remove(userId);
-        ActiveCalls.Remove(targetUserId);
+        ActiveCalls.TryRemove(userId, out _);
+        ActiveCalls.TryRemove(targetUserId, out _);
 
         await Clients.User(targetUserId).SendAsync("CallRejected", new
         {
