@@ -1,4 +1,4 @@
-@model okem_social.Models.User
+﻿@model okem_social.Models.User
 @{
     ViewData["Title"] = "Hồ sơ";
     var userId = Model.Id;
@@ -23,7 +23,7 @@
                 <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-white font-bold flex items-center justify-center text-5xl sm:text-6xl border-4 border-slate-50 shadow-card overflow-hidden">
                     @if (!string.IsNullOrEmpty(Model.AvatarUrl))
                     {
-                        <img src="@Model.AvatarUrl" alt="Avatar" class="w-full h-full rounded-full object-cover" />
+                        <img src="@Model.AvatarUrl" alt="Avatar" class="w-full h-full rounded-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(displayName)&background=1e293b&color=fff';" />
                     }
                     else
                     {
@@ -190,6 +190,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const userId = @userId;
+            const currentUserId = @userId;
             loadProfileStats(userId);
             loadProfilePosts(userId);
             loadFriends(userId);
@@ -209,6 +210,32 @@
                 if(!content.contains(e.target)) closePostModal();
             });
         });
+
+        
+        async function deleteComment(commentId, btn) {
+            if(!confirm("Bạn có chắc chắn muốn xóa bình luận này?")) return;
+            try {
+                const res = await fetch(`/api/comments/${commentId}`, { method: "DELETE" });
+                if(res.ok) {
+                    btn.closest('.flex.gap-3').remove();
+                } else {
+                    alert("Không thể xóa bình luận.");
+                }
+            } catch(e) { console.error(e); }
+        }
+        
+        async function deletePost(postId) {
+            if(!confirm("Bạn có chắc chắn muốn xóa bài viết này?")) return;
+            try {
+                const res = await fetch(`/api/posts/${postId}`, { method: "DELETE" });
+                if(res.ok) {
+                    alert("Đã xóa bài viết.");
+                    window.location.reload();
+                } else {
+                    alert("Lỗi khi xóa bài viết.");
+                }
+            } catch(e) { console.error(e); }
+        }
 
         async function loadProfileStats(userId) {
             try {
@@ -436,7 +463,10 @@
                         <div class="flex-grow bg-slate-50/80 p-3.5 rounded-2xl rounded-tl-none border border-slate-100" dark:border-white/10 dark:bg-neutral-900>
                             <div class="flex items-center justify-between mb-1.5">
                                 <span class="font-bold text-slate-900 text-sm" dark:text-slate-100>${name}</span>
-                                <span class="text-[11px] font-medium text-slate-500" dark:text-slate-400>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[11px] font-medium text-slate-500" dark:text-slate-400>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}</span>
+                                    ${c.userId === currentUserId ? `<button onclick="deleteComment(${c.id}, this)" class="text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                                </div>
                             </div>
                             <div class="text-slate-700 text-[14px] leading-relaxed whitespace-pre-wrap">${c.content || ""}</div>
                         </div>

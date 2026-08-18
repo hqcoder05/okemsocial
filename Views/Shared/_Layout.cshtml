@@ -1,4 +1,4 @@
-@* Views/Shared/_Layout.cshtml - Okem Design *@
+﻿@* Views/Shared/_Layout.cshtml - Okem Design *@
 @using okem_social.Repositories
 @using System.Security.Claims
 @inject IUserRepository UserRepository
@@ -152,7 +152,7 @@
                                 class="flex items-center gap-2.5 rounded-full p-1 hover:bg-slate-100 transition-all dark:hover:bg-white/10" dark:bg-black>
                             @if (currentUser != null && !string.IsNullOrEmpty(currentUser.AvatarUrl))
                             {
-                                <img src="@currentUser.AvatarUrl" alt="@(currentUser.FullName ?? User.Identity?.Name)" class="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white/50" />
+                                <img src="@currentUser.AvatarUrl" alt="@(currentUser.FullName ?? User.Identity?.Name)" class="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-white/50" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=@Uri.EscapeDataString(currentUser.FullName ?? User.Identity?.Name ?? "U")&background=1e293b&color=fff';" />
                             }
                             else
                             {

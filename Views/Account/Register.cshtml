@@ -1,5 +1,4 @@
-@model okem_social.Models.ViewModels.RegisterViewModel
-@{
+﻿@{
     ViewData["Title"] = "Đăng ký";
 }
 
@@ -35,41 +34,41 @@
 
             <!-- FullName -->
             <div>
-                <label asp-for="FullName" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Tên đầy đủ</label>
-                <input asp-for="FullName" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Nguyễn Văn A" required />
-                <span asp-validation-for="FullName" class="mt-1 block text-xs text-red-500"></span>
+                <label name="fullName" id="fullName" required class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Tên đầy đủ</label>
+                <input name="fullName" id="fullName" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Nguyễn Văn A" required />
+                
             </div>
 
             <!-- Email -->
             <div>
-                <label asp-for="Email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Địa chỉ Email</label>
-                <input asp-for="Email" type="email" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="name@example.com" required />
-                <span asp-validation-for="Email" class="mt-1 block text-xs text-red-500"></span>
+                <label name="email" id="email" required class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Địa chỉ Email</label>
+                <input name="email" id="email" required type="email" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="name@example.com" required />
+                
             </div>
 
             <!-- Password -->
             <div>
-                <label asp-for="Password" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Mật khẩu</label>
+                <label name="password" id="password" required class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Mật khẩu</label>
                 <div class="relative">
-                    <input asp-for="Password" type="password" id="password" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Tối thiểu 8 ký tự" required />
+                    <input name="password" id="password" required type="password" id="password" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Tối thiểu 8 ký tự" required />
                     <button type="button" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors" data-target="password">
                         <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
-                <span asp-validation-for="Password" class="mt-1 block text-xs text-red-500"></span>
+                
             </div>
 
             <!-- Confirm Password -->
             <div>
-                <label asp-for="ConfirmPassword" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Xác nhận mật khẩu</label>
+                <label name="confirmPassword" id="confirmPassword" required class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Xác nhận mật khẩu</label>
                 <div class="relative">
-                    <input asp-for="ConfirmPassword" type="password" id="confirmPassword" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="••••••••" required />
+                    <input name="confirmPassword" id="confirmPassword" required type="password" id="confirmPassword" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="••••••••" required />
                     <button type="button" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors" data-target="confirmPassword">
                         <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
                 <p id="passwordMatch" class="hidden mt-1.5 text-[11px] font-semibold"></p>
-                <span asp-validation-for="ConfirmPassword" class="mt-1 block text-xs text-red-500"></span>
+                
             </div>
 
             <!-- Terms -->

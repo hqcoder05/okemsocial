@@ -135,6 +135,29 @@ public class PostsApiController(
         return Ok(new { message = "Đã xóa bài viết thành công." });
     }
 
+    [HttpPost("{postId}/share")]
+    public async Task<IActionResult> SharePost(int postId)
+    {
+        var post = await postRepo.GetByIdAsync(postId, false);
+        if (post == null)
+            return NotFound();
+
+        var originalUser = await userService.GetByIdAsync(post.UserId);
+        var originalName = originalUser?.FullName ?? "một người bạn";
+
+        var newPost = new Post
+        {
+            UserId = CurrentUserId,
+            Caption = $"[Chia sẻ từ bài viết của {originalName}]\n\n{post.Caption}",
+            ImageUrl = post.ImageUrl,
+            VideoUrl = post.VideoUrl,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await postRepo.CreateAsync(newPost);
+        return Ok(new { message = "Đã chia sẻ bài viết thành công." });
+    }
+
     private PostDto MapToPostDtoOptimized(Post post, int? viewerId)
     {
         // Use the optimized properties from Post repository projection
