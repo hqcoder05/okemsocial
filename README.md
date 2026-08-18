@@ -1,332 +1,98 @@
-# Okem-Social
+﻿# Okem Social
 
-Mạng xã hội đầy đủ tính năng với ASP.NET Core MVC + RESTful API + SignalR Chat
+Một nền tảng mạng xã hội hiện đại được xây dựng với ASP.NET Core 8.0, Entity Framework Core và Tailwind CSS. Okem Social hỗ trợ đầy đủ các tính năng cơ bản của một mạng xã hội như: Đăng bài, Thích, Bình luận, Theo dõi/Kết bạn, Nhắn tin theo thời gian thực (Real-time Chat) và Nhận thông báo (Real-time Notifications).
 
-## 🚀 Tính năng
+Dự án này cung cấp cả Web UI (Render bằng Razor Views) và RESTful API cho di động hoặc các frontend framework khác (React/Vue/Angular).
 
-### 1. Auth / Account ✅
-- **POST** `/api/auth/register` - Đăng ký tài khoản
-- **POST** `/api/auth/login` - Đăng nhập (JWT)
-- **POST** `/api/auth/refresh-token` - Làm mới token
-- **POST** `/api/auth/logout` - Đăng xuất
+## 🚀 Tính năng nổi bật
 
-### 2. User / Profile ✅
-- **GET** `/api/users/me` - Xem hồ sơ của mình
-- **PUT** `/api/users/me` - Cập nhật hồ sơ
-- **GET** `/api/users/{id}` - Xem hồ sơ người dùng
-- **GET** `/api/users?keyword=...` - Tìm kiếm người dùng
-- **PUT** `/api/users/me/avatar` - Upload avatar
-- **GET** `/api/users/{id}/followers` - Danh sách followers
-- **GET** `/api/users/{id}/following` - Danh sách following
+- **Tài khoản & Hồ sơ**: Đăng ký, Đăng nhập, Quản lý hồ sơ, Cập nhật ảnh đại diện/ảnh bìa (Avatar/Cover).
+- **Mạng lưới kết nối**: Gửi lời mời kết bạn, Theo dõi (Follow), Danh sách bạn bè.
+- **Bảng tin (Feed)**: Đăng bài viết (hỗ trợ ảnh/video), Thích (Like), Bình luận (Comment), Chia sẻ (Share) bài viết về tường nhà.
+- **Nhắn tin (Chat)**: Trò chuyện 1-1, trò chuyện nhóm theo thời gian thực với SignalR.
+- **Thông báo (Notifications)**: Thông báo tức thì khi có người thích, bình luận bài viết hoặc gửi lời mời kết bạn.
+- **UI/UX hiện đại**: Giao diện được thiết kế lại hoàn toàn với Tailwind CSS (Mobile-first, Responsive, phong cách tối giản).
 
-### 3. Follow ✅
-- **POST** `/api/follows/{targetUserId}` - Theo dõi
-- **DELETE** `/api/follows/{targetUserId}` - Bỏ theo dõi
+## 🛠 Tech Stack
 
-### 4. Post ✅
-- **GET** `/api/posts/feed` - Newsfeed (bài viết của người mình follow)
-- **GET** `/api/posts/user/{userId}` - Bài viết của một người
-- **POST** `/api/posts` - Đăng bài mới
-- **PUT** `/api/posts/{postId}` - Sửa bài viết
-- **DELETE** `/api/posts/{postId}` - Xóa bài viết
+- **Backend Framework**: ASP.NET Core 8.0 (MVC + Web API)
+- **Database**: Microsoft SQL Server 2022
+- **ORM**: Entity Framework Core 8.0
+- **Real-time Engine**: ASP.NET Core SignalR
+- **Frontend**: Razor Views (`.cshtml`), Tailwind CSS (qua CDN), Vanilla JavaScript, FontAwesome 6
+- **Authentication**: JWT (JSON Web Tokens) cho API & Cookie Authentication cho MVC Web
+- **Bảo mật**: BCrypt (Mã hóa mật khẩu)
 
-### 5. Comment ✅
-- **GET** `/api/posts/{postId}/comments` - Xem comments
-- **POST** `/api/posts/{postId}/comments` - Thêm comment
-- **DELETE** `/api/comments/{commentId}` - Xóa comment
+## 📦 Hướng dẫn cài đặt & Chạy cục bộ (Local)
 
-### 6. Like ✅
-- **POST** `/api/posts/{postId}/likes` - Like bài viết
-- **DELETE** `/api/posts/{postId}/likes` - Unlike bài viết
-- **GET** `/api/posts/{postId}/likes` - Xem danh sách likes
+### Yêu cầu hệ thống (Prerequisites)
+1. **.NET 8.0 SDK**: Cần cài đặt bản SDK mới nhất của .NET 8.
+2. **SQL Server**: Có thể dùng SQL Server LocalDB, SQL Server Developer Edition hoặc SQL Server qua Docker.
+3. **IDE**: Visual Studio 2022, Rider hoặc VS Code.
 
-### 7. Media ✅
-- **POST** `/api/media/upload?type=image|video` - Upload ảnh/video
+### Cài đặt từng bước
 
-### 8. Chat / Message ✅
-
-#### Conversation API
-- **GET** `/api/conversations` - Danh sách hội thoại
-- **POST** `/api/conversations` - Tạo hội thoại (1-1 hoặc group)
-- **GET** `/api/conversations/{id}` - Chi tiết hội thoại
-- **PUT** `/api/conversations/{id}` - Đổi tên group
-- **POST** `/api/conversations/{id}/members` - Thêm thành viên
-- **DELETE** `/api/conversations/{id}/members/{userId}` - Xóa thành viên
-- **GET** `/api/conversations/unread-count` - Tổng tin nhắn chưa đọc
-- **POST** `/api/conversations/{id}/read` - Đánh dấu đã đọc
-
-#### Message API
-- **GET** `/api/conversations/{id}/messages?before=...` - Lấy tin nhắn
-- **POST** `/api/conversations/{id}/messages` - Gửi tin nhắn
-
-#### SignalR Hub
-**URL**: `/hubs/chat`
-
-**Methods**:
-- `SendMessage(conversationId, content, attachmentUrl)` - Gửi tin nhắn realtime
-- `Typing(conversationId)` - Thông báo đang gõ
-- `Seen(conversationId, messageId)` - Đánh dấu đã xem
-- `JoinConversation(conversationId)` - Tham gia room
-
-**Events** (Client nhận):
-- `ReceiveMessage` - Nhận tin nhắn mới
-- `UserTyping` - Người dùng đang gõ
-- `MessageSeen` - Tin nhắn đã được xem
-
-## 🛠️ Tech Stack
-
-- **Backend**: ASP.NET Core 8.0 MVC
-- **Database**: SQL Server 2022
-- **ORM**: Entity Framework Core
-- **Authentication**: JWT + Cookie (dual mode)
-- **Realtime**: SignalR
-- **Password**: BCrypt
-- **Image Processing**: SixLabors.ImageSharp
-- **Docker**: SQL Server container
-
-## 📦 Cài đặt
-
-### 1. Prerequisites
-- .NET 8.0 SDK
-- Docker Desktop
-- Visual Studio 2022 hoặc VS Code
-
-### 2. Clone & Setup
-
+**Bước 1: Clone dự án**
 ```bash
-git clone https://github.com/hqcoder05/Okem-Social.git
-cd Okem-Social
+git clone https://github.com/hqcoder05/socialokem.git
+cd socialokem
 ```
 
-### 3. Cấu hình Database
-
-Cập nhật connection string trong `appsettings.json` nếu cần:
-
+**Bước 2: Cấu hình Chuỗi kết nối (Connection String)**
+Mở tệp `appsettings.json` hoặc `appsettings.Development.json` và thay đổi `DefaultConnection` cho phù hợp với SQL Server của bạn. 
+*Ví dụ dùng SQL Server LocalDB:*
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=localhost,1433;Database=okem_social_db;User Id=sa;Password=Aa123456@;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=OkemSocialDb;Trusted_Connection=True;MultipleActiveResultSets=true"
 }
 ```
 
-### 4. Start SQL Server
-
+**Bước 3: Chạy Migration để tạo Database**
+Mở Terminal/Command Prompt tại thư mục dự án và chạy lệnh sau (yêu cầu đã cài đặt `dotnet-ef`):
 ```bash
-# Tạo file .env với SA_PASSWORD
-echo SA_PASSWORD=Aa123456@ > .env
-
-# Start SQL Server container
-docker-compose up -d
-```
-
-### 5. Apply Migrations
-
-```bash
+dotnet tool install --global dotnet-ef
 dotnet ef database update
 ```
+*Lưu ý: Ứng dụng cũng đã được tích hợp tính năng tự động tạo Database (Auto-Migration) và tự động tạo dữ liệu mẫu (Data Seeding) ngay khi chạy lần đầu tiên.*
 
-### 6. Run Application
-
+**Bước 4: Chạy ứng dụng**
 ```bash
 dotnet run
 ```
+Ứng dụng sẽ khởi chạy tại `http://localhost:5000` hoặc `https://localhost:5001`.
 
-App sẽ chạy tại:
-- MVC: `https://localhost:5001`
-- API: `https://localhost:5001/api`
-- SignalR Hub: `wss://localhost:5001/hubs/chat`
+## 🧑‍💻 Tài khoản Demo (Dữ liệu mẫu)
 
-## 📝 API Authentication
+Nếu ứng dụng tự động chạy Data Seeder, bạn có thể đăng nhập bằng các tài khoản sau:
+- **Email**: `quoc@okem.vn` / `lan@okem.vn` / `nam@okem.vn` / `minh@okem.vn` / `hoa@okem.vn`
+- **Mật khẩu chung**: `Password123@`
 
-### MVC (Cookie)
-Sử dụng form login tại `/Account/Login`
-
-### API (JWT)
-
-**1. Register/Login**:
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "password123"
-}
-```
-
-**Response**:
-```json
-{
-  "accessToken": "eyJhbGci...",
-  "refreshToken": "base64string...",
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "fullName": "John Doe",
-    "role": "User"
-  }
-}
-```
-
-**2. Sử dụng Access Token**:
-```http
-GET /api/users/me
-Authorization: Bearer eyJhbGci...
-```
-
-**3. Refresh Token**:
-```http
-POST /api/auth/refresh-token
-Content-Type: application/json
-
-{
-  "refreshToken": "base64string..."
-}
-```
-
-## 🔌 SignalR Connection
-
-### JavaScript Example
-
-```javascript
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/chat", {
-        accessTokenFactory: () => localStorage.getItem("accessToken")
-    })
-    .build();
-
-// Nhận tin nhắn
-connection.on("ReceiveMessage", (message) => {
-    console.log("New message:", message);
-});
-
-// Gửi tin nhắn
-await connection.invoke("SendMessage", conversationId, "Hello!", null);
-
-// Typing indicator
-await connection.invoke("Typing", conversationId);
-
-// Seen message
-await connection.invoke("Seen", conversationId, messageId);
-
-await connection.start();
-```
-
-## 📂 Project Structure
+## 📁 Cấu trúc thư mục dự án
 
 ```
-Okem-Social/
+okemsocial/
 ├── Controllers/
-│   ├── Api/              # API Controllers
-│   │   ├── AuthApiController.cs
-│   │   ├── UsersApiController.cs
-│   │   ├── FollowsApiController.cs
-│   │   ├── PostsApiController.cs
-│   │   ├── CommentsApiController.cs
-│   │   ├── LikesApiController.cs
-│   │   ├── MediaApiController.cs
-│   │   ├── ConversationsApiController.cs
-│   │   └── MessagesApiController.cs
-│   ├── AccountController.cs   # MVC Auth
-│   ├── ProfileController.cs
-│   ├── UsersController.cs
-│   └── HomeController.cs
-├── Models/
-│   ├── User.cs
-│   ├── Follow.cs
-│   ├── Post.cs
-│   ├── Comment.cs
-│   ├── Like.cs
-│   ├── Media.cs
-│   ├── Conversation.cs
-│   ├── ConversationMember.cs
-│   ├── Message.cs
-│   └── RefreshToken.cs
-├── DTOs/
-│   └── ApiDtos.cs
-├── Repositories/
-│   ├── IUserRepository.cs / UserRepository.cs
-│   ├── IPostRepository.cs / PostRepository.cs
-│   ├── ICommentRepository.cs / CommentRepository.cs
-│   ├── ILikeRepository.cs / LikeRepository.cs
-│   ├── IConversationRepository.cs / ConversationRepository.cs
-│   └── IMessageRepository.cs / MessageRepository.cs
-├── Services/
-│   ├── IAuthService.cs / AuthService.cs
-│   ├── IUserService.cs / UserService.cs
-│   ├── IJwtService.cs / JwtService.cs
-│   └── IMediaService.cs / MediaService.cs
-├── Hubs/
-│   └── ChatHub.cs
-├── Data/
-│   ├── ApplicationDbContext.cs
-│   └── Migrations/
-├── Views/              # MVC Views
-├── wwwroot/            # Static files
-│   └── uploads/        # Uploaded media
-├── Program.cs
-├── appsettings.json
-└── docker-compose.yml
+│   ├── Api/                 # Chứa các Web API (Trao đổi dữ liệu dạng JSON)
+│   └── ...                  # Chứa các MVC Controllers (Trả về Razor Views)
+├── Models/                  # Entities cho Database (User, Post, Comment, Like, Message,...)
+├── DTOs/                    # Data Transfer Objects
+├── Repositories/            # Lớp truy cập dữ liệu (Repository Pattern)
+├── Services/                # Lớp nghiệp vụ xử lý Logic (AuthService, UserService,...)
+├── Hubs/                    # Các Hub của SignalR (ChatHub, NotificationHub)
+├── Data/                    # DbContext & Migrations & DataSeeder
+├── Views/                   # Chứa giao diện (.cshtml) được chia theo Controller
+└── wwwroot/                 # Chứa CSS, JS và thư mục uploads (ảnh/video tải lên)
 ```
 
-## 🔑 Default Admin Account
+## 📝 Nhật ký cập nhật (Changelog) gần nhất
+- **UI/UX Redesign**: Chuyển đổi toàn bộ từ Bootstrap sang Tailwind CSS để giao diện đẹp và hiện đại hơn.
+- **Tính năng Chia sẻ**: Cập nhật khả năng chia sẻ bài viết của người khác lên trang cá nhân của bản thân.
+- **UI Bình luận**: Hỗ trợ khả năng tự xóa bình luận của cá nhân.
+- **Lỗi Avatar**: Tích hợp cơ chế Fallback Avatar (Dùng avatar chữ cái qua API ui-avatars.com) để khắc phục lỗi mất hình trên các nền tảng deploy dùng bộ nhớ tạm (như Render Free Tier).
 
-```
-Email: admin@okem.vn
-Password: Admin!12345
-```
+## 📄 Bản quyền (License)
 
-## 📸 Upload Media
-
-Upload ảnh/video trước, sau đó dùng URL trong post:
-
-```http
-POST /api/media/upload?type=image
-Content-Type: multipart/form-data
-Authorization: Bearer {token}
-
-file: [binary]
-```
-
-Response:
-```json
-{
-  "url": "/uploads/images/guid.jpg"
-}
-```
-
-Sau đó tạo post:
-```http
-POST /api/posts
-Authorization: Bearer {token}
-
-{
-  "caption": "Beautiful day!",
-  "imageUrl": "/uploads/images/guid.jpg"
-}
-```
-
-## 🚧 TODO / Future Features
-
-- [ ] Notifications (realtime)
-- [ ] Stories (24h posts)
-- [ ] Hashtags
-- [ ] Mentions (@user)
-- [ ] Block/Report users
-- [ ] Email verification
-- [ ] Password reset
-- [ ] OAuth (Google, Facebook)
-- [ ] Admin dashboard
-- [ ] Analytics
-
-## 📄 License
-
-MIT License - Copyright (c) 2025 Okem Social
-
-## 👨‍💻 Author
-
-**hqcoder05**
-- GitHub: [@hqcoder05](https://github.com/hqcoder05)
+MIT License - Copyright (c) 2026 Okem Social
 
 ---
-
 **Happy Coding! 🎉**
