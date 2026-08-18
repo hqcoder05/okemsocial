@@ -87,6 +87,7 @@ public class PostDto
     public bool IsLikedByCurrentUser { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public PostDto? OriginalPost { get; set; }
 }
 
 // Comment DTOs

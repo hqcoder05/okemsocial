@@ -465,7 +465,7 @@
                                 <span class="font-bold text-slate-900 text-sm" dark:text-slate-100>${name}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-[11px] font-medium text-slate-500" dark:text-slate-400>${c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ""}</span>
-                                    ${c.userId === currentUserId ? `<button onclick="deleteComment(${c.id}, this)" class="text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                                    ${c.user?.id === currentUserId ? `<button onclick="deleteComment(${c.id}, this)" class="text-slate-400 hover:text-red-500 transition"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
                                 </div>
                             </div>
                             <div class="text-slate-700 text-[14px] leading-relaxed whitespace-pre-wrap">${c.content || ""}</div>

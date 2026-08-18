@@ -148,9 +148,10 @@ public class PostsApiController(
         var newPost = new Post
         {
             UserId = CurrentUserId,
-            Caption = $"[Chia sẻ từ bài viết của {originalName}]\n\n{post.Caption}",
-            ImageUrl = post.ImageUrl,
-            VideoUrl = post.VideoUrl,
+            Caption = "",
+            ImageUrl = null,
+            VideoUrl = null,
+            OriginalPostId = post.OriginalPostId ?? post.Id,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -195,7 +196,22 @@ public class PostsApiController(
             CommentsCount = commentsCount,
             IsLikedByCurrentUser = isLiked,
             CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt
+            UpdatedAt = post.UpdatedAt,
+            OriginalPost = post.OriginalPost != null ? new PostDto
+            {
+                Id = post.OriginalPost.Id,
+                Caption = post.OriginalPost.Caption,
+                ImageUrl = post.OriginalPost.ImageUrl,
+                VideoUrl = post.OriginalPost.VideoUrl,
+                CreatedAt = post.OriginalPost.CreatedAt,
+                User = new UserDto
+                {
+                    Id = post.OriginalPost.User?.Id ?? post.OriginalPost.UserId,
+                    Email = post.OriginalPost.User?.Email ?? "",
+                    FullName = post.OriginalPost.User?.FullName ?? "",
+                    AvatarUrl = post.OriginalPost.User?.AvatarUrl
+                }
+            } : null
         };
     }
 }

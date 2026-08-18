@@ -23,6 +23,9 @@ public class Post
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<Like> Likes { get; set; } = new List<Like>();
 
+    public int? OriginalPostId { get; set; }
+    public Post? OriginalPost { get; set; }
+
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
     public int LikesCount { get; set; }
 

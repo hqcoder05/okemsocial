@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using okem_social.Data;
 using okem_social.Models;
 
@@ -37,6 +37,8 @@ public class PostRepository : IPostRepository
     public async Task<List<Post>> GetFeedAsync(int userId, int skip = 0, int take = 20)
     {
         var raw = await _db.Posts
+            .Include(p => p.OriginalPost)
+            .ThenInclude(op => op!.User)
             .OrderByDescending(p => p.CreatedAt)
             .Skip(skip)
             .Take(take)
@@ -44,19 +46,24 @@ public class PostRepository : IPostRepository
             {
                 Post = p,
                 User = p.User,
+                OriginalPost = p.OriginalPost,
+                OriginalUser = p.OriginalPost != null ? p.OriginalPost.User : null,
                 LikesCount = p.Likes.Count(),
                 CommentsCount = p.Comments.Count(),
                 IsLiked = p.Likes.Any(l => l.UserId == userId)
             })
             .ToListAsync();
 
-        return raw.Select(r => {
+        return raw.Select(r =>
+        {
             r.Post.User = r.User;
+            if (r.Post.OriginalPost != null)
+            {
+                r.Post.OriginalPost.User = r.OriginalUser;
+            }
             r.Post.LikesCount = r.LikesCount;
             r.Post.CommentsCount = r.CommentsCount;
             r.Post.IsLikedByCurrentUser = r.IsLiked;
-            r.Post.Comments = null!;
-            r.Post.Likes = null!;
             return r.Post;
         }).ToList();
     }
@@ -64,6 +71,8 @@ public class PostRepository : IPostRepository
     public async Task<List<Post>> GetUserPostsAsync(int viewerId, int skip = 0, int take = 20)
     {
         var raw = await _db.Posts
+            .Include(p => p.OriginalPost)
+            .ThenInclude(op => op!.User)
             .Where(p => p.UserId == viewerId)
             .OrderByDescending(p => p.CreatedAt)
             .Skip(skip)
@@ -72,19 +81,24 @@ public class PostRepository : IPostRepository
             {
                 Post = p,
                 User = p.User,
+                OriginalPost = p.OriginalPost,
+                OriginalUser = p.OriginalPost != null ? p.OriginalPost.User : null,
                 LikesCount = p.Likes.Count(),
                 CommentsCount = p.Comments.Count(),
                 IsLiked = p.Likes.Any(l => l.UserId == viewerId)
             })
             .ToListAsync();
 
-        return raw.Select(r => {
+        return raw.Select(r =>
+        {
             r.Post.User = r.User;
+            if (r.Post.OriginalPost != null)
+            {
+                r.Post.OriginalPost.User = r.OriginalUser;
+            }
             r.Post.LikesCount = r.LikesCount;
             r.Post.CommentsCount = r.CommentsCount;
             r.Post.IsLikedByCurrentUser = r.IsLiked;
-            r.Post.Comments = null!;
-            r.Post.Likes = null!;
             return r.Post;
         }).ToList();
     }
