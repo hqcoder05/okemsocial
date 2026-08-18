@@ -21,9 +21,12 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-// EF Core + SQL Server (Local / Docker)
-builder.Services.AddDbContext<ApplicationDbContext>(o =>
-    o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// EF Core + PostgreSQL
+var connString = builder.Configuration.GetConnectionString("DefaultConnection") 
+                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connString));
 
 // JWT Auth configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");

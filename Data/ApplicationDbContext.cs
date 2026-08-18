@@ -48,11 +48,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .HasForeignKey(fr => fr.ToUserId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Không tự gửi lời mời cho chính mình (SQL Server)
+        // Không tự gửi lời mời cho chính mình (PostgreSQL)
         b.Entity<FriendRequest>()
             .ToTable(t => t.HasCheckConstraint(
                 "CK_FriendRequest_NoSelf",
-                "[FromUserId] <> [ToUserId]"
+                "\"FromUserId\" <> \"ToUserId\""
             ));
 
         // Post
@@ -107,16 +107,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .OnDelete(DeleteBehavior.NoAction);
 
         // Unique constraint: User chỉ like 1 lần cho mỗi Post/Comment
-        // SQL Server: dùng dấu ngoặc vuông []
+        // PostgreSQL: dùng dấu ngoặc kép ""
         b.Entity<Like>()
             .HasIndex(l => new { l.UserId, l.PostId })
             .IsUnique()
-            .HasFilter("[PostId] IS NOT NULL");
+            .HasFilter("\"PostId\" IS NOT NULL");
 
         b.Entity<Like>()
             .HasIndex(l => new { l.UserId, l.CommentId })
             .IsUnique()
-            .HasFilter("[CommentId] IS NOT NULL");
+            .HasFilter("\"CommentId\" IS NOT NULL");
 
         // Media
         b.Entity<Media>()

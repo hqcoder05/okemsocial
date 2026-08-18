@@ -14,6 +14,8 @@ public static class DataSeeder
 
         try
         {
+            logger.LogInformation("Applying migrations...");
+            await db.Database.MigrateAsync();
             logger.LogInformation("Checking database seed state...");
 
             var defaultPasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123@");
