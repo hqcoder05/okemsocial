@@ -4,80 +4,116 @@
     ViewData["Title"] = $"Lời mời kết bạn đến {target.FullName}";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="mb-4">
-                <a asp-action="Details" asp-route-id="@target.Id" class="btn btn-outline-secondary mb-3" style="border-radius: 12px;">
-                    <i class="fas fa-arrow-left me-2"></i>Quay lại hồ sơ
-                </a>
-                <h2 class="fw-bold mb-2">
-                    <i class="fas fa-user-plus me-2" style="color: var(--primary-color);"></i>
-                    Lời mời kết bạn đến @target.FullName
-                </h2>
-                <p class="text-muted">@Model.Count lời mời đang chờ xử lý</p>
-            </div>
+<div class="mx-auto max-w-4xl space-y-6 py-4">
+    <!-- Header Navigation -->
+    <div>
+        <a asp-action="Search"
+           class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 transition-colors hover:text-slate-900" dark:text-slate-400 dark:text-slate-100>
+            <i class="fa-solid fa-arrow-left text-[11px]"></i>
+            <span>Quay lại mạng lưới</span>
+        </a>
 
-            @if (Model.Count == 0)
+        <div class="mt-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+            <div>
+                <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl" dark:text-slate-100>
+                    Lời mời kết bạn
+                </h1>
+                <p class="mt-1 text-sm font-medium text-slate-500" dark:text-slate-400>
+                    Danh sách những người đang chờ bạn chấp nhận kết nối
+                </p>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-slate-100 px-3.5 py-1 text-xs font-bold text-slate-700">
+                @Model.Count lời mời
+            </span>
+        </div>
+    </div>
+
+    <!-- Content List -->
+    @if (Model.Count == 0)
+    {
+        <div class="rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-card" dark:border-white/10 dark:bg-black>
+            <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                <i class="fa-regular fa-envelope-open text-2xl"></i>
+            </div>
+            <h3 class="mt-4 font-heading text-base font-bold text-slate-900" dark:text-slate-100>
+                Không có lời mời kết bạn nào
+            </h3>
+            <p class="mt-1 text-sm text-slate-500" dark:text-slate-400>
+                Khi có ai đó gửi lời mời kết bạn cho bạn, yêu cầu sẽ xuất hiện tại đây.
+            </p>
+            <div class="mt-6">
+                <a asp-action="Search"
+                   class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95" dark:bg-white dark:text-black>
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    <span>Khám phá bạn bè mới</span>
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            @foreach (var u in Model)
             {
-                <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-user-clock fa-4x mb-3" style="color: #e5e7eb;"></i>
-                        <h5 class="mb-2">Không có lời mời kết bạn nào</h5>
-                        <p class="text-muted mb-0">Bạn sẽ thấy danh sách lời mời kết bạn tại đây.</p>
+                var displayName = !string.IsNullOrWhiteSpace(u.FullName) ? u.FullName : u.Email;
+                var initial = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim()[0].ToString().ToUpper() : "U";
+
+                <div class="flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 shadow-card transition-all hover:border-slate-200 hover:shadow-lift" dark:border-white/10 dark:bg-black>
+                    <!-- User Info -->
+                    <div class="flex items-start gap-3.5">
+                        @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                        {
+                            <img src="@u.AvatarUrl" alt="@displayName" class="h-12 w-12 shrink-0 rounded-full object-cover shadow-sm" />
+                        }
+                        else
+                        {
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-sm font-bold text-white shadow-sm">
+                                @initial
+                            </div>
+                        }
+                        <div class="min-w-0 flex-1">
+                            <a asp-action="Details" asp-route-id="@u.Id" class="block truncate font-heading text-base font-bold text-slate-900 transition-colors hover:text-slate-700" dark:text-slate-100>
+                                @displayName
+                            </a>
+                            <p class="mt-0.5 truncate text-xs text-slate-500" dark:text-slate-400>
+                                @u.Email
+                            </p>
+                            @if (!string.IsNullOrWhiteSpace(u.Nickname))
+                            {
+                                <p class="mt-0.5 text-xs font-medium text-slate-400">
+                                    &#64;@u.Nickname
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(u.Bio))
+                    {
+                        <p class="mt-3 line-clamp-2 rounded-xl bg-slate-50 p-2.5 text-xs text-slate-600" dark:text-slate-400 dark:bg-neutral-900>
+                            @u.Bio
+                        </p>
+                    }
+
+                    <!-- Actions -->
+                    <div class="mt-5 flex items-center justify-between gap-2 border-t border-slate-100 pt-4" dark:border-white/10>
+                        <a asp-action="Details"
+                           asp-route-id="@u.Id"
+                           class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50" dark:hover:bg-white/10 dark:border-white/10 dark:bg-neutral-900 dark:bg-black>
+                            <i class="fa-regular fa-user text-[11px]"></i>
+                            <span>Hồ sơ</span>
+                        </a>
+
+                        <form method="post" asp-action="Accept" asp-route-id="@u.Id" class="inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-5 py-1.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95" dark:bg-white dark:text-black>
+                                <i class="fa-solid fa-user-check text-[11px]"></i>
+                                <span>Chấp nhận</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             }
-            else
-            {
-                <div class="row g-3">
-                    @foreach (var u in Model)
-                    {
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-medium me-3"
-                                             style="width: 60px; height: 60px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-                                                            border-radius: 16px; display:flex; align-items:center; justify-content:center;
-                                                            font-size:24px; font-weight:700; color:white;">
-                                            @u.FullName?.Substring(0, 1).ToUpper()
-                                        </div>
-                                        <div class="flex-grow-1 min-width-0">
-                                            <h6 class="fw-bold mb-1 text-truncate">@u.FullName</h6>
-                                            <p class="text-muted small mb-0 text-truncate">
-                                                <i class="fas fa-envelope me-1"></i>@u.Email
-                                            </p>
-                                        </div>
-                                        <div class="ms-2 d-flex gap-2">
-                                            <a class="btn btn-sm btn-outline-primary"
-                                               asp-action="Details" asp-route-id="@u.Id">
-                                                <i class="fas fa-user"></i>
-                                            </a>
-                                            <form method="post" asp-action="Accept" asp-route-id="@u.Id">
-                                                <button type="submit" class="btn btn-sm btn-primary-custom">
-                                                    <i class="fas fa-user-check me-1"></i>Chấp nhận
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
         </div>
-    </div>
+    }
 </div>
-
-<style>
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15) !important;
-    }
-
-    .min-width-0 {
-        min-width: 0;
-    }
-</style>

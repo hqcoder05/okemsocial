@@ -3,159 +3,152 @@
     var returnUrl = ViewBag.ReturnUrl as string;
 }
 
-<div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-5 col-lg-4">
-                <!-- Logo/Brand -->
-                <div class="text-center mb-4">
-                    <div class="mb-3">
-                        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);">
-                            <i class="fas fa-users fa-2x text-white"></i>
-                        </div>
-                    </div>
-                    <h2 class="fw-bold mb-2" style="color: #1f2937;">Chào mừng trở lại!</h2>
-                    <p class="text-muted">Đăng nhập để kết nối với bạn bè</p>
-                </div>
+<div class="min-h-[calc(100vh-130px)] flex items-center justify-center py-8">
+    <div class="w-full max-w-[440px] rounded-2xl border border-slate-100 bg-white p-8 shadow-card" dark:border-white/10 dark:bg-black>
+        <!-- Logo & Header -->
+        <div class="mb-8 text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white text-xl font-black shadow-sm" dark:bg-white dark:text-black>
+                L
+            </div>
+            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900" dark:text-slate-100>Đăng nhập</h1>
+            <p class="mt-1.5 text-sm font-medium text-slate-500" dark:text-slate-400>Chào mừng bạn quay trở lại với Okem</p>
+        </div>
 
-                <!-- Login Card -->
-                <div class="modern-card p-4">
-                    @if (TempData["err"] != null)
-                    {
-                        <div class="alert-modern alert-modern-danger mb-4">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            @TempData["err"]
-                        </div>
-                    }
+        @if (TempData["err"] != null)
+        {
+            <div class="mb-5 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50/80 p-3.5 text-xs font-semibold text-red-600">
+                <i class="fa-solid fa-circle-exclamation shrink-0 text-sm"></i>
+                <span>@TempData["err"]</span>
+            </div>
+        }
+        @if (TempData["ok"] != null)
+        {
+            <div class="mb-5 flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-xs font-semibold text-emerald-600">
+                <i class="fa-solid fa-circle-check shrink-0 text-sm"></i>
+                <span>@TempData["ok"]</span>
+            </div>
+        }
 
-                    <form asp-action="Login" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+        <!-- Form -->
+        <form asp-action="Login" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold text-sm" style="color: #374151;">
-                                <i class="fas fa-envelope me-1" style="color: #6366f1;"></i>
-                                Email
-                            </label>
-                            <input type="email" 
-                                   class="input-modern" 
-                                   id="email" 
-                                   name="email" 
-                                   placeholder="your.email@example.com" 
-                                   required
-                                   autocomplete="email">
-                        </div>
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Email
+                </label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       placeholder="name@example.com"
+                       required
+                       autocomplete="email"
+                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
+            </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label fw-semibold text-sm" style="color: #374151;">
-                                <i class="fas fa-lock me-1" style="color: #6366f1;"></i>
-                                Mật khẩu
-                            </label>
-                            <div class="position-relative">
-                                <input type="password" 
-                                       class="input-modern" 
-                                       id="password" 
-                                       name="password" 
-                                       placeholder="••••••••" 
-                                       required
-                                       autocomplete="current-password"
-                                       style="padding-right: 3rem;">
-                                <button type="button" 
-                                        class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-3" 
-                                        id="togglePassword" 
-                                        style="text-decoration: none; z-index: 10;">
-                                    <i class="fas fa-eye text-muted"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="rememberMe" 
-                                       name="rememberMe"
-                                       style="border-radius: 4px; border: 1.5px solid #d1d5db;">
-                                <label class="form-check-label text-sm text-muted" for="rememberMe">
-                                    Ghi nhớ
-                                </label>
-                            </div>
-                            <a href="#" class="text-sm fw-semibold" style="color: #6366f1; text-decoration: none;">
-                                Quên mật khẩu?
-                            </a>
-                        </div>
-
-                        <button type="submit" class="btn-modern btn-modern-primary w-100 mb-3">
-                            <i class="fas fa-sign-in-alt me-2"></i>
-                            Đăng nhập
-                        </button>
-
-                        <div class="text-center">
-                            <p class="text-sm text-muted mb-0">
-                                Chưa có tài khoản? 
-                                <a asp-action="Register" class="fw-bold" style="color: #6366f1; text-decoration: none;">
-                                    Đăng ký ngay
-                                </a>
-                            </p>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Social Login (Optional) -->
-                <div class="text-center mt-4">
-                    <div class="position-relative mb-3">
-                        <hr style="border-color: #e5e7eb;">
-                        <span class="position-absolute top-50 start-50 translate-middle px-3 bg-white text-xs text-muted">
-                            Hoặc tiếp tục với
-                        </span>
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button class="btn btn-outline-secondary" 
-                                style="width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #e5e7eb;" 
-                                disabled
-                                title="Sắp ra mắt">
-                            <i class="fab fa-google"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary" 
-                                style="width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #e5e7eb;" 
-                                disabled
-                                title="Sắp ra mắt">
-                            <i class="fab fa-facebook-f"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary" 
-                                style="width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid #e5e7eb;" 
-                                disabled
-                                title="Sắp ra mắt">
-                            <i class="fab fa-github"></i>
-                        </button>
-                    </div>
+            <!-- Password -->
+            <div>
+                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                    Mật khẩu
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="••••••••"
+                           required
+                           autocomplete="current-password"
+                           class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
+                    <button type="button"
+                            id="togglePassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 transition-colors"
+                            title="Hiện/ẩn mật khẩu">
+                        <i class="fa-regular fa-eye text-sm"></i>
+                    </button>
                 </div>
             </div>
+
+            <!-- Remember & Forgot -->
+            <div class="flex items-center justify-between pt-1">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox"
+                           id="rememberMe"
+                           name="rememberMe"
+                           value="true"
+                           class="h-4 w-4 rounded border-slate-300 accent-slate-950 cursor-pointer" />
+                    <span class="text-xs font-semibold text-slate-600" dark:text-slate-400>Ghi nhớ đăng nhập</span>
+                </label>
+                <a href="#" class="text-xs font-bold text-slate-600 hover:text-slate-950 hover:underline transition-colors" dark:text-slate-400 dark:text-slate-100>
+                    Quên mật khẩu?
+                </a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit"
+                    class="w-full rounded-full bg-slate-950 py-3 text-sm font-bold text-white hover:bg-slate-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm" dark:bg-white dark:text-black>
+                <span>Đăng nhập</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200" dark:border-white/10></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="bg-white px-2 text-xs text-slate-500" dark:bg-black dark:text-slate-400>Hoặc tiếp tục với</span>
+            </div>
         </div>
+
+        <!-- External Logins -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <form asp-action="ExternalLogin" method="post" class="w-full">
+                <input type="hidden" name="provider" value="Google" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
+                    <i class="fa-brands fa-google text-red-500"></i> Google
+                </button>
+            </form>
+            <form asp-action="ExternalLogin" method="post" class="w-full">
+                <input type="hidden" name="provider" value="Facebook" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
+                    <i class="fa-brands fa-facebook text-blue-600"></i> Facebook
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-xs font-medium text-slate-500" dark:text-slate-400>
+            Chưa có tài khoản?
+            <a asp-action="Register" class="font-bold text-slate-950 hover:underline ml-1" dark:text-slate-100>
+                Đăng ký ngay
+            </a>
+        </p>
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
-        
-        togglePassword.addEventListener('click', function () {
-            const icon = this.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-                icon.style.color = '#6366f1';
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-                icon.style.color = '#9ca3af';
-            }
-        });
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const icon = this.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye', 'fa-regular');
+                    icon.classList.add('fa-eye-slash', 'fa-regular');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash', 'fa-regular');
+                    icon.classList.add('fa-eye', 'fa-regular');
+                }
+            });
+        }
     </script>
 }

@@ -1,156 +1,257 @@
 @model IEnumerable<okem_social.Models.Post>
+@inject okem_social.Data.ApplicationDbContext DbContext
 
 @{
     ViewData["Title"] = "Bảng tin";
     var currentUserId = (int)(ViewBag.CurrentUserId ?? 0);
+    var currentUser = await DbContext.Users.FindAsync(currentUserId);
+    var contacts = ViewBag.Contacts as IEnumerable<okem_social.Models.User> ?? Enumerable.Empty<okem_social.Models.User>();
 }
 
-<div class="page-transition">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Header -->
-            <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-2">
-                        <i class="fa-solid fa-house me-2"></i>Bảng tin
-                    </h1>
-                    <p class="text-muted mb-0">Xem bài viết từ bạn bè và những người bạn theo dõi</p>
+<div class="mx-auto max-w-7xl px-4 py-8">
+    <div class="grid gap-6 lg:grid-cols-[240px_minmax(0,640px)] xl:grid-cols-[240px_minmax(0,640px)_300px] justify-center">
+        
+        <!-- LEFT SIDEBAR -->
+        <div class="hidden lg:block space-y-6">
+            <!-- Trending Topics -->
+            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-card dark:border-white/10 dark:bg-black">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-arrow-trend-up text-blue-600 text-sm"></i>
+                    <h3 class="font-heading text-sm font-extrabold text-slate-900 dark:text-white">Chủ đề thịnh hành</h3>
                 </div>
-                <a asp-controller="Posts" asp-action="Create" class="btn btn-primary">
-                    <i class="fa-solid fa-pen-to-square me-2"></i>Tạo bài viết
-                </a>
+                <div class="space-y-4">
+                    @{
+                        var trending = ViewBag.TrendingTopics as List<okem_social.Models.TrendingTopic> ?? new List<okem_social.Models.TrendingTopic>();
+                    }
+                    @if (trending.Any())
+                    {
+                        @foreach (var topic in trending)
+                        {
+                            <a href="#" class="block group">
+                                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khám phá</div>
+                                <div class="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition dark:text-slate-100">@topic.Tag</div>
+                                <div class="text-xs text-slate-400 mt-0.5">@topic.Count bài viết</div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-xs text-slate-400 italic">Chưa có chủ đề nổi bật.</p>
+                    }
+                </div>
             </div>
 
-            <!-- Danh sách bài viết -->
+            <!-- Suggested Users -->
+            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-card dark:border-white/10 dark:bg-black">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-user-plus text-blue-600 text-sm"></i>
+                    <h3 class="font-heading text-sm font-extrabold text-slate-900 dark:text-white">Gợi ý kết bạn</h3>
+                </div>
+                <div class="space-y-4">
+                    @{
+                        var suggestedUsers = ViewBag.SuggestedUsers as List<okem_social.Models.User> ?? new List<okem_social.Models.User>();
+                    }
+                    @if (suggestedUsers.Any())
+                    {
+                        @foreach (var user in suggestedUsers.Take(5))
+                        {
+                            var sName = user.FullName ?? user.Email;
+                            var sInitial = !string.IsNullOrWhiteSpace(sName) ? sName.Trim()[0].ToString().ToUpper() : "U";
+                            <div class="flex items-center justify-between group">
+                                <a asp-controller="Profile" asp-action="Details" asp-route-id="@user.Id" class="flex items-center gap-3 overflow-hidden flex-1">
+                                    @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                    {
+                                        <img src="@user.AvatarUrl" alt="@sName" class="shrink-0 h-9 w-9 rounded-full object-cover shadow-sm" />
+                                    }
+                                    else
+                                    {
+                                        <div class="shrink-0 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-600 text-white font-bold text-xs shadow-sm">
+                                            @sInitial
+                                        </div>
+                                    }
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-bold text-slate-900 group-hover:text-blue-600 transition dark:text-white">@sName</p>
+                                        <p class="truncate text-[11px] font-medium text-slate-400 mt-0.5">@user.Email</p>
+                                    </div>
+                                </a>
+                                <form asp-controller="Users" asp-action="SendRequest" method="post" class="shrink-0 ml-2">
+                                    <input type="hidden" name="toUserId" value="@user.Id" />
+                                    <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-600 hover:bg-slate-950 hover:text-white transition shadow-sm dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white dark:hover:text-black">
+                                        <i class="fa-solid fa-plus text-xs"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-xs text-slate-400 italic">Không có gợi ý nào lúc này.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN (FEED) -->
+        <div class="space-y-6">
+            <!-- CreatePostCard -->
+            <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-card dark:border-white/10 dark:bg-black">
+                <div class="flex gap-4 mb-4">
+                    @if (currentUser != null && !string.IsNullOrEmpty(currentUser.AvatarUrl))
+                    {
+                        <img src="@currentUser.AvatarUrl" alt="Me" class="flex h-11 w-11 shrink-0 rounded-full object-cover shadow-sm" />
+                    }
+                    else
+                    {
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-sm font-bold text-white shadow-sm">
+                            @(currentUser?.FullName != null ? currentUser.FullName.Substring(0, 1).ToUpper() : (currentUser?.Email != null ? currentUser.Email.Substring(0, 1).ToUpper() : "U"))
+                        </div>
+                    }
+                    <textarea id="quickPostCaption" class="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-slate-900 focus:bg-white transition placeholder-slate-400 dark:border-white/10 dark:bg-neutral-900 dark:text-white" rows="2" placeholder="Chia sẻ suy nghĩ hoặc ý tưởng mới của bạn..."></textarea>
+                </div>
+                <div id="imagePreviewBox" class="hidden mb-4 relative rounded-2xl overflow-hidden max-h-60 bg-slate-100">
+                    <img id="previewImg" src="" alt="Preview" class="w-full object-cover" />
+                    <button type="button" onclick="clearSelectedImage()" class="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-slate-950/70 text-white hover:bg-slate-950 transition" dark:bg-white dark:text-black>
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between border-t border-slate-100 pt-4 dark:border-white/10">
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="postImageInput" accept="image/*" class="hidden" onchange="handleImageSelect(this)" />
+                        <button type="button" onclick="document.getElementById('postImageInput').click()" class="flex items-center gap-2 rounded-full px-4 py-2 hover:bg-slate-50 transition text-xs font-bold text-slate-600 dark:text-slate-300 dark:hover:bg-white/10" dark:text-slate-400 dark:bg-neutral-900 dark:bg-black>
+                            <i class="fa-regular fa-image text-emerald-500 text-base"></i>
+                            <span>Hình ảnh</span>
+                        </button>
+                    </div>
+                    <button type="button" id="btnSubmitPost" onclick="submitQuickPost()" class="rounded-full bg-slate-950 px-7 py-2.5 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition shadow-sm dark:bg-white dark:text-black dark:hover:bg-slate-200" dark:bg-black>
+                        Đăng bài
+                    </button>
+                </div>
+            </div>
+
+            <!-- PostCards -->
             @if (!Model.Any())
             {
-                <div class="modern-card text-center py-5">
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fa-solid fa-newspaper"></i>
-                        </div>
-                        <h5>Chưa có bài viết nào</h5>
-                        <p>Hãy kết bạn hoặc tự đăng một bài viết đầu tiên!</p>
-                        <a asp-controller="Posts" asp-action="Create" class="btn btn-primary mt-2">
-                            <i class="fa-solid fa-pen-to-square me-2"></i>Tạo bài viết
-                        </a>
+                <div class="rounded-3xl border border-slate-100 bg-white p-12 text-center shadow-card dark:border-white/10 dark:bg-black">
+                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 text-3xl text-slate-400 dark:bg-neutral-900">
+                        <i class="fa-regular fa-newspaper"></i>
                     </div>
+                    <h3 class="mb-2 font-heading text-lg font-bold text-slate-900 dark:text-white">Chưa có bài viết nào</h3>
+                    <p class="mb-6 text-xs font-medium text-slate-500" dark:text-slate-400>Hãy kết bạn hoặc chia sẻ bài viết đầu tiên của bạn!</p>
                 </div>
             }
             else
             {
                 @foreach (var post in Model)
                 {
-                    var displayName = post.User?.FullName ?? post.User?.Email ?? "Người dùng";
-                    var avatarText = !string.IsNullOrWhiteSpace(displayName)
-                    ? displayName.Trim()[0].ToString().ToUpper()
-                    : "U";
+                    var postUser = post.User;
+                    var displayName = postUser?.FullName ?? postUser?.Email ?? "Người dùng";
+                    var avatarInitial = !string.IsNullOrWhiteSpace(displayName) ? displayName.Trim()[0].ToString().ToUpper() : "U";
+                    var avatarUrl = postUser?.AvatarUrl;
+                    var likesCount = post.LikesCount;
+                    var commentsCount = post.CommentsCount;
+                    var isLiked = post.IsLikedByCurrentUser;
 
-                    // Đếm like / comment từ navigation (nhớ Include trong repo)
-                    var likesCount = post.Likes?.Count ?? 0;
-                    var commentsCount = post.Comments?.Count ?? 0;
-                    var isLiked = post.Likes?.Any(l => l.UserId == currentUserId) ?? false;
-
-                    <div class="modern-card mb-3" id="post-@post.Id">
-                        <!-- Header post -->
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="avatar-circle avatar-lg me-3"
-                                 style="background: linear-gradient(135deg, #3B82F6, #6366F1);">
-                                @avatarText
-                            </div>
-                            <div>
-                                <div class="fw-semibold">
-                                    @displayName
+                    <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-card dark:border-white/10 dark:bg-black" id="post-@post.Id">
+                        <!-- Post Header -->
+                        <div class="mb-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3.5">
+                                <a asp-controller="Profile" asp-action="Details" asp-route-id="@post.UserId" class="shrink-0 group">
+                                    @if (!string.IsNullOrEmpty(avatarUrl))
+                                    {
+                                        <img src="@avatarUrl" alt="@displayName" class="h-11 w-11 rounded-full object-cover shadow-sm group-hover:opacity-90 transition" />
+                                    }
+                                    else
+                                    {
+                                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-sm font-bold text-white shadow-sm">
+                                            @avatarInitial
+                                        </div>
+                                    }
+                                </a>
+                                <div>
+                                    <a asp-controller="Profile" asp-action="Details" asp-route-id="@post.UserId" class="font-bold text-sm text-slate-900 hover:underline dark:text-white">
+                                        @displayName
+                                    </a>
+                                    <div class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mt-0.5">
+                                        <span>@(postUser?.Headline ?? "Thành viên")</span>
+                                        <span>•</span>
+                                        <span>@post.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
                                 </div>
-                                <div class="text-muted small">
-                                    <i class="fa-solid fa-clock me-1"></i>
-                                    @post.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
-                                </div>
                             </div>
-                        </div>
-
-                        <!-- Quote / Caption -->
-                        @if (!string.IsNullOrWhiteSpace(post.Caption))
-                        {
-                            <div class="mb-3">
-                                <blockquote class="mb-0 quote-block">
-                                    <span class="fst-italic">@post.Caption</span>
-                                </blockquote>
-                            </div>
-                        }
-
-                        <!-- MEDIA -->
-                        @if (!string.IsNullOrEmpty(post.ImageUrl))
-                        {
-                            <div class="post-media mb-3">
-                                <img src="@post.ImageUrl"
-                                     alt="Post image"
-                                     class="post-media-content" />
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrEmpty(post.VideoUrl))
-                        {
-                            <div class="post-media mb-3">
-                                <video src="@post.VideoUrl"
-                                       class="post-media-content"
-                                       controls
-                                       preload="metadata"></video>
-                            </div>
-                        }
-
-                        <!-- Actions -->
-                        <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
-                            <button type="button"
-                                    class="btn btn-sm btn-link text-decoration-none px-0 btn-like-post @(isLiked ? "text-danger fw-semibold" : "text-muted")"
-                                    data-post-id="@post.Id"
-                                    data-liked="@(isLiked.ToString().ToLower())">
-                                <i class="@(isLiked ? "fa-solid" : "fa-regular") fa-heart me-1"></i>
-                                <span class="like-label">Thích</span>
-                                <span class="like-count ms-1">@likesCount</span>
-                            </button>
-
-                            <button type="button"
-                                    class="btn btn-sm btn-link text-decoration-none px-0 text-muted btn-toggle-comments"
-                                    data-post-id="@post.Id">
-                                <i class="fa-regular fa-comment-dots me-1"></i>
-                                Bình luận
-                                <span class="comment-count ms-1">@commentsCount</span>
-                            </button>
 
                             @if (post.UserId == currentUserId)
                             {
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
-                                        <i class="fa-solid fa-ellipsis-v"></i>
+                                <div class="relative dropdown-container">
+                                    <button class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition dark:hover:bg-white/10" dark:text-slate-400 dark:bg-neutral-900 dark:bg-black onclick="this.nextElementSibling.classList.toggle('hidden')">
+                                        <i class="fa-solid fa-ellipsis"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li>
-                                            <a class="dropdown-item text-danger"
-                                               href="#"
-                                               onclick="deletePost(@post.Id); return false;">
-                                                <i class="fa-solid fa-trash me-2"></i>Xóa bài viết
-                                            </a>
-                                        </li>
-                                    </ul>
+                                    <div class="absolute right-0 top-full z-10 mt-1 hidden w-44 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-lift dark:border-white/10 dark:bg-black">
+                                        <a href="#" onclick="deletePost(@post.Id); return false;" class="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition dark:hover:bg-red-950/20">
+                                            <i class="fa-solid fa-trash text-xs"></i> Xóa bài viết
+                                        </a>
+                                    </div>
                                 </div>
                             }
                         </div>
 
-                        <!-- Comments box -->
-                        <div class="post-comments mt-2 d-none" id="comments-@post.Id">
-                            <div class="comments-list small" data-post-id="@post.Id">
-                                <!-- comment sẽ load bằng JS -->
+                        <!-- Caption -->
+                        @if (!string.IsNullOrWhiteSpace(post.Caption))
+                        {
+                            <div class="mb-4 text-sm font-medium leading-relaxed text-slate-800 whitespace-pre-wrap dark:text-slate-200" dark:text-slate-100>@post.Caption</div>
+                        }
+
+                        <!-- Post Image -->
+                        @if (!string.IsNullOrEmpty(post.ImageUrl))
+                        {
+                            <div class="mb-4 overflow-hidden rounded-2xl bg-slate-50 dark:bg-neutral-900">
+                                <img src="@post.ImageUrl" alt="Post media" class="max-h-[500px] w-full object-cover" />
                             </div>
-                            <div class="mt-2 d-flex">
-                                <input type="text"
-                                       class="form-control form-control-sm comment-input"
-                                       placeholder="Viết bình luận..."
-                                       autocomplete="off" />
-                                <button type="button"
-                                        class="btn btn-primary btn-sm ms-2 btn-send-comment"
+                        }
+
+                        <!-- Stats Bar -->
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-400 border-b border-slate-100 pb-3 mb-3 dark:border-white/10">
+                            <span class="flex items-center gap-1.5">
+                                <span class="flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30">
+                                    <i class="fa-solid fa-thumbs-up text-[10px]"></i>
+                                </span>
+                                <span id="like-count-text-@post.Id">@likesCount lượt thích</span>
+                            </span>
+                            <span>@commentsCount bình luận</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between">
+                            <button type="button" class="btn-like-post flex flex-1 items-center justify-center gap-2 rounded-2xl py-2 text-xs font-bold transition @(isLiked ? "text-red-500" : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/10")"
+                                    data-post-id="@post.Id" data-liked="@(isLiked ? "true" : "false")">
+                                <i class="@(isLiked ? "fa-solid" : "fa-regular") fa-heart text-base"></i>
+                                <span class="like-count">@likesCount</span>
+                            </button>
+
+                            <button type="button" class="btn-toggle-comments flex flex-1 items-center justify-center gap-2 rounded-2xl py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition dark:text-slate-400 dark:hover:bg-white/10" dark:bg-neutral-900 dark:bg-black
+                                    data-post-id="@post.Id">
+                                <i class="fa-regular fa-comment text-base"></i>
+                                <span class="comment-count">@commentsCount</span>
+                            </button>
+
+                            <button type="button" onclick="navigator.clipboard.writeText(window.location.href); alert('Đã sao chép liên kết bài viết!');" class="flex flex-1 items-center justify-center gap-2 rounded-2xl py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition dark:text-slate-400 dark:hover:bg-white/10" dark:bg-neutral-900 dark:bg-black>
+                                <i class="fa-regular fa-share-from-square text-base"></i>
+                                <span class="hidden sm:inline">Chia sẻ</span>
+                            </button>
+                        </div>
+
+                        <!-- Comments Section (Collapsible) -->
+                        <div class="post-comments hidden mt-4 border-t border-slate-100 pt-4 dark:border-white/10" id="comments-@post.Id">
+                            <div class="comments-list space-y-3 mb-4">
+                                <div class="text-slate-400 text-xs text-center py-2 italic">Đang tải bình luận...</div>
+                            </div>
+
+                            <!-- Comment Input -->
+                            <div class="flex gap-2.5">
+                                <input type="text" class="comment-input flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs outline-none focus:border-slate-900 focus:bg-white transition dark:border-white/10 dark:bg-neutral-900 dark:text-white"
+                                       placeholder="Viết bình luận của bạn..." />
+                                <button type="button" class="btn-send-comment flex h-9 w-9 items-center justify-center rounded-full bg-slate-950 text-white hover:bg-slate-800 active:scale-95 transition dark:bg-white dark:text-black" dark:bg-black
                                         data-post-id="@post.Id">
-                                    Gửi
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
                                 </button>
                             </div>
                         </div>
@@ -158,74 +259,132 @@
                 }
             }
         </div>
+
+        <!-- RIGHT SIDEBAR (CONTACTS & REALTIME CALLS) -->
+        <div class="hidden xl:block space-y-6">
+            <div class="rounded-3xl border border-slate-100 bg-white p-5 shadow-card dark:border-white/10 dark:bg-black">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                        <h3 class="font-heading text-sm font-extrabold text-slate-900 dark:text-white">Danh bạ & Trò chuyện</h3>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-400">@contacts.Count()</span>
+                </div>
+
+                @if (contacts.Any())
+                {
+                    <div class="space-y-1">
+                        @foreach (var friend in contacts)
+                        {
+                            var fName = friend.FullName ?? friend.Email;
+                            var fInitial = !string.IsNullOrWhiteSpace(fName) ? fName.Trim()[0].ToString().ToUpper() : "U";
+                            <div class="group flex items-center justify-between rounded-2xl p-2 hover:bg-slate-50 transition-all dark:hover:bg-white/10" dark:bg-neutral-900 dark:bg-black>
+                                <button type="button" class="flex flex-1 items-center gap-3 text-left overflow-hidden" onclick="openChatPopupWithUser(@friend.Id, '@fName')">
+                                    <div class="relative shrink-0">
+                                        @if (!string.IsNullOrEmpty(friend.AvatarUrl))
+                                        {
+                                            <img src="@friend.AvatarUrl" alt="@fName" class="h-9 w-9 rounded-full object-cover shadow-sm" />
+                                        }
+                                        else
+                                        {
+                                            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-xs font-bold text-white shadow-sm">
+                                                @fInitial
+                                            </div>
+                                        }
+                                        <span id="online-dot-@friend.Id" class="hidden absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500"></span>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="truncate text-xs font-bold text-slate-900 dark:text-slate-100">@fName</div>
+                                        <div class="truncate text-[10px] text-slate-400 font-medium">@(friend.Headline ?? "Sẵn sàng trò chuyện")</div>
+                                    </div>
+                                </button>
+                                <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <button type="button" onclick="startVoiceCall(@friend.Id, '@fName')" title="Gọi thoại" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
+                                        <i class="fa-solid fa-phone text-xs"></i>
+                                    </button>
+                                    <button type="button" onclick="startVideoCall(@friend.Id, '@fName')" title="Gọi video" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                                        <i class="fa-solid fa-video text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-xs text-slate-400 text-center py-6 italic">Chưa có liên hệ trực tuyến</p>
+                }
+            </div>
+        </div>
+
     </div>
 </div>
 
-<style>
-    .avatar-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-    }
-
-    .avatar-lg {
-        width: 48px;
-        height: 48px;
-    }
-
-    .quote-block {
-        border-left: 4px solid #4F46E5;
-        padding-left: 0.75rem;
-    }
-
-    .post-media {
-        border-radius: 1rem;
-        overflow: hidden;
-        background: #000;
-    }
-
-    .post-media-content {
-        display: block;
-        width: 100%;
-        max-height: 480px;
-        object-fit: cover;
-    }
-
-    .btn-like-post.text-danger i {
-        color: #dc3545;
-    }
-
-    .comments-list .comment-item {
-        padding: 0.35rem 0;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .comments-list .comment-author {
-        font-weight: 600;
-    }
-
-    .comments-list .comment-time {
-        font-size: 0.75rem;
-        color: #9ca3af;
-    }
-</style>
-
 @section Scripts {
-    <!-- SignalR (nếu chưa nhúng ở layout) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
-
     <script>
-        let likeConn = null;
-        let commentConn = null;
+        let selectedImageData = null;
 
-        document.addEventListener("DOMContentLoaded", async function () {
+        function handleImageSelect(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    selectedImageData = e.target.result;
+                    document.getElementById('previewImg').src = selectedImageData;
+                    document.getElementById('imagePreviewBox').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearSelectedImage() {
+            selectedImageData = null;
+            document.getElementById('postImageInput').value = '';
+            document.getElementById('previewImg').src = '';
+            document.getElementById('imagePreviewBox').classList.add('hidden');
+        }
+
+        async function submitQuickPost() {
+            const caption = document.getElementById('quickPostCaption')?.value.trim();
+            if (!caption && !selectedImageData) {
+                alert('Vui lòng nhập nội dung bài viết!');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitPost');
+            btn.disabled = true;
+            btn.innerText = 'Đang đăng...';
+
+            try {
+                const formData = new FormData();
+                formData.append('caption', caption || '');
+                const fileInput = document.getElementById('postImageInput');
+                if (fileInput.files && fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+
+                const res = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.message || 'Không thể đăng bài');
+                }
+
+                location.reload();
+            } catch (e) {
+                console.error(e);
+                alert(e.message || 'Lỗi khi đăng bài');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Đăng bài';
+            }
+        }
+
+        // Like / Comment / SignalR handlers
+        document.addEventListener("DOMContentLoaded", function () {
             // LIKE
             document.querySelectorAll(".btn-like-post").forEach(btn => {
                 btn.addEventListener("click", async function () {
@@ -233,25 +392,22 @@
                     try {
                         const res = await fetch(`/api/likes/post/${postId}/toggle`, {
                             method: "POST",
-                            headers: {
-                                "X-Requested-With": "XMLHttpRequest"
-                            }
+                            headers: { "X-Requested-With": "XMLHttpRequest" }
                         });
 
-                        if (!res.ok) {
-                            throw new Error("Không thể like bài viết.");
-                        }
-
+                        if (!res.ok) throw new Error("Không thể like bài viết.");
                         const data = await res.json();
                         const liked = !!data.liked;
                         const likesCount = data.likesCount ?? 0;
 
                         this.dataset.liked = liked ? "true" : "false";
-                        this.querySelector(".like-count").textContent = likesCount;
+                        const countEl = this.querySelector(".like-count");
+                        if (countEl) countEl.textContent = likesCount;
+                        const textEl = document.getElementById(`like-count-text-${postId}`);
+                        if (textEl) textEl.textContent = `${likesCount} lượt thích`;
 
-                        this.classList.toggle("text-danger", liked);
-                        this.classList.toggle("fw-semibold", liked);
-                        this.classList.toggle("text-muted", !liked);
+                        this.classList.toggle("text-red-500", liked);
+                        this.classList.toggle("text-slate-600", !liked);
 
                         const icon = this.querySelector("i");
                         if (icon) {
@@ -260,28 +416,23 @@
                         }
                     } catch (e) {
                         console.error(e);
-                        alert(e.message || "Đã xảy ra lỗi khi like.");
                     }
                 });
             });
 
-            // TOGGLE COMMENTS
+            // COMMENTS TOGGLE
             document.querySelectorAll(".btn-toggle-comments").forEach(btn => {
                 btn.addEventListener("click", async function () {
                     const postId = this.dataset.postId;
                     const container = document.getElementById(`comments-${postId}`);
                     if (!container) return;
-
-                    const isHidden = container.classList.contains("d-none");
-                    container.classList.toggle("d-none");
-
-                    if (isHidden) {
-                        await loadComments(postId);
-                    }
+                    const isHidden = container.classList.contains("hidden");
+                    container.classList.toggle("hidden");
+                    if (isHidden) await loadComments(postId);
                 });
             });
 
-            // GỬI COMMENT
+            // COMMENT SUBMIT
             document.querySelectorAll(".btn-send-comment").forEach(btn => {
                 btn.addEventListener("click", async function () {
                     const postId = this.dataset.postId;
@@ -289,179 +440,95 @@
                 });
             });
 
-            // ===== SignalR: Like / Comment realtime =====
-            try {
-                likeConn = new signalR.HubConnectionBuilder()
-                    .withUrl("/hubs/likes")
-                    .withAutomaticReconnect()
-                    .build();
-
-                commentConn = new signalR.HubConnectionBuilder()
-                    .withUrl("/hubs/comments")
-                    .withAutomaticReconnect()
-                    .build();
-
-                likeConn.on("LikeChanged", data => {
-                    const postId = data.postId;
-                    const likesCount = data.likesCount ?? 0;
-                    const btn = document.querySelector(`.btn-like-post[data-post-id="${postId}"]`);
-                    if (!btn) return;
-                    const span = btn.querySelector(".like-count");
-                    if (span) span.textContent = likesCount;
-                });
-
-                commentConn.on("CommentAdded", c => {
-                    const postId = c.postId;
-                    // Tăng count trên nút nếu có
-                    const btnToggle = document.querySelector(`.btn-toggle-comments[data-post-id="${postId}"]`);
-                    if (btnToggle) {
-                        const spanCount = btnToggle.querySelector(".comment-count");
-                        if (spanCount) {
-                            const current = parseInt(spanCount.textContent || "0");
-                            spanCount.textContent = (current + 1).toString();
+            document.querySelectorAll(".comment-input").forEach(input => {
+                input.addEventListener("keypress", async function (e) {
+                    if (e.key === "Enter") {
+                        const container = this.closest(".post-comments");
+                        if (container) {
+                            const btn = container.querySelector(".btn-send-comment");
+                            if (btn) await submitComment(btn.dataset.postId, btn);
                         }
                     }
-
-                    // Nếu box đang mở thì load lại
-                    const container = document.getElementById(`comments-${postId}`);
-                    if (container && !container.classList.contains("d-none")) {
-                        loadComments(postId);
-                    }
                 });
-
-                await likeConn.start();
-                await commentConn.start();
-
-                // Join vào group của mỗi post
-                document.querySelectorAll(".btn-like-post").forEach(btn => {
-                    const postId = parseInt(btn.dataset.postId);
-                    if (postId > 0) {
-                        likeConn.invoke("JoinPost", postId);
-                        commentConn.invoke("JoinPost", postId);
-                    }
-                });
-            } catch (e) {
-                console.error("SignalR Feed error:", e);
-            }
+            });
         });
 
         async function loadComments(postId) {
             const list = document.querySelector(`#comments-${postId} .comments-list`);
             if (!list) return;
-
-            list.innerHTML = '<div class="text-muted small">Đang tải bình luận...</div>';
+            list.innerHTML = '<div class="text-slate-400 text-xs text-center py-2 italic">Đang tải bình luận...</div>';
 
             try {
                 const res = await fetch(`/api/comments/post/${postId}`, {
                     headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
-
-                if (!res.ok) {
-                    throw new Error("Không thể tải bình luận.");
-                }
-
+                if (!res.ok) throw new Error("Lỗi tải");
                 const comments = await res.json();
                 list.innerHTML = "";
 
                 if (!comments || comments.length === 0) {
-                    list.innerHTML = '<div class="text-muted small">Chưa có bình luận nào.</div>';
+                    list.innerHTML = '<div class="text-slate-400 text-xs text-center py-2 italic">Chưa có bình luận nào.</div>';
                     return;
                 }
 
                 comments.forEach(c => {
-                    const item = document.createElement("div");
-                    item.className = "comment-item";
+                    const authorName = c.user?.fullName || c.user?.email || "Người dùng";
+                    const avatarLetter = authorName.charAt(0).toUpperCase();
+                    const content = c.content || "";
+                    const avatarHtml = c.user?.avatarUrl
+                        ? `<img src="${c.user.avatarUrl}" alt="${authorName}" class="h-7 w-7 rounded-full object-cover shrink-0" />`
+                        : `<div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-[10px] font-bold text-white">${avatarLetter}</div>`;
 
-                    const author = document.createElement("div");
-                    author.className = "comment-author";
-                    author.textContent = c.user?.fullName || c.user?.email || "Người dùng";
-
-                    const content = document.createElement("div");
-                    content.textContent = c.content || "";
-
-                    const meta = document.createElement("div");
-                    meta.className = "comment-time";
-                    const d = c.createdAt ? new Date(c.createdAt) : null;
-                    meta.textContent = d ? d.toLocaleString() : "";
-
-                    item.appendChild(author);
-                    item.appendChild(content);
-                    item.appendChild(meta);
-
-                    list.appendChild(item);
+                    const html = `
+                        <div class="flex gap-2.5">
+                            ${avatarHtml}
+                            <div class="flex-1 rounded-2xl bg-slate-50 px-3.5 py-2 dark:bg-neutral-900">
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">${authorName}</div>
+                                <div class="text-xs text-slate-700 mt-0.5 dark:text-slate-300">${content}</div>
+                            </div>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML("beforeend", html);
                 });
             } catch (e) {
-                console.error(e);
-                list.innerHTML = '<div class="text-danger small">Lỗi khi tải bình luận.</div>';
+                list.innerHTML = '<div class="text-red-500 text-xs text-center py-2">Lỗi khi tải bình luận.</div>';
             }
         }
 
         async function submitComment(postId, button) {
             const container = document.getElementById(`comments-${postId}`);
             if (!container) return;
-
             const input = container.querySelector(".comment-input");
             const text = (input?.value || "").trim();
             if (!text) return;
 
             button.disabled = true;
-
             try {
                 const res = await fetch(`/api/comments/post/${postId}`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
+                    headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" },
                     body: JSON.stringify({ content: text })
                 });
-
-                if (!res.ok) {
-                    throw new Error("Không thể gửi bình luận.");
-                }
-
+                if (!res.ok) throw new Error("Gửi bình luận thất bại");
                 input.value = "";
                 await loadComments(postId);
-
-                // tăng count trên nút (local)
-                const btnToggle = document.querySelector(`.btn-toggle-comments[data-post-id="${postId}"]`);
-                if (btnToggle) {
-                    const spanCount = btnToggle.querySelector(".comment-count");
-                    if (spanCount) {
-                        const current = parseInt(spanCount.textContent || "0");
-                        spanCount.textContent = (current + 1).toString();
-                    }
-                }
             } catch (e) {
                 console.error(e);
-                alert(e.message || "Đã xảy ra lỗi khi gửi bình luận.");
             } finally {
                 button.disabled = false;
             }
         }
 
         async function deletePost(id) {
-            if (!confirm("Bạn có chắc muốn xóa bài viết này?")) {
-                return;
-            }
-
+            if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
             try {
                 const res = await fetch(`/api/posts/${id}`, {
                     method: "DELETE",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    }
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
-
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    throw new Error(err.message || "Xóa bài viết thất bại");
-                }
-
-                location.reload();
+                if (res.ok) location.reload();
             } catch (e) {
                 console.error(e);
-                alert(e.message || "Có lỗi xảy ra khi xóa.");
             }
         }
     </script>

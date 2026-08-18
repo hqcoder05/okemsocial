@@ -15,220 +15,329 @@
 }
 
 <div class="page-transition">
-    <div class="row">
-        <div class="col-lg-10 mx-auto">
-            <div class="modern-card" style="height: calc(100vh - 150px); display:flex; flex-direction:column;">
-                <div class="row flex-grow-1 g-0" style="height: 100%;">
-                    <!-- LEFT: DANH SÁCH CUỘC TRÒ CHUYỆN + BẠN BÈ -->
-                    <div class="col-md-4 border-end d-flex flex-column" style="height: 100%;">
-                        <!-- Header -->
-                        <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fa-solid fa-envelope-open-text text-primary"></i>
-                                <h5 class="mb-0">Tin nhắn</h5>
-                            </div>
-                            <button id="btnRefreshConversations" class="btn btn-light btn-sm" type="button">
-                                <i class="fa-solid fa-rotate"></i>
-                            </button>
-                        </div>
+    <!-- Full-width Card with rounded-2xl -->
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-card overflow-hidden h-[calc(100vh-130px)] min-h-[600px] flex flex-col md:flex-row" dark:border-white/10 dark:bg-black>
+        
+        <!-- LEFT PANEL: Danh sách cuộc trò chuyện & Bạn bè -->
+        <div class="w-full md:w-80 lg:w-96 flex flex-col border-r border-slate-100 bg-white shrink-0 h-full overflow-hidden" dark:border-white/10 dark:bg-black>
+            
+            <!-- Header -->
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between" dark:border-white/10>
+                <div class="flex items-center gap-2.5">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white shadow-sm" dark:bg-white dark:text-black>
+                        <i class="fa-regular fa-comment-dots text-sm"></i>
+                    </div>
+                    <h1 class="font-heading text-lg font-bold text-slate-900" dark:text-slate-100>Tin nhắn</h1>
+                </div>
+                <button id="btnRefreshConversations" type="button" class="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-900 transition-colors" dark:hover:bg-white/10 dark:text-slate-100 title="Làm mới">
+                    <i class="fa-solid fa-rotate text-xs"></i>
+                </button>
+            </div>
 
-                        <!-- Search -->
-                        <div class="px-3 pt-3">
-                            <div class="input-group input-group-sm shadow-sm rounded-3 overflow-hidden">
-                                <span class="input-group-text border-0 bg-light">
-                                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                                </span>
-                                <input type="text"
-                                       class="form-control border-0"
-                                       id="conversationSearch"
-                                       placeholder="Tìm kiếm theo tên hoặc email...">
-                            </div>
-                        </div>
+            <!-- Search input -->
+            <div class="p-3 border-b border-slate-100 bg-slate-50/50" dark:border-white/10 dark:bg-neutral-900>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input id="conversationSearch" type="text" placeholder="Tìm kiếm theo tên hoặc email..."
+                           class="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2 text-xs font-medium text-slate-700 outline-none focus:border-slate-900 transition-all placeholder:text-slate-400" dark:border-white/10 dark:bg-black />
+                </div>
+            </div>
 
-                        <!-- DANH SÁCH CUỘC TRÒ CHUYỆN -->
-                        <div id="conversationList" class="px-2 pb-2 mt-3" style="max-height: 45%; overflow-y:auto;">
-                            @if (Model != null && Model.Any())
+            <!-- List container -->
+            <div class="flex-1 overflow-y-auto p-2 space-y-3 divide-y divide-slate-50">
+                
+                <!-- Section: Tất cả tin nhắn & bạn bè -->
+                <div class="pt-1">
+                    <div id="conversationList" class="space-y-1">
+                        @using okem_social.Models
+                        @{
+                            var chatItems = new List<dynamic>();
+                            var handledUserIds = new HashSet<int>();
+
+                            // 1. Thêm các cuộc trò chuyện đã có
+                            if (Model != null)
                             {
-                                foreach (var conv in Model.OrderByDescending(c => c.UpdatedAt ?? c.CreatedAt))
+                                foreach (var conv in Model)
                                 {
-                                    // Tìm member KHÁC MÌNH theo UserId
-                                    var otherMember = conv.Members?
-                                    .FirstOrDefault(m => m.User != null && m.UserId != currentUserId);
-
+                                    var myMember = conv.Members?.FirstOrDefault(m => m.UserId == currentUserId);
+                                    var otherMember = conv.Members?.FirstOrDefault(m => m.User != null && m.UserId != currentUserId);
                                     var otherUser = otherMember?.User;
                                     var lastMessage = conv.Messages?.OrderByDescending(m => m.CreatedAt).FirstOrDefault();
 
-                                    var otherName = otherUser?.FullName
-                                    ?? otherUser?.Email
-                                    ?? "Người dùng";
+                                    var otherName = otherUser?.FullName ?? otherUser?.Email ?? "Người dùng";
                                     var otherEmail = otherUser?.Email ?? "";
-                                    var initial = otherName.Substring(0, 1).ToUpper();
+                                    var initial = !string.IsNullOrEmpty(otherName) ? otherName.Substring(0, 1).ToUpper() : "U";
 
-                                    <a href="javascript:void(0)"
-                                       class="conversation-item d-flex align-items-center gap-3 p-2 rounded-3 mb-1"
-                                       data-conversation-id="@conv.Id"
-                                       data-other-name="@otherName"
-                                       data-other-email="@otherEmail"
-                                       data-open-conversation-url="@Url.Action("Chat", "Messages", new { id = conv.Id })">
-                                        <div class="avatar-circle avatar-sm flex-shrink-0">
-                                            @initial
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-semibold">@otherName</span>
-                                                @if (lastMessage != null)
-                                                {
-                                                    <small class="text-muted">
-                                                        @lastMessage.CreatedAt.ToString("HH:mm")
-                                                    </small>
-                                                }
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <small class="text-muted text-truncate conv-last-message me-2" style="max-width: 180px;">
-                                                    @(lastMessage?.Content ?? "Chưa có tin nhắn")
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </a>
+                                    var isUnread = lastMessage != null && lastMessage.SenderId != currentUserId &&
+                                                   (myMember?.LastReadAt == null || lastMessage.CreatedAt > myMember.LastReadAt);
+
+                                    var sortDate = lastMessage?.CreatedAt ?? conv.UpdatedAt ?? conv.CreatedAt;
+
+                                    if (otherUser != null) {
+                                        handledUserIds.Add(otherUser.Id);
+                                    }
+
+                                    chatItems.Add(new {
+                                        Type = "Conv",
+                                        Id = conv.Id,
+                                        TargetId = otherUser?.Id ?? 0,
+                                        Name = otherName,
+                                        Email = otherEmail,
+                                        Initial = initial,
+                                        AvatarUrl = otherUser?.AvatarUrl,
+                                        LastMessage = lastMessage?.Content ?? "Chưa có tin nhắn",
+                                        LastMessageTime = lastMessage != null ? lastMessage.CreatedAt.ToLocalTime().ToString("HH:mm") : "",
+                                        IsUnread = isUnread,
+                                        SortDate = sortDate,
+                                        UrlAction = Url.Action("Chat", "Messages", new { id = conv.Id }),
+                                        IsGroup = conv.IsGroup
+                                    });
                                 }
                             }
-                            else
-                            {
-                                <div class="text-muted small px-3 py-4">
-                                    Chưa có cuộc trò chuyện.
-                                </div>
-                            }
-                        </div>
 
-                        <!-- DANH SÁCH BẠN BÈ -->
-                        <div class="px-3 mt-3">
-                            <h6 class="text-muted mb-2">Bạn bè</h6>
-                        </div>
-
-                        <div id="friendList" class="flex-grow-1 overflow-auto px-2 pb-3">
-                            @if (ViewBag.Friends != null && ((List<okem_social.Models.User>)ViewBag.Friends).Any())
+                            // 2. Thêm danh sách bạn bè chưa có cuộc trò chuyện
+                            if (ViewBag.Friends != null)
                             {
-                                foreach (var fr in (List<okem_social.Models.User>)ViewBag.Friends)
+                                foreach (var fr in (List<User>)ViewBag.Friends)
                                 {
-                                    var fname = fr.FullName ?? fr.Email;
-                                    var initial = fname.Substring(0, 1).ToUpper();
+                                    if (!handledUserIds.Contains(fr.Id))
+                                    {
+                                        var fname = fr.FullName ?? fr.Email;
+                                        var initial = !string.IsNullOrEmpty(fname) ? fname.Substring(0, 1).ToUpper() : "U";
 
-                                    <a href="javascript:void(0)"
-                                       class="friend-item d-flex align-items-center gap-3 p-2 rounded-3 mb-1"
-                                       data-friend-id="@fr.Id"
-                                       data-chat-with-url="@Url.Action("ChatWith", "Messages", new { friendId = fr.Id })">
-                                        <div class="avatar-circle avatar-sm flex-shrink-0">
-                                            @initial
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <span class="fw-semibold">@fname</span>
-                                        </div>
-                                    </a>
+                                        chatItems.Add(new {
+                                            Type = "Friend",
+                                            Id = fr.Id,
+                                            TargetId = fr.Id,
+                                            Name = fname,
+                                            Email = fr.Email,
+                                            Initial = initial,
+                                            AvatarUrl = fr.AvatarUrl,
+                                            LastMessage = "Bắt đầu cuộc trò chuyện mới",
+                                            LastMessageTime = "",
+                                            IsUnread = false,
+                                            SortDate = DateTime.MinValue,
+                                            UrlAction = Url.Action("ChatWith", "Messages", new { friendId = fr.Id }),
+                                            IsGroup = false
+                                        });
+                                    }
                                 }
                             }
-                            else
-                            {
-                                <div class="text-muted small px-3">
-                                    Chưa có bạn bè.
-                                </div>
-                            }
-                        </div>
-                    </div>
 
-                    <!-- RIGHT: PANEL CHAT (CHỈ LÀ KHUNG, NỘI DUNG SẼ ĐƯỢC CHAT.cshtml LOAD VÀO) -->
-                    <div id="chatPanel" class="col-md-8 d-flex flex-column" style="height: 100%;">
-                        <div class="chat-messages flex-grow-1 p-3 d-flex flex-column justify-content-center align-items-center text-center"
-                             style="overflow-y: auto; min-height: 0;">
-                            <div class="empty-icon mb-3">
-                                <i class="fa-regular fa-message" style="font-size: 3rem; color: #9CA3AF;"></i>
+                            // Sắp xếp: Ai nhắn sau lên đầu
+                            var sortedItems = chatItems.OrderByDescending(c => c.SortDate).ToList();
+                        }
+
+                        @if (sortedItems.Any())
+                        {
+                            foreach (var item in sortedItems)
+                            {
+                                var isUnread = item.IsUnread;
+                                var attr = item.Type == "Conv" ? $"data-open-conversation-url=\"{item.UrlAction}\" data-conversation-id=\"{item.Id}\"" : $"data-chat-with-url=\"{item.UrlAction}\" data-friend-id=\"{item.Id}\"";
+
+                                <a href="javascript:void(0)"
+                                   class="conversation-item group flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-all cursor-pointer @(isUnread ? " dark:hover:bg-white/10 dark:bg-neutral-900bg-slate-50/90 font-bold" : "")"
+                                   @Html.Raw(attr)
+                                   data-other-name="@item.Name"
+                                   data-other-email="@item.Email">
+                                    
+                                    <div class="relative shrink-0">
+                                        @if (!string.IsNullOrEmpty(item.AvatarUrl))
+                                        {
+                                            <img src="@item.AvatarUrl" alt="@item.Name" class="avatar-circle h-11 w-11 rounded-full object-cover shadow-sm" />
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-circle flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-white font-bold text-sm shadow-sm">
+                                                @item.Initial
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center justify-between gap-1 mb-0.5">
+                                            <span class="truncate text-sm @(isUnread ? "font-bold text-slate-950" : "font-semibold text-slate-800")">@item.Name</span>
+                                            @if (!string.IsNullOrEmpty(item.LastMessageTime))
+                                            {
+                                                <span class="shrink-0 text-[11px] @(isUnread ? "font-bold text-slate-900" : "text-slate-400")">
+                                                    @item.LastMessageTime
+                                                </span>
+                                            }
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <p class="truncate text-xs conv-last-message @(isUnread ? "font-semibold text-slate-900" : "text-slate-500")">
+                                                @item.LastMessage
+                                            </p>
+                                            @if (isUnread)
+                                            {
+                                                <span class="h-2 w-2 rounded-full bg-slate-950 shrink-0"></span>
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <div class="py-6 text-center px-4">
+                                <i class="fa-regular fa-comment-dots text-slate-300 text-2xl mb-2"></i>
+                                <p class="text-xs text-slate-400 font-medium">Chưa có cuộc trò chuyện hay bạn bè nào</p>
                             </div>
-                            <h5>Chọn cuộc trò chuyện</h5>
-                            <p class="text-muted mb-0">
-                                Hãy chọn một cuộc trò chuyện hoặc bạn bè ở bên trái để bắt đầu nhắn tin.
-                            </p>
-                        </div>
+                        }
                     </div>
                 </div>
+
             </div>
         </div>
+
+        <!-- RIGHT PANEL: Vùng hiển thị đoạn chat (Chat.cshtml được AJAX load vào đây) -->
+        <div id="chatPanel" class="flex-1 flex flex-col h-full bg-white relative overflow-hidden" dark:bg-black>
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50/50" dark:bg-neutral-900>
+                <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-slate-100 shadow-sm text-slate-400 mb-4" dark:border-white/10 dark:bg-black>
+                    <i class="fa-regular fa-comments text-2xl text-slate-900" dark:text-slate-100></i>
+                </div>
+                <h2 class="font-heading text-base font-bold text-slate-900 mb-1" dark:text-slate-100>Tin nhắn của bạn</h2>
+                <p class="text-xs text-slate-500 max-w-sm" dark:text-slate-400>
+                    Hãy chọn một cuộc trò chuyện từ danh sách hoặc chọn bạn bè để bắt đầu gửi tin nhắn.
+                </p>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <style>
-    .chat-messages {
-        background: linear-gradient(135deg, #F9FAFB 0%, #EEF2FF 100%);
+    /* Active conversation styling */
+    .conversation-item.active {
+        background-color: #f1f5f9;
     }
 
-    .message-bubble {
-        max-width: 65%;
-        padding: 0.75rem 1rem;
-        border-radius: 1rem;
-        word-wrap: break-word;
-        font-size: 0.9375rem;
-    }
-
-    .received-bubble {
-        background: #ffffff;
-        border: 1px solid #E5E7EB;
-    }
-
-    .sent-bubble {
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-        color: #ffffff;
-    }
-
-    .avatar-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #ffffff;
-        font-weight: 700;
-        font-size: 0.95rem;
-        flex-shrink: 0;
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-    }
-
-        .avatar-circle.avatar-sm {
-            width: 32px;
-            height: 32px;
-            font-size: 0.8rem;
-        }
-
-    .conversation-item,
-    .friend-item {
-        text-decoration: none;
-        color: inherit;
-        transition: background-color .15s ease, transform .1s ease, box-shadow .15s ease;
-    }
-
-        .conversation-item:hover,
-        .friend-item:hover {
-            background-color: #EEF2FF;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.25);
-        }
-
-        .conversation-item.active {
-            background-color: #E0E7FF;
-            box-shadow: 0 0 0 1px #4F46E5;
-        }
-
+    /* SignalR realtime message bubble fallback styles */
     .message-item.sent {
         display: flex;
         justify-content: flex-end;
+        margin-bottom: 0.75rem;
     }
 
     .message-item.received {
         display: flex;
         justify-content: flex-start;
+        align-items: flex-start;
+        gap: 0.625rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        word-break: break-word;
+    }
+
+    .sent-bubble {
+        background-color: #020617;
+        color: #ffffff;
+        border-radius: 1rem 1rem 0.25rem 1rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .sent-bubble .message-text {
+        color: #ffffff;
+        margin-bottom: 0.25rem;
+    }
+
+    .sent-bubble .message-time {
+        color: #94a3b8;
+        font-size: 0.6875rem;
+        text-align: right;
+        display: block;
+    }
+
+    .received-bubble {
+        background-color: #ffffff;
+        color: #0f172a;
+        border: 1px solid #f1f5f9;
+        border-radius: 1rem 1rem 1rem 0.25rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .received-bubble .message-text {
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .received-bubble .message-time {
+        color: #94a3b8;
+        font-size: 0.6875rem;
+        display: block;
+    }
+
+    .avatar-circle.avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1e293b, #334155);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
     }
 </style>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.14/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script src="~/js/chat.js"></script>
     <script src="~/js/call.js"></script>
+    <script>
+        // Client-side search filtering
+        document.getElementById('conversationSearch')?.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            document.querySelectorAll('#conversationList .conversation-item').forEach(item => {
+                const name = (item.getAttribute('data-other-name') || '').toLowerCase();
+                const email = (item.getAttribute('data-other-email') || '').toLowerCase();
+                if (name.includes(query) || email.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('#friendList .friend-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Active conversation highlight & query parameter auto-selection
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const openId = urlParams.get('openConversationId');
+            if (openId) {
+                const target = document.querySelector(`[data-conversation-id="${openId}"]`);
+                if (target) {
+                    target.click();
+                }
+            }
+
+            // Refresh button
+            document.getElementById('btnRefreshConversations')?.addEventListener('click', () => {
+                window.location.reload();
+            });
+        });
+
+        // Add active class on conversation click
+        document.addEventListener('click', (e) => {
+            const item = e.target.closest('.conversation-item');
+            if (item) {
+                document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+            }
+        });
+    </script>
 }

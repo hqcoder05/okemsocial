@@ -1,168 +1,264 @@
 @model List<okem_social.Models.UserSearchViewModel>
 @{
-    ViewData["Title"] = "Tìm bạn";
+    ViewData["Title"] = "Mạng lưới";
     string keyword = ViewBag.Keyword ?? "";
     var users = Model ?? new List<okem_social.Models.UserSearchViewModel>();
-
     int currentUserId = ViewBag.CurrentUserId != null ? (int)ViewBag.CurrentUserId : 0;
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Page Header -->
-            <div class="text-center mb-4">
-                <h2 class="fw-bold mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    <i class="fas fa-search me-2"></i>Tìm kiếm bạn bè
-                </h2>
+<div class="mx-auto max-w-6xl space-y-8 py-4 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center md:items-start md:text-left mb-6">
+        <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl" dark:text-slate-100>
+            Mạng lưới
+        </h1>
+        <p class="mt-1 text-sm font-medium text-slate-500" dark:text-slate-400>
+            Tìm kiếm, quản lý lời mời và kết nối với mọi người trong mạng lưới Okem
+        </p>
+    </div>
 
-                @if (currentUserId != 0)
-                {
-                    <div class="d-flex justify-content-center gap-2">
-                        <a asp-controller="Users"
-                           asp-action="IncomingRequests"
-                           asp-route-id="@currentUserId"
-                           class="btn btn-outline-primary btn-sm"
-                           style="border-radius: 999px; padding-inline: 1.25rem;">
-                            <i class="fas fa-inbox me-1"></i>Lời mời kết bạn
-                        </a>
-                        <a asp-controller="Users"
-                           asp-action="OutgoingRequests"
-                           asp-route-id="@currentUserId"
-                           class="btn btn-outline-secondary btn-sm"
-                           style="border-radius: 999px; padding-inline: 1.25rem;">
-                            <i class="fas fa-paper-plane me-1"></i>Lời mời đã gửi
-                        </a>
-                    </div>
-                }
+    <!-- Search Form -->
+    <div class="mx-auto max-w-3xl">
+        <form method="get" class="relative flex items-center rounded-full border border-slate-200 bg-white p-1.5 shadow-card transition-all focus-within:border-slate-950 focus-within:ring-2 focus-within:ring-slate-950/5" dark:border-white/10 dark:bg-black>
+            <div class="flex h-12 w-12 shrink-0 items-center justify-center pl-2 text-slate-400">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <input name="keyword"
+                   value="@keyword"
+                   type="search"
+                   placeholder="Nhập tên hoặc email để tìm kiếm người dùng..."
+                   class="w-full bg-transparent px-3 py-2 text-sm font-medium text-slate-800 outline-none placeholder:text-slate-400" dark:text-slate-100 />
+            <button type="submit"
+                    class="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95" dark:bg-white dark:text-black>
+                <span>Tìm kiếm</span>
+            </button>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrEmpty(keyword))
+    {
+        <!-- SEARCH RESULTS -->
+        <div class="mt-8">
+            <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-2" dark:border-white/10>
+                <p class="text-sm font-semibold text-slate-600" dark:text-slate-400>
+                    Tìm thấy <span class="font-bold text-slate-900" dark:text-slate-100>@users.Count</span> kết quả cho "<strong>@keyword</strong>"
+                </p>
             </div>
 
-            <!-- Search Box -->
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
-                <div class="card-body p-4">
-                    <form method="get">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-white border-end-0" style="border-radius: 12px 0 0 12px; border: 2px solid #e5e7eb; border-right: none;">
-                                <i class="fas fa-search" style="color: var(--primary-color);"></i>
-                            </span>
-                            <input class="form-control border-start-0 shadow-none" name="keyword" value="@keyword"
-                                   placeholder="Nhập tên hoặc email để tìm kiếm..."
-                                   style="border-radius: 0; border: 2px solid #e5e7eb; border-left: none;">
-                            <button class="btn btn-primary-custom" type="submit" style="border-radius: 0 12px 12px 0; padding: 0 2rem;">
-                                <i class="fas fa-arrow-right me-2"></i>Tìm kiếm
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Search Results -->
-            @if (string.IsNullOrEmpty(keyword))
+            @if (users.Count == 0)
             {
-                <div class="text-center py-5">
-                    <i class="fas fa-user-friends fa-4x mb-3" style="color: #e5e7eb;"></i>
-                    <h5 class="text-muted">Nhập từ khóa để bắt đầu tìm kiếm</h5>
-                    <p class="text-muted small">Tìm kiếm theo tên hoặc email</p>
-                </div>
-            }
-            else if (users.Count == 0)
-            {
-                <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-search fa-4x mb-3" style="color: #e5e7eb;"></i>
-                        <h5 class="mb-2">Không tìm thấy kết quả</h5>
-                        <p class="text-muted mb-0">Thử tìm kiếm với từ khóa khác</p>
+                <div class="rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-card" dark:border-white/10 dark:bg-black>
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-2xl"></i>
                     </div>
+                    <h3 class="mt-4 font-heading text-base font-bold text-slate-900" dark:text-slate-100>Không tìm thấy kết quả</h3>
+                    <p class="mt-1 text-sm text-slate-500" dark:text-slate-400>Vui lòng thử lại với từ khóa khác.</p>
                 </div>
             }
             else
             {
-                <div class="mb-3">
-                    <h6 class="text-muted">Tìm thấy @users.Count kết quả cho "<strong>@keyword</strong>"</h6>
-                </div>
-
-                <div class="row g-4">
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach (var userViewModel in users)
                     {
                         var u = userViewModel.User;
+                        var fullName = u.FullName ?? u.Email;
+                        var uInit = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
 
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; transition: all 0.3s ease;">
-                                <div class="card-body p-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-medium me-3" style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: white; flex-shrink: 0;">
-                                            @u.FullName?.Substring(0, 1).ToUpper()
-                                        </div>
-                                        <div class="flex-grow-1 min-width-0">
-                                            <h6 class="fw-bold mb-1 text-truncate">@u.FullName</h6>
-                                            <p class="text-muted small mb-0 text-truncate">
-                                                <i class="fas fa-envelope me-1"></i>@u.Email
-                                            </p>
-                                        </div>
-                                        <div class="ms-2 d-flex gap-2">
-                                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@u.Id" style="white-space: nowrap;">
-                                                <i class="fas fa-user me-1"></i>Xem
-                                            </a>
-
-                                            @if (!userViewModel.IsCurrentUser)
-                                            {
-                                                if (userViewModel.IsFriend)
-                                                {
-                                                    <form method="post" asp-action="Unfriend" asp-route-id="@u.Id" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-success" style="white-space: nowrap;">
-                                                            <i class="fas fa-user-check me-1"></i>Bạn bè
-                                                        </button>
-                                                    </form>
-                                                }
-                                                else if (userViewModel.HasIncomingRequest)
-                                                {
-                                                    <form method="post" asp-action="Accept" asp-route-id="@u.Id" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-primary-custom" style="white-space: nowrap;">
-                                                            <i class="fas fa-user-plus me-1"></i>Chấp nhận
-                                                        </button>
-                                                    </form>
-                                                }
-                                                else if (userViewModel.HasSentRequest)
-                                                {
-                                                    <form method="post" asp-action="Cancel" asp-route-id="@u.Id" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-secondary" style="white-space: nowrap;">
-                                                            <i class="fas fa-clock me-1"></i>Đã gửi lời mời
-                                                        </button>
-                                                    </form>
-                                                }
-                                                else
-                                                {
-                                                    <form method="post" asp-action="SendRequest" asp-route-id="@u.Id" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-primary-custom" style="white-space: nowrap;">
-                                                            <i class="fas fa-user-plus me-1"></i>Kết bạn
-                                                        </button>
-                                                    </form>
-                                                }
-                                            }
-                                        </div>
+                        <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-card transition-all hover:shadow-lg" dark:border-white/10 dark:bg-black>
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id" class="flex flex-col items-center text-center">
+                                @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                                {
+                                    <img src="@u.AvatarUrl" alt="@fullName" class="h-20 w-20 rounded-full object-cover shadow-sm ring-4 ring-white" />
+                                }
+                                else
+                                {
+                                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-600 text-2xl font-bold text-white shadow-sm ring-4 ring-white">
+                                        @uInit
                                     </div>
-                                </div>
+                                }
+                                <h3 class="mt-3 font-heading text-base font-bold text-slate-900" dark:text-slate-100>@fullName</h3>
+                                <p class="mt-1 text-xs text-slate-500 line-clamp-1" dark:text-slate-400>@(u.Headline ?? u.Email)</p>
+                            </a>
+                            <div class="mt-5 pt-4 border-t border-slate-100 flex gap-2" dark:border-white/10>
+                                @if (userViewModel.IsCurrentUser)
+                                {
+                                    <a asp-controller="Profile" asp-action="Me" class="w-full text-center rounded-full border border-slate-200 bg-slate-50 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100" dark:hover:bg-white/10 dark:text-slate-400 dark:border-white/10 dark:bg-neutral-900>Hồ sơ của bạn</a>
+                                }
+                                else if (userViewModel.IsFriend)
+                                {
+                                    <form asp-controller="Users" asp-action="Unfriend" asp-route-id="@u.Id" method="post" class="w-full">
+                                        <button type="submit" class="w-full rounded-full border border-emerald-200 bg-emerald-50 py-2 text-xs font-bold text-emerald-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200"><i class="fa-solid fa-user-check mr-1"></i> Bạn bè</button>
+                                    </form>
+                                }
+                                else if (userViewModel.HasIncomingRequest)
+                                {
+                                    <form asp-controller="Users" asp-action="Accept" asp-route-id="@u.Id" method="post" class="flex-1">
+                                        <button type="submit" class="w-full rounded-full bg-emerald-600 py-2 text-xs font-bold text-white hover:bg-emerald-700">Chấp nhận</button>
+                                    </form>
+                                    <form asp-controller="Users" asp-action="Cancel" asp-route-id="@u.Id" method="post" class="flex-1">
+                                        <button type="submit" class="w-full rounded-full border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 hover:bg-slate-50" dark:hover:bg-white/10 dark:text-slate-400 dark:border-white/10 dark:bg-neutral-900 dark:bg-black>Từ chối</button>
+                                    </form>
+                                }
+                                else if (userViewModel.HasSentRequest)
+                                {
+                                    <form asp-controller="Users" asp-action="Cancel" asp-route-id="@u.Id" method="post" class="w-full">
+                                        <button type="submit" class="w-full rounded-full border border-slate-200 bg-slate-50 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100" dark:hover:bg-white/10 dark:text-slate-400 dark:border-white/10 dark:bg-neutral-900><i class="fa-solid fa-clock mr-1"></i> Đã gửi lời mời</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Users" asp-action="SendRequest" asp-route-id="@u.Id" method="post" class="w-full">
+                                        <button type="submit" class="w-full rounded-full bg-slate-950 py-2 text-xs font-bold text-white hover:bg-slate-800" dark:bg-white dark:text-black><i class="fa-solid fa-user-plus mr-1"></i> Kết bạn</button>
+                                    </form>
+                                }
                             </div>
                         </div>
                     }
                 </div>
             }
         </div>
-    </div>
+    }
+    else
+    {
+        <!-- INCOMING REQUESTS -->
+        var incoming = ViewBag.IncomingRequests as List<okem_social.Models.User> ?? new List<okem_social.Models.User>();
+        if (incoming.Any())
+        {
+            <div class="mt-8">
+                <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-2" dark:border-white/10>
+                    <h2 class="text-lg font-bold text-slate-900" dark:text-slate-100><i class="fa-solid fa-inbox text-emerald-500 mr-2"></i>Lời mời kết bạn (@incoming.Count)</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach (var u in incoming)
+                    {
+                        var fullName = u.FullName ?? u.Email;
+                        var uInit = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
+
+                        <div class="flex flex-col rounded-2xl border border-emerald-100 bg-emerald-50/30 p-5 shadow-card transition-all hover:shadow-lg">
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id" class="flex flex-col items-center text-center">
+                                @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                                {
+                                    <img src="@u.AvatarUrl" alt="@fullName" class="h-20 w-20 rounded-full object-cover shadow-sm ring-4 ring-white" />
+                                }
+                                else
+                                {
+                                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-500 text-2xl font-bold text-white shadow-sm ring-4 ring-white">
+                                        @uInit
+                                    </div>
+                                }
+                                <h3 class="mt-3 font-heading text-base font-bold text-slate-900" dark:text-slate-100>@fullName</h3>
+                                <p class="mt-1 text-xs text-slate-500 line-clamp-1" dark:text-slate-400>@(u.Headline ?? u.Email)</p>
+                            </a>
+                            <div class="mt-5 pt-4 border-t border-emerald-100 flex gap-2">
+                                <form asp-controller="Users" asp-action="Accept" asp-route-id="@u.Id" method="post" class="flex-1">
+                                    <button type="submit" class="w-full rounded-full bg-slate-950 py-2 text-xs font-bold text-white hover:bg-slate-800" dark:bg-white dark:text-black>Chấp nhận</button>
+                                </form>
+                                <form asp-controller="Users" asp-action="Cancel" asp-route-id="@u.Id" method="post" class="flex-1">
+                                    <button type="submit" class="w-full rounded-full border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 hover:bg-slate-50" dark:hover:bg-white/10 dark:text-slate-400 dark:border-white/10 dark:bg-neutral-900 dark:bg-black>Từ chối</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- OUTGOING REQUESTS -->
+        var outgoing = ViewBag.OutgoingRequests as List<okem_social.Models.User> ?? new List<okem_social.Models.User>();
+        if (outgoing.Any())
+        {
+            <div class="mt-8">
+                <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-2" dark:border-white/10>
+                    <h2 class="text-lg font-bold text-slate-900" dark:text-slate-100><i class="fa-solid fa-paper-plane text-blue-500 mr-2"></i>Lời mời đã gửi (@outgoing.Count)</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach (var u in outgoing)
+                    {
+                        var fullName = u.FullName ?? u.Email;
+                        var uInit = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
+
+                        <div class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm transition-all hover:shadow-md" dark:border-white/10 dark:bg-black>
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id" class="shrink-0">
+                                @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                                {
+                                    <img src="@u.AvatarUrl" alt="@fullName" class="h-12 w-12 rounded-full object-cover shadow-sm" />
+                                }
+                                else
+                                {
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-slate-800 to-slate-600 font-bold text-white shadow-sm">
+                                        @uInit
+                                    </div>
+                                }
+                            </a>
+                            <div class="min-w-0 flex-1">
+                                <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id">
+                                    <h3 class="truncate text-sm font-bold text-slate-900" dark:text-slate-100>@fullName</h3>
+                                </a>
+                                <p class="truncate text-[11px] text-slate-500" dark:text-slate-400>Đã gửi lời mời</p>
+                            </div>
+                            <form asp-controller="Users" asp-action="Cancel" asp-route-id="@u.Id" method="post" class="shrink-0">
+                                <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900" dark:text-slate-400 dark:text-slate-100 title="Hủy lời mời">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- FRIEND SUGGESTIONS -->
+        <div class="mt-8">
+            <div class="mb-4 flex items-center justify-between border-b border-slate-100 pb-2" dark:border-white/10>
+                <h2 class="text-lg font-bold text-slate-900" dark:text-slate-100><i class="fa-solid fa-user-plus text-indigo-500 mr-2"></i>Gợi ý kết bạn</h2>
+            </div>
+            
+            @{
+                var suggestions = users.Where(u => !u.IsFriend && !u.HasSentRequest && !u.HasIncomingRequest && !u.IsCurrentUser).ToList();
+            }
+
+            @if (suggestions.Count > 0)
+            {
+                <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach (var userViewModel in suggestions)
+                    {
+                        var u = userViewModel.User;
+                        var fullName = u.FullName ?? u.Email;
+                        var uInit = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
+
+                        <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:shadow-md" dark:border-white/10 dark:bg-black>
+                            <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id" class="flex flex-col items-center text-center">
+                                @if (!string.IsNullOrEmpty(u.AvatarUrl))
+                                {
+                                    <img src="@u.AvatarUrl" alt="@fullName" class="h-16 w-16 rounded-full object-cover shadow-sm ring-2 ring-white" />
+                                }
+                                else
+                                {
+                                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-blue-500 text-xl font-bold text-white shadow-sm ring-2 ring-white">
+                                        @uInit
+                                    </div>
+                                }
+                                <h3 class="mt-3 font-heading text-sm font-bold text-slate-900" dark:text-slate-100>@fullName</h3>
+                                <p class="text-[11px] text-slate-500 line-clamp-1" dark:text-slate-400>@(u.Headline ?? u.Email)</p>
+                            </a>
+                            <div class="mt-4 pt-3 border-t border-slate-100" dark:border-white/10>
+                                <form asp-controller="Users" asp-action="SendRequest" asp-route-id="@u.Id" method="post">
+                                    <button type="submit" class="w-full rounded-full bg-slate-900 py-1.5 text-xs font-bold text-white hover:bg-slate-800"><i class="fa-solid fa-user-plus mr-1"></i> Kết bạn</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="rounded-2xl border border-slate-100 bg-white py-12 text-center shadow-sm" dark:border-white/10 dark:bg-black>
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 text-slate-400" dark:bg-neutral-900>
+                        <i class="fa-solid fa-users-slash text-xl"></i>
+                    </div>
+                    <p class="mt-3 text-sm text-slate-500" dark:text-slate-400>Không có gợi ý kết bạn nào mới lúc này.</p>
+                </div>
+            }
+        </div>
+    }
 </div>
-
-<style>
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    .min-width-0 {
-        min-width: 0;
-    }
-
-    .input-group:focus-within .input-group-text,
-    .input-group:focus-within .form-control {
-        border-color: var(--primary-color);
-    }
-</style>

@@ -2,168 +2,146 @@
     ViewData["Title"] = "Thông báo";
 }
 
-<div class="page-transition">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Page Header -->
-            <div class="page-header mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="mb-2">
-                            <i class="fa-solid fa-bell me-2"></i>Thông báo
-                        </h1>
-                        <p class="text-muted mb-0">Cập nhật hoạt động mới nhất của bạn</p>
-                    </div>
-                    <button class="btn btn-outline-primary" onclick="markAllAsRead()">
-                        <i class="fa-solid fa-check-double me-2"></i>Đánh dấu đã đọc
-                    </button>
+<div class="mx-auto max-w-4xl space-y-6 py-4">
+    <!-- Page Header -->
+    <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl" dark:text-slate-100>
+                Thông báo
+            </h1>
+            <p class="mt-1 text-sm font-medium text-slate-500" dark:text-slate-400>
+                Cập nhật các hoạt động và tương tác mới nhất của bạn
+            </p>
+        </div>
+
+        <button type="button"
+                onclick="markAllAsRead()"
+                class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-95" dark:hover:bg-white/10 dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black>
+            <i class="fa-solid fa-check-double text-slate-500" dark:text-slate-400></i>
+            <span>Đánh dấu tất cả đã đọc</span>
+        </button>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="flex">
+        <div class="inline-flex rounded-full border border-slate-200 bg-white p-1 shadow-card" dark:border-white/10 dark:bg-black role="tablist">
+            <button type="button"
+                    id="tab-all-btn"
+                    onclick="switchNotifTab('all')"
+                    class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-2 text-xs sm:text-sm font-bold text-white shadow-sm transition-all" dark:bg-white dark:text-black>
+                <i class="fa-solid fa-inbox text-xs"></i>
+                <span>Tất cả</span>
+            </button>
+            <button type="button"
+                    id="tab-unread-btn"
+                    onclick="switchNotifTab('unread')"
+                    class="inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900" dark:hover:bg-white/10 dark:text-slate-400 dark:text-slate-100 dark:bg-neutral-900>
+                <i class="fa-solid fa-circle text-[8px]"></i>
+                <span>Chưa đọc</span>
+            </button>
+            <button type="button"
+                    id="tab-mentions-btn"
+                    onclick="switchNotifTab('mentions')"
+                    class="inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900" dark:hover:bg-white/10 dark:text-slate-400 dark:text-slate-100 dark:bg-neutral-900>
+                <i class="fa-solid fa-at text-xs"></i>
+                <span>Đề cập</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Lists by Tab -->
+    <div>
+        <!-- TAB: TẤT CẢ -->
+        <div id="pane-all">
+            <div id="notificationsAll" class="space-y-3"></div>
+
+            <div id="emptyAllState" class="hidden rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-card" dark:border-white/10 dark:bg-black>
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                    <i class="fa-regular fa-bell-slash text-2xl"></i>
                 </div>
+                <h3 class="mt-4 font-heading text-base font-bold text-slate-900" dark:text-slate-100>
+                    Không có thông báo nào
+                </h3>
+                <p class="mt-1 text-sm text-slate-500" dark:text-slate-400>
+                    Bạn chưa có thông báo hoạt động nào tại thời điểm này.
+                </p>
             </div>
+        </div>
 
-            <!-- Filter Tabs -->
-            <div class="modern-card mb-4 animate-fadeIn">
-                <ul class="nav nav-pills" id="notificationTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button">
-                            <i class="fa-solid fa-inbox me-2"></i>Tất cả
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="unread-tab" data-bs-toggle="pill" data-bs-target="#unread" type="button">
-                            <i class="fa-solid fa-circle me-2"></i>Chưa đọc
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="mentions-tab" data-bs-toggle="pill" data-bs-target="#mentions" type="button">
-                            <i class="fa-solid fa-at me-2"></i>Đề cập
-                        </button>
-                    </li>
-                </ul>
+        <!-- TAB: CHƯA ĐỌC -->
+        <div id="pane-unread" class="hidden">
+            <div id="notificationsUnread" class="space-y-3"></div>
+
+            <div id="emptyUnreadState" class="hidden rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-card" dark:border-white/10 dark:bg-black>
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                    <i class="fa-solid fa-check text-2xl"></i>
+                </div>
+                <h3 class="mt-4 font-heading text-base font-bold text-slate-900" dark:text-slate-100>
+                    Bạn đã đọc hết thông báo
+                </h3>
+                <p class="mt-1 text-sm text-slate-500" dark:text-slate-400>
+                    Tuyệt vời! Không có thông báo chưa đọc nào đang chờ bạn.
+                </p>
             </div>
+        </div>
 
-            <!-- Notification List -->
-            <div class="tab-content" id="notificationTabContent">
-                <!-- TẤT CẢ -->
-                <div class="tab-pane fade show active" id="all">
-                    <div id="notificationsAll"></div>
+        <!-- TAB: ĐỀ CẬP -->
+        <div id="pane-mentions" class="hidden">
+            <div id="notificationsMentions" class="space-y-3"></div>
 
-                    <!-- Empty State All -->
-                    <div class="modern-card text-center py-5 d-none" id="emptyAllState">
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fa-solid fa-bell-slash"></i>
-                            </div>
-                            <h5>Không có thông báo</h5>
-                            <p>Bạn chưa có thông báo nào</p>
-                        </div>
-                    </div>
+            <div id="emptyMentionsState" class="hidden rounded-2xl border border-slate-100 bg-white py-16 text-center shadow-card" dark:border-white/10 dark:bg-black>
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                    <i class="fa-solid fa-at text-2xl"></i>
                 </div>
-
-                <!-- CHƯA ĐỌC -->
-                <div class="tab-pane fade" id="unread">
-                    <div id="notificationsUnread"></div>
-
-                    <div class="modern-card text-center py-5 d-none" id="emptyUnreadState">
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fa-solid fa-check-circle"></i>
-                            </div>
-                            <h5>Bạn đã đọc hết thông báo</h5>
-                            <p>Không có thông báo chưa đọc</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ĐỀ CẬP -->
-                <div class="tab-pane fade" id="mentions">
-                    <div id="notificationsMentions"></div>
-
-                    <div class="modern-card text-center py-5 d-none" id="emptyMentionsState">
-                        <div class="empty-state">
-                            <div class="empty-icon">
-                                <i class="fa-solid fa-at"></i>
-                            </div>
-                            <h5>Chưa có lượt đề cập</h5>
-                            <p>Chưa ai đề cập đến bạn trong bài viết</p>
-                        </div>
-                    </div>
-                </div>
+                <h3 class="mt-4 font-heading text-base font-bold text-slate-900" dark:text-slate-100>
+                    Chưa có lượt đề cập nào
+                </h3>
+                <p class="mt-1 text-sm text-slate-500" dark:text-slate-400>
+                    Khi có ai đó nhắc đến bạn trong bài viết hoặc bình luận, thông báo sẽ hiển thị ở đây.
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .notification-item {
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-        .notification-item:hover {
-            transform: translateX(5px);
-        }
-
-        .notification-item.unread {
-            border-left: 4px solid #4F46E5;
-            background: linear-gradient(90deg, rgba(79, 70, 229, 0.05), white);
-        }
-
-    .notification-preview {
-        padding: 0.75rem;
-        background: #F9FAFB;
-        border-radius: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    #notificationTabs .nav-link {
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        color: #6B7280;
-        transition: all 0.3s ease;
-    }
-
-        #notificationTabs .nav-link:hover {
-            background: #F3F4F6;
-            color: #4F46E5;
-        }
-
-        #notificationTabs .nav-link.active {
-            background: linear-gradient(135deg, #4F46E5, #6366F1);
-            color: white;
-        }
-
-    .avatar-circle {
-        width: 48px;
-        height: 48px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-    }
-
-    .avatar-lg {
-        width: 52px;
-        height: 52px;
-    }
-</style>
-
 @section Scripts {
-    <!-- SignalR (nếu chưa nhúng ở layout) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
 
     <script>
         let notifications = [];
         let notiConn = null;
+        let currentTab = 'all';
 
         document.addEventListener("DOMContentLoaded", async function () {
             await loadNotifications();
             await connectNotificationHub();
         });
+
+        function switchNotifTab(tabName) {
+            currentTab = tabName;
+            const tabs = ['all', 'unread', 'mentions'];
+
+            tabs.forEach(t => {
+                const pane = document.getElementById(`pane-${t}`);
+                const btn = document.getElementById(`tab-${t}-btn`);
+
+                if (pane) {
+                    if (t === tabName) {
+                        pane.classList.remove('hidden');
+                    } else {
+                        pane.classList.add('hidden');
+                    }
+                }
+
+                if (btn) {
+                    if (t === tabName) {
+                        btn.className = "inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-2 text-xs sm:text-sm font-bold text-white shadow-sm transition-all";
+                    } else {
+                        btn.className = "inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 hover:text-slate-900";
+                    }
+                }
+            });
+        }
 
         async function connectNotificationHub() {
             try {
@@ -173,7 +151,6 @@
                     .build();
 
                 notiConn.on("NotificationReceived", n => {
-                    // push thêm vào list và render lại
                     notifications.unshift(n);
                     renderAllTabs();
                 });
@@ -187,7 +164,7 @@
 
         async function loadNotifications() {
             try {
-                const res = await fetch("/api/NotificationsApi", {
+                const res = await fetch("/api/notifications", {
                     headers: { "X-Requested-With": "XMLHttpRequest" }
                 });
 
@@ -195,7 +172,7 @@
                     throw new Error("Failed to load notifications");
                 }
 
-                notifications = await res.json() ?? [];
+                notifications = (await res.json()) ?? [];
                 renderAllTabs();
             } catch (e) {
                 console.error(e);
@@ -211,15 +188,13 @@
             const emptyUnread = document.getElementById("emptyUnreadState");
             const emptyMentions = document.getElementById("emptyMentionsState");
 
-            allContainer.innerHTML = "";
-            unreadContainer.innerHTML = "";
-            mentionsContainer.innerHTML = "";
+            if (allContainer) allContainer.innerHTML = "";
+            if (unreadContainer) unreadContainer.innerHTML = "";
+            if (mentionsContainer) mentionsContainer.innerHTML = "";
 
             const listAll = notifications.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            const listUnread = listAll.filter(n => !n.isRead);
-            const listMentions = listAll.filter(n =>
-                (n.type || "").toLowerCase() === "mention"
-            );
+            const listUnread = listAll.filter(n => !n.isRead && !n.read);
+            const listMentions = listAll.filter(n => (n.type || "").toLowerCase() === "mention");
 
             renderNotificationList(listAll, allContainer, emptyAll);
             renderNotificationList(listUnread, unreadContainer, emptyUnread);
@@ -227,95 +202,87 @@
         }
 
         function renderNotificationList(list, container, emptyElement) {
+            if (!container || !emptyElement) return;
+
             if (!list || list.length === 0) {
-                emptyElement.classList.remove("d-none");
+                emptyElement.classList.remove("hidden");
                 return;
             }
 
-            emptyElement.classList.add("d-none");
+            emptyElement.classList.add("hidden");
 
             list.forEach(n => {
+                const isRead = !!(n.isRead || n.read);
                 const card = document.createElement("div");
-                card.className = "modern-card mb-3 notification-item stagger-item" + (n.isRead ? "" : " unread");
+                card.className = "flex items-start justify-between gap-4 rounded-2xl border p-4 sm:p-5 transition-all shadow-card cursor-pointer " +
+                    (isRead
+                        ? "border-slate-100 bg-white hover:border-slate-300 hover:shadow-lift"
+                        : "border-blue-100 bg-blue-50/50 hover:bg-blue-50/80 hover:border-blue-200");
 
-                const wrapper = document.createElement("div");
-                wrapper.className = "d-flex gap-3";
+                const leftWrap = document.createElement("div");
+                leftWrap.className = "flex items-start gap-3.5 min-w-0 flex-1";
 
+                // Icon / Avatar Circle
                 const avatar = document.createElement("div");
-                avatar.className = "avatar-circle avatar-lg";
-                avatar.style.background = getAvatarGradient(n.type);
-                avatar.textContent = getAvatarText(n.type);
+                avatar.className = `flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold shadow-sm ${getAvatarBg(n.type)}`;
+                avatar.innerHTML = getIconHtml(n.type);
 
+                // Body
                 const body = document.createElement("div");
-                body.className = "flex-fill";
+                body.className = "min-w-0 flex-1";
 
-                const pTitle = document.createElement("p");
-                pTitle.className = "mb-1";
+                const titleRow = document.createElement("div");
+                titleRow.className = "flex items-center flex-wrap gap-2";
 
-                const strong = document.createElement("strong");
-                strong.textContent = n.title || "(Thông báo)";
+                const titleSpan = document.createElement("span");
+                titleSpan.className = "font-heading text-sm font-bold text-slate-900";
+                titleSpan.textContent = n.title || "Thông báo";
+                titleRow.appendChild(titleSpan);
 
-                pTitle.appendChild(strong);
-
-                if (!n.isRead) {
+                if (!isRead) {
                     const badge = document.createElement("span");
-                    badge.className = "badge bg-primary ms-2";
+                    badge.className = "inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700";
                     badge.textContent = "Mới";
-                    pTitle.appendChild(badge);
+                    titleRow.appendChild(badge);
                 }
 
-                const pTime = document.createElement("p");
-                pTime.className = "text-muted small mb-2";
-                const iconClock = document.createElement("i");
-                iconClock.className = "fa-solid fa-clock me-1";
-                pTime.appendChild(iconClock);
-                pTime.appendChild(document.createTextNode(formatDateTime(n.createdAt)));
+                const timeRow = document.createElement("div");
+                timeRow.className = "flex items-center gap-1.5 text-xs text-slate-400 mt-1";
+                timeRow.innerHTML = `<i class="fa-regular fa-clock text-[10px]"></i><span>${formatDateTime(n.createdAt)}</span>`;
 
-                body.appendChild(pTitle);
-                body.appendChild(pTime);
+                body.appendChild(titleRow);
+                body.appendChild(timeRow);
 
                 if (n.content) {
                     const preview = document.createElement("div");
-                    preview.className = "notification-preview";
-                    const pContent = document.createElement("p");
-                    pContent.className = "text-muted small mb-0";
-                    pContent.textContent = n.content;
-                    preview.appendChild(pContent);
+                    preview.className = "mt-2.5 rounded-xl border border-slate-100 bg-slate-50/80 p-3 text-xs text-slate-600 font-medium leading-relaxed";
+                    preview.textContent = n.content;
                     body.appendChild(preview);
                 }
 
-                const dropdownWrapper = document.createElement("div");
-                dropdownWrapper.className = "dropdown";
+                leftWrap.appendChild(avatar);
+                leftWrap.appendChild(body);
 
-                const btnDropdown = document.createElement("button");
-                btnDropdown.className = "btn btn-sm btn-light";
-                btnDropdown.setAttribute("data-bs-toggle", "dropdown");
-                btnDropdown.innerHTML = '<i class="fa-solid fa-ellipsis-v"></i>';
+                // Right action (mark read button)
+                const rightAction = document.createElement("div");
+                rightAction.className = "shrink-0";
 
-                const menu = document.createElement("ul");
-                menu.className = "dropdown-menu dropdown-menu-end";
+                if (!isRead) {
+                    const btnMark = document.createElement("button");
+                    btnMark.type = "button";
+                    btnMark.title = "Đánh dấu đã đọc";
+                    btnMark.className = "flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors";
+                    btnMark.innerHTML = '<i class="fa-solid fa-check text-xs"></i>';
+                    btnMark.addEventListener("click", function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        markAsRead(n.id);
+                    });
+                    rightAction.appendChild(btnMark);
+                }
 
-                const liMark = document.createElement("li");
-                const aMark = document.createElement("a");
-                aMark.className = "dropdown-item";
-                aMark.href = "#";
-                aMark.innerHTML = '<i class="fa-solid fa-check me-2"></i>Đánh dấu đã đọc';
-                aMark.addEventListener("click", function (ev) {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    markAsRead(n.id);
-                });
-                liMark.appendChild(aMark);
-                menu.appendChild(liMark);
-
-                dropdownWrapper.appendChild(btnDropdown);
-                dropdownWrapper.appendChild(menu);
-
-                wrapper.appendChild(avatar);
-                wrapper.appendChild(body);
-                wrapper.appendChild(dropdownWrapper);
-
-                card.appendChild(wrapper);
+                card.appendChild(leftWrap);
+                card.appendChild(rightAction);
 
                 card.addEventListener("click", function () {
                     handleClickNotification(n);
@@ -325,41 +292,32 @@
             });
         }
 
-        function getAvatarText(type) {
-            if (!type) return "NT";
-            const t = type.trim();
-            if (t.length >= 2) return t.substring(0, 2).toUpperCase();
-            return t.toUpperCase() || "NT";
+        function getAvatarBg(type) {
+            const t = (type || "").toLowerCase();
+            if (t.includes("friend")) return "bg-gradient-to-br from-emerald-600 to-teal-500";
+            if (t.includes("message")) return "bg-gradient-to-br from-blue-600 to-indigo-600";
+            if (t.includes("mention")) return "bg-gradient-to-br from-purple-600 to-pink-600";
+            return "bg-gradient-to-br from-slate-900 to-slate-700";
         }
 
-        function getAvatarGradient(type) {
+        function getIconHtml(type) {
             const t = (type || "").toLowerCase();
-
-            if (t === "friendrequest" || t === "friend_request") {
-                return "linear-gradient(135deg, #10B981, #3B82F6)";
-            }
-
-            if (t === "message") {
-                return "linear-gradient(135deg, #4F46E5, #6366F1)";
-            }
-
-            if (t === "mention") {
-                return "linear-gradient(135deg, #8B5CF6, #EC4899)";
-            }
-
-            return "linear-gradient(135deg, #F59E0B, #EF4444)";
+            if (t.includes("friend")) return '<i class="fa-solid fa-user-plus text-xs"></i>';
+            if (t.includes("message")) return '<i class="fa-solid fa-message text-xs"></i>';
+            if (t.includes("mention")) return '<i class="fa-solid fa-at text-xs"></i>';
+            return '<i class="fa-solid fa-bell text-xs"></i>';
         }
 
         function formatDateTime(dtStr) {
             if (!dtStr) return "";
             const d = new Date(dtStr);
             if (isNaN(d.getTime())) return dtStr;
-            return d.toLocaleString();
+            return d.toLocaleString("vi-VN");
         }
 
         async function markAsRead(id) {
             try {
-                const res = await fetch(`/api/NotificationsApi/${id}/read`, {
+                const res = await fetch(`/api/notifications/${id}/read`, {
                     method: "POST",
                     headers: {
                         "X-Requested-With": "XMLHttpRequest"
@@ -370,7 +328,13 @@
                     throw new Error("Failed to mark as read");
                 }
 
-                await loadNotifications();
+                // Update local array and re-render
+                const item = notifications.find(x => x.id === id);
+                if (item) {
+                    item.isRead = true;
+                    item.read = true;
+                }
+                renderAllTabs();
             } catch (e) {
                 console.error(e);
             }
@@ -378,7 +342,7 @@
 
         async function markAllAsRead() {
             try {
-                const res = await fetch("/api/NotificationsApi/read-all", {
+                const res = await fetch("/api/notifications/read-all", {
                     method: "POST",
                     headers: {
                         "X-Requested-With": "XMLHttpRequest"
@@ -389,7 +353,11 @@
                     throw new Error("Failed to mark all as read");
                 }
 
-                await loadNotifications();
+                notifications.forEach(n => {
+                    n.isRead = true;
+                    n.read = true;
+                });
+                renderAllTabs();
             } catch (e) {
                 console.error(e);
             }
@@ -397,7 +365,6 @@
 
         function handleClickNotification(n) {
             markAsRead(n.id);
-
             if (n.url) {
                 window.location.href = n.url;
             }
