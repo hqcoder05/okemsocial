@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -146,6 +146,27 @@ namespace okem_social.Controllers.Api
             }
 
             return Ok(dtoResult);
+        }
+
+        // DELETE: /api/comments/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var comment = await _commentRepo.GetByIdAsync(id);
+            if (comment == null)
+                return NotFound(new { message = "Không tìm thấy bình luận." });
+
+            if (comment.UserId != CurrentUserId)
+                return Forbid("Bạn không có quyền xóa bình luận này.");
+
+            await _commentRepo.DeleteAsync(id);
+
+            // Gửi sự kiện xóa
+            await _commentHub.Clients
+                .Group(CommentHub.GetPostGroup(comment.PostId))
+                .SendAsync("CommentDeleted", new { postId = comment.PostId, commentId = id });
+
+            return Ok(new { message = "Đã xóa bình luận thành công." });
         }
     }
 }

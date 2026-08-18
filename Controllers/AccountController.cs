@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using okem_social.Data;
 using okem_social.Services;
 using okem_social.Models;
@@ -30,7 +31,6 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
             return View();
         }
 
-        // 🔁 Dùng service thay vì DbContext trực tiếp
         var user = await authService.ValidateUserAsync(email, password);
         if (user is null)
         {
@@ -54,7 +54,13 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
         };
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
-        return Redirect(returnUrl ?? Url.Action("Index", "Home")!);
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction("Index", "Home");
     }
 
     [Authorize]
@@ -70,11 +76,10 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
     [HttpGet]
     public IActionResult Register() => View();
 
-    // (Giữ nguyên Register, vẫn dùng DbContext; có thể refactor sau)
     [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Register(string email, string fullName, string password, string confirmPassword)
+    public async Task<IActionResult> Register(string email, string fullName, string password, string confirmPassword)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(password))
         {
@@ -86,7 +91,7 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
             TempData["err"] = "Mật khẩu phải ≥ 8 ký tự và khớp xác nhận.";
             return View();
         }
-        if (db.Users.Any(u => u.Email == email))
+        if (await db.Users.AnyAsync(u => u.Email == email))
         {
             TempData["err"] = "Email đã tồn tại.";
             return View();
@@ -97,10 +102,11 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
             Email = email,
             FullName = fullName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-            Role = Role.User
+            Role = Role.User,
+            CreatedAt = DateTime.UtcNow
         };
         db.Users.Add(user);
-        db.SaveChanges();
+        await db.SaveChangesAsync();
 
         TempData["ok"] = "Đăng ký thành công. Mời đăng nhập.";
         return RedirectToAction(nameof(Login));
@@ -108,4 +114,72 @@ public class AccountController(ApplicationDbContext db, IAuthService authService
 
     [AllowAnonymous]
     public IActionResult AccessDenied() => Content("Không có quyền truy cập");
+
+    [AllowAnonymous]
+    [HttpPost]
+    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        return Challenge(properties, provider);
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+    {
+        if (remoteError != null)
+        {
+            TempData["err"] = $"Lỗi từ nhà cung cấp: {remoteError}";
+            return RedirectToAction(nameof(Login));
+        }
+
+        var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (info.Principal == null)
+        {
+            return RedirectToAction(nameof(Login));
+        }
+
+        // Get info from external provider
+        var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+        var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+        var avatar = info.Principal.FindFirstValue("picture"); // Common claim for avatar
+
+        if (string.IsNullOrEmpty(email))
+        {
+            TempData["err"] = "Không lấy được Email từ nhà cung cấp.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        if (string.IsNullOrEmpty(name)) name = email.Split('@')[0];
+
+        // Get or Create user
+        var user = await authService.GetOrCreateExternalUserAsync(email, name, avatar);
+
+        // Sign in the user locally
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.FullName),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        var props = new AuthenticationProperties
+        {
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+        };
+
+        // We sign them in with our cookie scheme. This overrides the temporary external cookie if any.
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction("Index", "Home");
+    }
 }

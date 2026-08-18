@@ -8,13 +8,29 @@ public class UserService(IUserRepository repo) : IUserService
     public async Task<User> GetMeAsync(int currentUserId) =>
         await repo.GetByIdAsync(currentUserId) ?? throw new KeyNotFoundException("User không tồn tại.");
 
-    public async Task UpdateProfileAsync(int currentUserId, string fullName)
+    public async Task UpdateProfileAsync(int currentUserId, string fullName, string? nickname = null, string? bio = null, string? headline = null, string? location = null, string? websiteUrl = null, string? coverUrl = null, string? phoneNumber = null)
     {
         if (string.IsNullOrWhiteSpace(fullName))
             throw new InvalidOperationException("Họ tên không được rỗng.");
 
         var me = await GetMeAsync(currentUserId);
         me.FullName = fullName.Trim();
+        me.Nickname = string.IsNullOrWhiteSpace(nickname) ? null : nickname.Trim();
+        me.Bio = string.IsNullOrWhiteSpace(bio) ? null : bio.Trim();
+        if (headline != null) me.Headline = string.IsNullOrWhiteSpace(headline) ? null : headline.Trim();
+        if (location != null) me.Location = string.IsNullOrWhiteSpace(location) ? null : location.Trim();
+        if (websiteUrl != null) me.WebsiteUrl = string.IsNullOrWhiteSpace(websiteUrl) ? null : websiteUrl.Trim();
+        if (coverUrl != null) me.CoverUrl = string.IsNullOrWhiteSpace(coverUrl) ? null : coverUrl.Trim();
+        if (phoneNumber != null) me.PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
+        me.UpdatedAt = DateTime.UtcNow;
+        await repo.UpdateAsync(me);
+    }
+
+    public async Task UpdateAvatarAsync(int currentUserId, string? avatarUrl)
+    {
+        var me = await GetMeAsync(currentUserId);
+        me.AvatarUrl = avatarUrl;
+        me.UpdatedAt = DateTime.UtcNow;
         await repo.UpdateAsync(me);
     }
 

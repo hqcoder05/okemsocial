@@ -35,7 +35,7 @@ public class ConversationsApiController(
     public async Task<ActionResult<ConversationDto>> CreateConversation(CreateConversationDto dto)
     {
         if (dto.MemberIds.Count == 0)
-            return BadRequest(new { message = "At least one member required" });
+            return BadRequest(new { message = "Cần ít nhất một thành viên." });
 
         // Add current user to members
         if (!dto.MemberIds.Contains(CurrentUserId))
@@ -46,7 +46,7 @@ public class ConversationsApiController(
         {
             var user = await userRepo.GetByIdAsync(memberId);
             if (user == null)
-                return BadRequest(new { message = $"User {memberId} not found" });
+                return BadRequest(new { message = $"Không tìm thấy người dùng #{memberId}." });
         }
 
         var conversation = new Conversation
@@ -56,6 +56,35 @@ public class ConversationsApiController(
         };
 
         var created = await conversationRepo.CreateAsync(conversation, dto.MemberIds);
+        return Ok(await MapToConversationDto(created));
+    }
+
+    [HttpPost("direct/{targetUserId}")]
+    public async Task<ActionResult<ConversationDto>> GetOrCreateDirectConversation(int targetUserId)
+    {
+        if (targetUserId == CurrentUserId)
+            return BadRequest(new { message = "Không thể tạo cuộc trò chuyện với chính mình." });
+
+        var targetUser = await userRepo.GetByIdAsync(targetUserId);
+        if (targetUser == null)
+            return NotFound(new { message = "Không tìm thấy người dùng." });
+
+        // Check if direct conversation already exists
+        var userConvs = await conversationRepo.GetUserConversationsAsync(CurrentUserId);
+        var existing = userConvs.FirstOrDefault(c => !c.IsGroup && c.Members.Any(m => m.UserId == targetUserId));
+        if (existing != null)
+        {
+            return Ok(await MapToConversationDto(existing));
+        }
+
+        // Create new direct conversation
+        var conversation = new Conversation
+        {
+            Name = targetUser.FullName,
+            IsGroup = false
+        };
+
+        var created = await conversationRepo.CreateAsync(conversation, new List<int> { CurrentUserId, targetUserId });
         return Ok(await MapToConversationDto(created));
     }
 
@@ -83,12 +112,12 @@ public class ConversationsApiController(
             return NotFound();
 
         if (!conversation.IsGroup)
-            return BadRequest(new { message = "Cannot rename 1-1 conversation" });
+            return BadRequest(new { message = "Không thể đổi tên cuộc trò chuyện 1-1." });
 
         conversation.Name = dto.Name;
         await conversationRepo.UpdateAsync(conversation);
 
-        return Ok(new { message = "Conversation updated successfully" });
+        return Ok(new { message = "Cập nhật cuộc trò chuyện thành công." });
     }
 
     [HttpPost("{id}/members")]
@@ -102,10 +131,10 @@ public class ConversationsApiController(
             return NotFound();
 
         if (!conversation.IsGroup)
-            return BadRequest(new { message = "Cannot add members to 1-1 conversation" });
+            return BadRequest(new { message = "Không thể thêm thành viên vào cuộc trò chuyện 1-1." });
 
         await conversationRepo.AddMemberAsync(id, userId);
-        return Ok(new { message = "Member added successfully" });
+        return Ok(new { message = "Đã thêm thành viên." });
     }
 
     [HttpDelete("{id}/members/{userId}")]
@@ -114,15 +143,19 @@ public class ConversationsApiController(
         if (!await conversationRepo.IsMemberAsync(id, CurrentUserId))
             return Forbid();
 
+        // CHỈ cho phép user tự rời nhóm (Rút lui), không được phép đá người khác
+        if (CurrentUserId != userId)
+            return Forbid("Không có quyền xóa thành viên khác khỏi nhóm.");
+
         var conversation = await conversationRepo.GetByIdAsync(id, false);
         if (conversation == null)
             return NotFound();
 
         if (!conversation.IsGroup)
-            return BadRequest(new { message = "Cannot remove members from 1-1 conversation" });
+            return BadRequest(new { message = "Không thể xóa thành viên khỏi cuộc trò chuyện 1-1." });
 
         await conversationRepo.RemoveMemberAsync(id, userId);
-        return Ok(new { message = "Member removed successfully" });
+        return Ok(new { message = "Đã rời nhóm." });
     }
 
     [HttpGet("unread-count")]
@@ -139,44 +172,56 @@ public class ConversationsApiController(
             return Forbid();
 
         await conversationRepo.UpdateLastReadAsync(id, CurrentUserId);
-        return Ok(new { message = "Marked as read" });
+        return Ok(new { message = "Đã đánh dấu đã đọc." });
     }
 
     private async Task<ConversationDto> MapToConversationDto(Conversation conv)
     {
         var messages = await messageRepo.GetConversationMessagesAsync(conv.Id, null, 1);
-        
+        var lastMsg = messages.FirstOrDefault();
+
+        var member = await conversationRepo.GetMemberAsync(conv.Id, CurrentUserId);
+        var lastRead = member?.LastReadAt ?? member?.JoinedAt ?? conv.CreatedAt;
+        var unreadCount = conv.Messages.Count(m => m.CreatedAt > lastRead && m.SenderId != CurrentUserId);
+
         return new ConversationDto
         {
             Id = conv.Id,
             Name = conv.Name,
             IsGroup = conv.IsGroup,
-            Members = conv.Members.Select(m => new UserDto
+            Members = conv.Members.Where(m => m.User != null).Select(m => new UserDto
             {
                 Id = m.User!.Id,
                 Email = m.User.Email,
                 FullName = m.User.FullName,
+                Nickname = m.User.Nickname,
+                Bio = m.User.Bio,
+                AvatarUrl = m.User.AvatarUrl,
                 Role = m.User.Role.ToString(),
                 CreatedAt = m.User.CreatedAt
             }).ToList(),
-            LastMessage = messages.FirstOrDefault() != null ? new MessageDto
+            LastMessage = lastMsg != null ? new MessageDto
             {
-                Id = messages.First().Id,
-                ConversationId = messages.First().ConversationId,
+                Id = lastMsg.Id,
+                ConversationId = lastMsg.ConversationId,
                 Sender = new UserDto
                 {
-                    Id = messages.First().Sender!.Id,
-                    Email = messages.First().Sender.Email,
-                    FullName = messages.First().Sender.FullName,
-                    Role = messages.First().Sender.Role.ToString(),
-                    CreatedAt = messages.First().Sender.CreatedAt
+                    Id = lastMsg.Sender?.Id ?? lastMsg.SenderId,
+                    Email = lastMsg.Sender?.Email ?? "",
+                    FullName = lastMsg.Sender?.FullName ?? "",
+                    Nickname = lastMsg.Sender?.Nickname,
+                    Bio = lastMsg.Sender?.Bio,
+                    AvatarUrl = lastMsg.Sender?.AvatarUrl,
+                    Role = lastMsg.Sender?.Role.ToString() ?? "",
+                    CreatedAt = lastMsg.Sender?.CreatedAt ?? DateTime.UtcNow
                 },
-                Content = messages.First().Content,
-                AttachmentUrl = messages.First().AttachmentUrl,
-                CreatedAt = messages.First().CreatedAt,
-                IsDeleted = messages.First().IsDeleted
+                Content = lastMsg.Content,
+                AttachmentUrl = lastMsg.AttachmentUrl,
+                CreatedAt = lastMsg.CreatedAt,
+                IsDeleted = lastMsg.IsDeleted,
+                IsMine = lastMsg.SenderId == CurrentUserId
             } : null,
-            UnreadCount = 0, // TODO: Calculate properly
+            UnreadCount = unreadCount,
             CreatedAt = conv.CreatedAt
         };
     }

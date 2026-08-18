@@ -1,7 +1,9 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using okem_social.DTOs;
+using okem_social.Hubs;
 using okem_social.Models;
 using okem_social.Repositories;
 
@@ -12,7 +14,8 @@ namespace okem_social.Controllers.Api;
 [Authorize]
 public class MessagesApiController(
     IMessageRepository messageRepo,
-    IConversationRepository conversationRepo) : ControllerBase
+    IConversationRepository conversationRepo,
+    IHubContext<ChatHub> chatHub) : ControllerBase
 {
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -36,11 +39,14 @@ public class MessagesApiController(
             ConversationId = m.ConversationId,
             Sender = new UserDto
             {
-                Id = m.Sender!.Id,
-                Email = m.Sender.Email,
-                FullName = m.Sender.FullName,
-                Role = m.Sender.Role.ToString(),
-                CreatedAt = m.Sender.CreatedAt
+                Id = m.Sender?.Id ?? m.SenderId,
+                Email = m.Sender?.Email ?? "",
+                FullName = m.Sender?.FullName ?? "",
+                Nickname = m.Sender?.Nickname,
+                Bio = m.Sender?.Bio,
+                AvatarUrl = m.Sender?.AvatarUrl,
+                Role = m.Sender?.Role.ToString() ?? "",
+                CreatedAt = m.Sender?.CreatedAt ?? DateTime.UtcNow
             },
             Content = m.Content,
             AttachmentUrl = m.AttachmentUrl,
@@ -48,7 +54,6 @@ public class MessagesApiController(
             IsDeleted = m.IsDeleted,
             IsRead = lastReadAt.HasValue && m.CreatedAt <= lastReadAt.Value,
             ReadAt = lastReadAt.HasValue && m.CreatedAt <= lastReadAt.Value ? lastReadAt : null,
-            // QUAN TRỌNG: Thêm flag để frontend dễ kiểm tra
             IsMine = m.SenderId == CurrentUserId
         }).ToList());
     }
@@ -72,24 +77,33 @@ public class MessagesApiController(
 
         var created = await messageRepo.CreateAsync(message);
 
-        return Ok(new MessageDto
+        var resultDto = new MessageDto
         {
             Id = created.Id,
             ConversationId = created.ConversationId,
             Sender = new UserDto
             {
-                Id = created.Sender!.Id,
-                Email = created.Sender.Email,
-                FullName = created.Sender.FullName,
-                Role = created.Sender.Role.ToString(),
-                CreatedAt = created.Sender.CreatedAt
+                Id = created.Sender?.Id ?? CurrentUserId,
+                Email = created.Sender?.Email ?? "",
+                FullName = created.Sender?.FullName ?? "",
+                Nickname = created.Sender?.Nickname,
+                Bio = created.Sender?.Bio,
+                AvatarUrl = created.Sender?.AvatarUrl,
+                Role = created.Sender?.Role.ToString() ?? "",
+                CreatedAt = created.Sender?.CreatedAt ?? DateTime.UtcNow
             },
             Content = created.Content,
             AttachmentUrl = created.AttachmentUrl,
             CreatedAt = created.CreatedAt,
             IsDeleted = created.IsDeleted,
-            IsMine = true // Tin nhắn mới luôn là của mình
-        });
+            IsMine = true
+        };
+
+        // Realtime broadcast to SignalR chat group
+        await chatHub.Clients.Group($"conversation_{conversationId}")
+            .SendAsync("ReceiveMessage", resultDto);
+
+        return Ok(resultDto);
     }
 
     [HttpPost("{messageId}/read")]

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using okem_social.Repositories;
@@ -76,8 +76,14 @@ public class UsersController(IUserRepository userRepo) : Controller
                 });
             }
 
+            // Fetch incoming and outgoing requests to display on the same page
+            var incomingRequests = await userRepo.GetIncomingRequestsAsync(currentUserId);
+            var outgoingRequests = await userRepo.GetOutgoingRequestsAsync(currentUserId);
+
             ViewBag.Keyword = keyword;
-            ViewBag.CurrentUserId = currentUserId; // ✅ để view Search dùng tạo link xem lời mời
+            ViewBag.CurrentUserId = currentUserId;
+            ViewBag.IncomingRequests = incomingRequests;
+            ViewBag.OutgoingRequests = outgoingRequests;
 
             return View(userViewModels);
         }
@@ -86,6 +92,8 @@ public class UsersController(IUserRepository userRepo) : Controller
             Console.WriteLine($"Search error: {ex.Message}");
             ViewBag.Keyword = keyword;
             ViewBag.CurrentUserId = currentUserId;
+            ViewBag.IncomingRequests = new List<User>();
+            ViewBag.OutgoingRequests = new List<User>();
             return View(new List<UserSearchViewModel>());
         }
     }

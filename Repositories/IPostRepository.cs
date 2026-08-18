@@ -13,4 +13,5 @@ public interface IPostRepository
     Task<int> GetLikesCountAsync(int postId);
     Task<int> GetCommentsCountAsync(int postId);
     Task<bool> IsLikedByUserAsync(int postId, int userId);
+    Task<List<TrendingTopic>> GetTrendingTopicsAsync(int take = 5);
 }

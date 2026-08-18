@@ -23,21 +23,27 @@ public class LikeRepository(ApplicationDbContext db) : ILikeRepository
 
     public async Task AddPostLikeAsync(int postId, int userId)
     {
-        var existing = await GetPostLikeAsync(postId, userId);
-        if (existing == null)
+        try
         {
             db.Likes.Add(new Like { PostId = postId, UserId = userId });
             await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Ignore if it's a unique constraint violation (race condition)
         }
     }
 
     public async Task AddCommentLikeAsync(int commentId, int userId)
     {
-        var existing = await GetCommentLikeAsync(commentId, userId);
-        if (existing == null)
+        try
         {
             db.Likes.Add(new Like { CommentId = commentId, UserId = userId });
             await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            // Ignore race condition
         }
     }
 

@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using okem_social.DTOs;
@@ -26,8 +26,9 @@ public class SettingsApiController(IUserService userService) : ControllerBase
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                // AvatarUrl hiện chưa lưu trong bảng User nên để null
-                AvatarUrl = null,
+                Nickname = user.Nickname,
+                Bio = user.Bio,
+                AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString(),
                 CreatedAt = user.CreatedAt
             });
@@ -38,14 +39,14 @@ public class SettingsApiController(IUserService userService) : ControllerBase
         }
     }
 
-    /// <summary>Cập nhật tên hiển thị từ trang Settings</summary>
+    /// <summary>Cập nhật tên hiển thị & thông tin từ trang Settings</summary>
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMe([FromBody] UpdateProfileDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        await userService.UpdateProfileAsync(CurrentUserId, dto.FullName);
+        await userService.UpdateProfileAsync(CurrentUserId, dto.FullName, dto.Nickname, dto.Bio);
 
         // Trả lại user mới để FE cập nhật UI
         var user = await userService.GetMeAsync(CurrentUserId);
@@ -55,7 +56,9 @@ public class SettingsApiController(IUserService userService) : ControllerBase
             Id = user.Id,
             Email = user.Email,
             FullName = user.FullName,
-            AvatarUrl = null,
+            Nickname = user.Nickname,
+            Bio = user.Bio,
+            AvatarUrl = user.AvatarUrl,
             Role = user.Role.ToString(),
             CreatedAt = user.CreatedAt
         });

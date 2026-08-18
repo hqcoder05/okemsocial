@@ -1,11 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using okem_social.Data;
 using okem_social.Repositories;
 using okem_social.Services;
 using okem_social.Models;
 
 namespace okem_social.Controllers;
 
-public class PostsController(IPostRepository postRepo) : Controller
+[Authorize]
+public class PostsController(IPostRepository postRepo, ApplicationDbContext db) : Controller
 {
     public IActionResult Index()
     {
@@ -22,7 +26,24 @@ public class PostsController(IPostRepository postRepo) : Controller
             ? await postRepo.GetFeedAsync(currentUserId)
             : new List<Post>();
 
+        // Load REAL contacts from SQL Server database
+        var friends = await db.FriendRequests
+            .Where(fr => fr.IsAccepted && (fr.FromUserId == currentUserId || fr.ToUserId == currentUserId))
+            .Select(fr => (fr.FromUserId == currentUserId ? fr.ToUser : fr.FromUser)!)
+            .Distinct()
+            .ToListAsync();
+
+        // Supplement with other active community members
+        var existingIds = friends.Where(f => f != null).Select(f => f.Id).Append(currentUserId).ToList();
+        var suggestions = await db.Users
+            .Where(u => !existingIds.Contains(u.Id))
+            .Take(5)
+            .ToListAsync();
+
         ViewBag.CurrentUserId = currentUserId;
+        ViewBag.Contacts = friends.Count > 0 ? friends : suggestions;
+        ViewBag.SuggestedUsers = suggestions;
+        ViewBag.TrendingTopics = await postRepo.GetTrendingTopicsAsync(5);
         return View(posts);
     }
 

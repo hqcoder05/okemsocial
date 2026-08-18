@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -16,6 +16,7 @@ namespace okem_social.Controllers.Api;
 public class PostsApiController(
     IPostRepository postRepo,
     IUserService userService,
+    IMediaService mediaService,
     INotificationRepository notiRepo,
     IHubContext<NotificationHub> notiHub) : ControllerBase
 {
@@ -28,13 +29,7 @@ public class PostsApiController(
     public async Task<ActionResult<List<PostDto>>> GetFeed([FromQuery] int skip = 0, [FromQuery] int take = 20)
     {
         var posts = await postRepo.GetFeedAsync(CurrentUserId, skip, take);
-        var postDtos = new List<PostDto>();
-
-        foreach (var post in posts)
-        {
-            postDtos.Add(await MapToPostDto(post));
-        }
-
+        var postDtos = posts.Select(post => MapToPostDtoOptimized(post, CurrentUserId)).ToList();
         return Ok(postDtos);
     }
 
@@ -42,14 +37,9 @@ public class PostsApiController(
     [AllowAnonymous]
     public async Task<ActionResult<List<PostDto>>> GetUserPosts(int userId, [FromQuery] int skip = 0, [FromQuery] int take = 20)
     {
+        var hasViewer = TryGetViewerId(out var viewerId);
         var posts = await postRepo.GetUserPostsAsync(userId, skip, take);
-        var postDtos = new List<PostDto>();
-
-        foreach (var post in posts)
-        {
-            postDtos.Add(await MapToPostDto(post));
-        }
-
+        var postDtos = posts.Select(post => MapToPostDtoOptimized(post, hasViewer ? viewerId : null)).ToList();
         return Ok(postDtos);
     }
 
@@ -59,25 +49,23 @@ public class PostsApiController(
         var post = new Post
         {
             UserId = CurrentUserId,
-            Caption = dto.Caption,      // quote
-            ImageUrl = dto.ImageUrl,    // ảnh (nếu có)
-            VideoUrl = dto.VideoUrl     // video (nếu có)
+            Caption = dto.Caption,
+            ImageUrl = dto.ImageUrl,
+            VideoUrl = dto.VideoUrl
         };
 
         var created = await postRepo.CreateAsync(post);
 
-        // Reload với User
-        var fullPost = await postRepo.GetByIdAsync(created.Id, includeDetails: false);
+        var fullPost = await postRepo.GetByIdAsync(created.Id, includeDetails: true);
         if (fullPost == null)
             return NotFound();
 
-        var dtoPost = await MapToPostDto(fullPost);
+        var dtoPost = MapToPostDtoOptimized(fullPost, CurrentUserId);
 
-        // ===== GỬI THÔNG BÁO REALTIME CHO BẠN BÈ =====
+        // Gửi thông báo realtime cho bạn bè
         var friends = await userService.FriendsAsync(CurrentUserId);
         foreach (var friend in friends)
         {
-            // Không gửi cho chính mình
             if (friend.Id == CurrentUserId) continue;
 
             var noti = new Notification
@@ -124,7 +112,7 @@ public class PostsApiController(
         post.UpdatedAt = DateTime.UtcNow;
 
         await postRepo.UpdateAsync(post);
-        return Ok(new { message = "Post updated successfully" });
+        return Ok(new { message = "Cập nhật bài viết thành công." });
     }
 
     [HttpDelete("{postId}")]
@@ -137,34 +125,52 @@ public class PostsApiController(
         if (post.UserId != CurrentUserId)
             return Forbid();
 
+        // Xóa file media trên disk nếu có
+        if (!string.IsNullOrEmpty(post.ImageUrl))
+            await mediaService.DeleteFileAsync(post.ImageUrl);
+        if (!string.IsNullOrEmpty(post.VideoUrl))
+            await mediaService.DeleteFileAsync(post.VideoUrl);
+
         await postRepo.DeleteAsync(postId);
-        return Ok(new { message = "Post deleted successfully" });
+        return Ok(new { message = "Đã xóa bài viết thành công." });
     }
 
-    private async Task<PostDto> MapToPostDto(Post post)
+    private PostDto MapToPostDtoOptimized(Post post, int? viewerId)
     {
-        var hasViewer = TryGetViewerId(out var viewerId);
+        // Use the optimized properties from Post repository projection
+        var likesCount = post.LikesCount > 0 || post.Likes == null ? post.LikesCount : post.Likes.Count;
+        var commentsCount = post.CommentsCount > 0 || post.Comments == null ? post.CommentsCount : post.Comments.Count;
+        var isLiked = post.IsLikedByCurrentUser;
+
+        // Fallback for single GetByIdAsync which might still include collections
+        if (post.Likes != null && post.Likes.Count > 0 && post.LikesCount == 0) {
+            likesCount = post.Likes.Count;
+            isLiked = viewerId.HasValue && post.Likes.Any(l => l.UserId == viewerId.Value);
+        }
+        if (post.Comments != null && post.Comments.Count > 0 && post.CommentsCount == 0) {
+            commentsCount = post.Comments.Count;
+        }
 
         return new PostDto
         {
             Id = post.Id,
             User = new UserDto
             {
-                Id = post.User!.Id,
-                Email = post.User.Email,
-                FullName = post.User.FullName,
-                AvatarUrl = post.User.AvatarUrl,   // ⭐ thêm avatar
-                Role = post.User.Role.ToString(),
-                CreatedAt = post.User.CreatedAt
+                Id = post.User?.Id ?? post.UserId,
+                Email = post.User?.Email ?? "",
+                FullName = post.User?.FullName ?? "",
+                Nickname = post.User?.Nickname,
+                Bio = post.User?.Bio,
+                AvatarUrl = post.User?.AvatarUrl,
+                Role = post.User?.Role.ToString() ?? "",
+                CreatedAt = post.User?.CreatedAt ?? DateTime.UtcNow
             },
             Caption = post.Caption,
             ImageUrl = post.ImageUrl,
             VideoUrl = post.VideoUrl,
-            LikesCount = await postRepo.GetLikesCountAsync(post.Id),
-            CommentsCount = await postRepo.GetCommentsCountAsync(post.Id),
-            IsLikedByCurrentUser = hasViewer
-                ? await postRepo.IsLikedByUserAsync(post.Id, viewerId)
-                : false,
+            LikesCount = likesCount,
+            CommentsCount = commentsCount,
+            IsLikedByCurrentUser = isLiked,
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt
         };

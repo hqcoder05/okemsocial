@@ -1,11 +1,12 @@
-﻿using okem_social.Models;
+using okem_social.Models;
 
 namespace okem_social.Services;
 
 public interface IUserService
 {
     Task<User> GetMeAsync(int currentUserId);
-    Task UpdateProfileAsync(int currentUserId, string fullName);
+    Task UpdateProfileAsync(int currentUserId, string fullName, string? nickname = null, string? bio = null, string? headline = null, string? location = null, string? websiteUrl = null, string? coverUrl = null, string? phoneNumber = null);
+    Task UpdateAvatarAsync(int currentUserId, string? avatarUrl);
     Task<User?> GetByIdAsync(int id);
     Task<List<User>> SearchAsync(string keyword, int currentUserId);
 

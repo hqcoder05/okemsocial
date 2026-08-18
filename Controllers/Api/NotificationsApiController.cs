@@ -1,13 +1,14 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using okem_social.DTOs;
 using okem_social.Services;
 
-namespace okem_social.Controllers
+namespace okem_social.Controllers.Api
 {
     [Authorize]
     [ApiController]
+    [Route("api/notifications")]
     [Route("api/[controller]")]
     public class NotificationsApiController : ControllerBase
     {
@@ -25,7 +26,7 @@ namespace okem_social.Controllers
         private int CurrentUserId =>
             int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
-        // GET: /api/NotificationsApi
+        // GET: /api/notifications
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NotificationDto>>> GetMyNotifications()
         {
@@ -36,7 +37,7 @@ namespace okem_social.Controllers
             return Ok(list);
         }
 
-        // GET: /api/NotificationsApi/unread-count
+        // GET: /api/notifications/unread-count
         [HttpGet("unread-count")]
         public async Task<ActionResult<int>> GetUnreadCount()
         {
@@ -47,7 +48,7 @@ namespace okem_social.Controllers
             return Ok(count);
         }
 
-        // POST: /api/NotificationsApi/{id}/read
+        // POST: /api/notifications/{id}/read
         [HttpPost("{id:int}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {
@@ -58,7 +59,7 @@ namespace okem_social.Controllers
             return NoContent();
         }
 
-        // POST: /api/NotificationsApi/read-all
+        // POST: /api/notifications/read-all
         [HttpPost("read-all")]
         public async Task<IActionResult> MarkAllRead()
         {

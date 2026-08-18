@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using okem_social.DTOs;
@@ -27,7 +27,9 @@ public class UsersApiController(
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                AvatarUrl = user.AvatarUrl,          // ⭐
+                Nickname = user.Nickname,
+                Bio = user.Bio,
+                AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString(),
                 CreatedAt = user.CreatedAt
             });
@@ -41,8 +43,8 @@ public class UsersApiController(
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMe(UpdateProfileDto dto)
     {
-        await userService.UpdateProfileAsync(CurrentUserId, dto.FullName);
-        return Ok(new { message = "Profile updated successfully" });
+        await userService.UpdateProfileAsync(CurrentUserId, dto.FullName, dto.Nickname, dto.Bio);
+        return Ok(new { message = "Cập nhật hồ sơ thành công." });
     }
 
     [HttpGet("{id}")]
@@ -57,7 +59,9 @@ public class UsersApiController(
             Id = user.Id,
             Email = user.Email,
             FullName = user.FullName,
-            AvatarUrl = user.AvatarUrl,          // ⭐
+            Nickname = user.Nickname,
+            Bio = user.Bio,
+            AvatarUrl = user.AvatarUrl,
             Role = user.Role.ToString(),
             CreatedAt = user.CreatedAt
         });
@@ -73,7 +77,9 @@ public class UsersApiController(
             Id = u.Id,
             Email = u.Email,
             FullName = u.FullName,
-            AvatarUrl = u.AvatarUrl,            // ⭐
+            Nickname = u.Nickname,
+            Bio = u.Bio,
+            AvatarUrl = u.AvatarUrl,
             Role = u.Role.ToString(),
             CreatedAt = u.CreatedAt
         }).ToList());
@@ -85,11 +91,9 @@ public class UsersApiController(
         try
         {
             var avatarUrl = await mediaService.UploadImageAsync(file, CurrentUserId);
+            await userService.UpdateAvatarAsync(CurrentUserId, avatarUrl);
 
-            // TODO: nếu có method cập nhật avatar trong userService thì gọi ở đây
-            // await userService.UpdateAvatarAsync(CurrentUserId, avatarUrl);
-
-            return Ok(new { avatarUrl });
+            return Ok(new { avatarUrl, message = "Cập nhật ảnh đại diện thành công." });
         }
         catch (ArgumentException ex)
         {
@@ -110,7 +114,9 @@ public class UsersApiController(
             Id = u.Id,
             Email = u.Email,
             FullName = u.FullName,
-            AvatarUrl = u.AvatarUrl,           // ⭐
+            Nickname = u.Nickname,
+            Bio = u.Bio,
+            AvatarUrl = u.AvatarUrl,
             Role = u.Role.ToString(),
             CreatedAt = u.CreatedAt
         }).ToList());
@@ -165,7 +171,9 @@ public class UsersApiController(
             Id = u.Id,
             Email = u.Email,
             FullName = u.FullName,
-            AvatarUrl = u.AvatarUrl,           // ⭐
+            Nickname = u.Nickname,
+            Bio = u.Bio,
+            AvatarUrl = u.AvatarUrl,
             Role = u.Role.ToString(),
             CreatedAt = u.CreatedAt
         }).ToList());
@@ -182,7 +190,9 @@ public class UsersApiController(
             Id = u.Id,
             Email = u.Email,
             FullName = u.FullName,
-            AvatarUrl = u.AvatarUrl,           // ⭐
+            Nickname = u.Nickname,
+            Bio = u.Bio,
+            AvatarUrl = u.AvatarUrl,
             Role = u.Role.ToString(),
             CreatedAt = u.CreatedAt
         }).ToList());

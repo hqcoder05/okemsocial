@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace okem_social.Controllers;
 
-// [Authorize]
+[Authorize]
 public class SettingsController : Controller
 {
     public IActionResult Index()
