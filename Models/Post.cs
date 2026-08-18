@@ -22,4 +22,13 @@ public class Post
     // Navigation
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<Like> Likes { get; set; } = new List<Like>();
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public int LikesCount { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public int CommentsCount { get; set; }
+
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public bool IsLikedByCurrentUser { get; set; }
 }
