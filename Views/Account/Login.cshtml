@@ -1,3 +1,4 @@
+@model okem_social.Models.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
     var returnUrl = ViewBag.ReturnUrl as string;
@@ -10,8 +11,8 @@
             <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white text-xl font-black shadow-sm" dark:bg-white dark:text-black>
                 L
             </div>
-            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900" dark:text-slate-100>Đăng nhập</h1>
-            <p class="mt-1.5 text-sm font-medium text-slate-500" dark:text-slate-400>Chào mừng bạn quay trở lại với Okem</p>
+            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900" dark:text-slate-100>Chào mừng trở lại</h1>
+            <p class="mt-1.5 text-sm font-medium text-slate-500" dark:text-slate-400>Đăng nhập để tiếp tục với Okem</p>
         </div>
 
         @if (TempData["err"] != null)
@@ -29,126 +30,52 @@
             </div>
         }
 
-        <!-- Form -->
-        <form asp-action="Login" method="post" class="space-y-4">
+        <form asp-action="Login" asp-route-returnurl="@returnUrl" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
-            <input type="hidden" name="returnUrl" value="@returnUrl" />
+            <div asp-validation-summary="ModelOnly" class="text-sm text-red-500"></div>
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Email
-                </label>
-                <input type="email"
-                       id="email"
-                       name="email"
-                       placeholder="name@example.com"
-                       required
-                       autocomplete="email"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
+                <label asp-for="Email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Địa chỉ Email</label>
+                <input asp-for="Email" type="email" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="name@example.com" required />
+                <span asp-validation-for="Email" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
             <!-- Password -->
             <div>
-                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Mật khẩu
-                </label>
+                <label asp-for="Password" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Mật khẩu</label>
                 <div class="relative">
-                    <input type="password"
-                           id="password"
-                           name="password"
-                           placeholder="••••••••"
-                           required
-                           autocomplete="current-password"
-                           class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
-                    <button type="button"
-                            id="togglePassword"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 transition-colors"
-                            title="Hiện/ẩn mật khẩu">
-                        <i class="fa-regular fa-eye text-sm"></i>
+                    <input asp-for="Password" type="password" id="password" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="••••••••" required />
+                    <button type="button" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors" data-target="password">
+                        <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
+                <span asp-validation-for="Password" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
-            <!-- Remember & Forgot -->
-            <div class="flex items-center justify-between pt-1">
-                <label class="flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox"
-                           id="rememberMe"
-                           name="rememberMe"
-                           value="true"
-                           class="h-4 w-4 rounded border-slate-300 accent-slate-950 cursor-pointer" />
-                    <span class="text-xs font-semibold text-slate-600" dark:text-slate-400>Ghi nhớ đăng nhập</span>
-                </label>
-                <a href="#" class="text-xs font-bold text-slate-600 hover:text-slate-950 hover:underline transition-colors" dark:text-slate-400 dark:text-slate-100>
-                    Quên mật khẩu?
+            <button type="submit" class="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-slate-950 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 active:scale-95 transition-all dark:bg-white dark:text-black dark:hover:bg-slate-200" dark:bg-black>
+                Đăng nhập <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+
+            <!-- Social Logins -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200" dark:border-white/10></div></div>
+                <div class="relative flex justify-center text-xs"><span class="bg-white px-3 text-slate-400" dark:bg-black>Hoặc tiếp tục với</span></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <a asp-action="ExternalLogin" asp-route-provider="Google" class="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors dark:border-white/10 dark:bg-black dark:text-slate-200 dark:hover:bg-white/10">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="h-4 w-4" /> Google
+                </a>
+                <a asp-action="ExternalLogin" asp-route-provider="Facebook" class="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors dark:border-white/10 dark:bg-black dark:text-slate-200 dark:hover:bg-white/10">
+                    <i class="fa-brands fa-facebook text-[#1877F2] text-lg"></i> Facebook
                 </a>
             </div>
 
-            <!-- Submit -->
-            <button type="submit"
-                    class="w-full rounded-full bg-slate-950 py-3 text-sm font-bold text-white hover:bg-slate-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm" dark:bg-white dark:text-black>
-                <span>Đăng nhập</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </button>
         </form>
 
-        <!-- Divider -->
-        <div class="relative my-6">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-slate-200" dark:border-white/10></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-                <span class="bg-white px-2 text-xs text-slate-500" dark:bg-black dark:text-slate-400>Hoặc tiếp tục với</span>
-            </div>
-        </div>
-
-        <!-- External Logins -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <form asp-action="ExternalLogin" method="post" class="w-full">
-                <input type="hidden" name="provider" value="Google" />
-                <input type="hidden" name="returnUrl" value="@returnUrl" />
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
-                    <i class="fa-brands fa-google text-red-500"></i> Google
-                </button>
-            </form>
-            <form asp-action="ExternalLogin" method="post" class="w-full">
-                <input type="hidden" name="provider" value="Facebook" />
-                <input type="hidden" name="returnUrl" value="@returnUrl" />
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
-                    <i class="fa-brands fa-facebook text-blue-600"></i> Facebook
-                </button>
-            </form>
-        </div>
-
-        <!-- Footer -->
-        <p class="text-center text-xs font-medium text-slate-500" dark:text-slate-400>
-            Chưa có tài khoản?
-            <a asp-action="Register" class="font-bold text-slate-950 hover:underline ml-1" dark:text-slate-100>
-                Đăng ký ngay
-            </a>
+        <p class="mt-8 text-center text-sm text-slate-500" dark:text-slate-400>
+            Chưa có tài khoản? <a asp-action="Register" class="font-bold text-slate-900 hover:underline" dark:text-white>Tạo ngay</a>
         </p>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function () {
-                const icon = this.querySelector('i');
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.remove('fa-eye', 'fa-regular');
-                    icon.classList.add('fa-eye-slash', 'fa-regular');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.remove('fa-eye-slash', 'fa-regular');
-                    icon.classList.add('fa-eye', 'fa-regular');
-                }
-            });
-        }
-    </script>
-}

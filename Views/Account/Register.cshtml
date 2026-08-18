@@ -1,5 +1,6 @@
-﻿@{
-    ViewData["Title"] = "ÄÄƒng kÃ½";
+@model okem_social.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
 }
 
 <div class="min-h-[calc(100vh-130px)] flex items-center justify-center py-8">
@@ -9,8 +10,8 @@
             <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-white text-xl font-black shadow-sm" dark:bg-white dark:text-black>
                 L
             </div>
-            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900" dark:text-slate-100>Táº¡o tÃ i khoáº£n</h1>
-            <p class="mt-1.5 text-sm font-medium text-slate-500" dark:text-slate-400>Tham gia káº¿t ná»‘i cÃ¹ng Okem ngay hÃ´m nay</p>
+            <h1 class="font-heading text-2xl font-extrabold tracking-tight text-slate-900" dark:text-slate-100>Tạo tài khoản</h1>
+            <p class="mt-1.5 text-sm font-medium text-slate-500" dark:text-slate-400>Tham gia kết nối cùng Okem ngay hôm nay</p>
         </div>
 
         @if (TempData["err"] != null)
@@ -28,190 +29,80 @@
             </div>
         }
 
-        <!-- Form -->
-        <form asp-action="Register" method="post" id="registerForm" class="space-y-4">
+        <form asp-action="Register" method="post" class="space-y-4">
             @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-sm text-red-500"></div>
 
-            <!-- Full Name -->
+            <!-- FullName -->
             <div>
-                <label for="fullName" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Há» vÃ  tÃªn
-                </label>
-                <input type="text"
-                       id="fullName"
-                       name="fullName"
-                       placeholder="Nguyá»…n VÄƒn A"
-                       required
-                       autocomplete="name"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
+                <label asp-for="FullName" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Tên đầy đủ</label>
+                <input asp-for="FullName" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Nguyễn Văn A" required />
+                <span asp-validation-for="FullName" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
             <!-- Email -->
             <div>
-                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Email
-                </label>
-                <input type="email"
-                       id="email"
-                       name="email"
-                       placeholder="name@example.com"
-                       required
-                       autocomplete="email"
-                       class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
+                <label asp-for="Email" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Địa chỉ Email</label>
+                <input asp-for="Email" type="email" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="name@example.com" required />
+                <span asp-validation-for="Email" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
             <!-- Password -->
             <div>
-                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Máº­t kháº©u
-                </label>
+                <label asp-for="Password" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Mật khẩu</label>
                 <div class="relative">
-                    <input type="password"
-                           id="password"
-                           name="password"
-                           placeholder="Tá»‘i thiá»ƒu 8 kÃ½ tá»±"
-                           required
-                           autocomplete="new-password"
-                           class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
-                    <button type="button"
-                            class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 transition-colors"
-                            data-target="password"
-                            title="Hiá»‡n/áº©n máº­t kháº©u">
-                        <i class="fa-regular fa-eye text-sm"></i>
+                    <input asp-for="Password" type="password" id="password" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="Tối thiểu 8 ký tự" required />
+                    <button type="button" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors" data-target="password">
+                        <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
+                <span asp-validation-for="Password" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
             <!-- Confirm Password -->
             <div>
-                <label for="confirmPassword" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    XÃ¡c nháº­n máº­t kháº©u
-                </label>
+                <label asp-for="ConfirmPassword" class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500" dark:text-slate-400>Xác nhận mật khẩu</label>
                 <div class="relative">
-                    <input type="password"
-                           id="confirmPassword"
-                           name="confirmPassword"
-                           placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
-                           required
-                           autocomplete="new-password"
-                           class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400" dark:text-slate-100 dark:border-white/10 dark:bg-neutral-900 dark:bg-black />
-                    <button type="button"
-                            class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-700 transition-colors"
-                            data-target="confirmPassword"
-                            title="Hiá»‡n/áº©n máº­t kháº©u">
-                        <i class="fa-regular fa-eye text-sm"></i>
+                    <input asp-for="ConfirmPassword" type="password" id="confirmPassword" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all dark:border-white/10 dark:bg-neutral-900 dark:text-white dark:focus:border-white/30" placeholder="••••••••" required />
+                    <button type="button" class="toggle-password-btn absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-slate-600 transition-colors" data-target="confirmPassword">
+                        <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
-                <p id="passwordMatch" class="mt-1.5 text-[11px] font-semibold hidden"></p>
+                <p id="passwordMatch" class="hidden mt-1.5 text-[11px] font-semibold"></p>
+                <span asp-validation-for="ConfirmPassword" class="mt-1 block text-xs text-red-500"></span>
             </div>
 
             <!-- Terms -->
-            <div class="pt-1">
-                <label class="flex items-start gap-2.5 cursor-pointer select-none text-slate-600" dark:text-slate-400>
-                    <input type="checkbox"
-                           id="terms"
-                           required
-                           class="mt-0.5 h-4 w-4 rounded border-slate-300 accent-slate-950 cursor-pointer" />
-                    <span class="text-xs leading-relaxed">
-                        TÃ´i Ä‘á»“ng Ã½ vá»›i <a href="#" class="font-bold text-slate-950 hover:underline" dark:text-slate-100>Äiá»u khoáº£n dá»‹ch vá»¥</a> vÃ  <a href="#" class="font-bold text-slate-950 hover:underline" dark:text-slate-100>ChÃ­nh sÃ¡ch báº£o máº­t</a>
-                    </span>
+            <div class="flex items-start gap-3 pt-2">
+                <input type="checkbox" required class="mt-1 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900" />
+                <label class="text-xs text-slate-500" dark:text-slate-400>
+                    Tôi đồng ý với <a href="/Home/Terms" class="font-bold text-slate-900 hover:underline" dark:text-white>Điều khoản dịch vụ</a> và <a href="/Home/Privacy" class="font-bold text-slate-900 hover:underline" dark:text-white>Chính sách bảo mật</a>
                 </label>
             </div>
 
-            <!-- Submit -->
-            <button type="submit"
-                    class="w-full rounded-full bg-slate-950 py-3 text-sm font-bold text-white hover:bg-slate-800 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm" dark:bg-white dark:text-black>
-                <span>Táº¡o tÃ i khoáº£n</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
+            <button type="submit" class="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-slate-950 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-slate-800 active:scale-95 transition-all dark:bg-white dark:text-black dark:hover:bg-slate-200" dark:bg-black>
+                Tạo tài khoản <i class="fa-solid fa-arrow-right text-xs"></i>
             </button>
+
+            <!-- Social Logins -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200" dark:border-white/10></div></div>
+                <div class="relative flex justify-center text-xs"><span class="bg-white px-3 text-slate-400" dark:bg-black>Hoặc đăng ký bằng</span></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <a asp-action="ExternalLogin" asp-route-provider="Google" class="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors dark:border-white/10 dark:bg-black dark:text-slate-200 dark:hover:bg-white/10">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="h-4 w-4" /> Google
+                </a>
+                <a asp-action="ExternalLogin" asp-route-provider="Facebook" class="flex h-11 items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors dark:border-white/10 dark:bg-black dark:text-slate-200 dark:hover:bg-white/10">
+                    <i class="fa-brands fa-facebook text-[#1877F2] text-lg"></i> Facebook
+                </a>
+            </div>
+
         </form>
 
-                <!-- Divider -->
-        <div class="relative my-6">
-            <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-slate-200" dark:border-white/10></div>
-            </div>
-            <div class="relative flex justify-center text-sm">
-                <span class="bg-white px-2 text-xs text-slate-500" dark:bg-black dark:text-slate-400>Hoặc đăng ký bằng</span>
-            </div>
-        </div>
-
-        <!-- External Logins -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <form asp-action="ExternalLogin" method="post" class="w-full">
-                <input type="hidden" name="provider" value="Google" />
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
-                    <i class="fa-brands fa-google text-red-500"></i> Google
-                </button>
-            </form>
-            <form asp-action="ExternalLogin" method="post" class="w-full">
-                <input type="hidden" name="provider" value="Facebook" />
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors" dark:border-white/10 dark:bg-neutral-900 dark:text-slate-200 dark:hover:bg-neutral-800>
-                    <i class="fa-brands fa-facebook text-blue-600"></i> Facebook
-                </button>
-            </form>
-        </div>
-
-        <!-- Footer -->
-        <p class="text-center text-xs font-medium text-slate-500" dark:text-slate-400>
-            ÄÃ£ cÃ³ tÃ i khoáº£n?
-            <a asp-action="Login" class="font-bold text-slate-950 hover:underline ml-1" dark:text-slate-100>
-                ÄÄƒng nháº­p ngay
-            </a>
+        <p class="mt-8 text-center text-sm text-slate-500" dark:text-slate-400>
+            Đã có tài khoản? <a asp-action="Login" class="font-bold text-slate-900 hover:underline" dark:text-white>Đăng nhập ngay</a>
         </p>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        // Toggle password visibility
-        document.querySelectorAll('.toggle-password-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const targetId = this.getAttribute('data-target');
-                const passwordInput = document.getElementById(targetId);
-                const icon = this.querySelector('i');
-
-                if (passwordInput && icon) {
-                    if (passwordInput.type === 'password') {
-                        passwordInput.type = 'text';
-                        icon.classList.remove('fa-eye', 'fa-regular');
-                        icon.classList.add('fa-eye-slash', 'fa-regular');
-                    } else {
-                        passwordInput.type = 'password';
-                        icon.classList.remove('fa-eye-slash', 'fa-regular');
-                        icon.classList.add('fa-eye', 'fa-regular');
-                    }
-                }
-            });
-        });
-
-        // Real-time password match validation
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-        const passwordMatch = document.getElementById('passwordMatch');
-
-        function checkMatch() {
-            if (!confirmPassword.value) {
-                passwordMatch.classList.add('hidden');
-                confirmPassword.setCustomValidity('');
-                return;
-            }
-            passwordMatch.classList.remove('hidden');
-            if (password.value !== confirmPassword.value) {
-                confirmPassword.setCustomValidity('Máº­t kháº©u khÃ´ng khá»›p');
-                passwordMatch.textContent = 'Máº­t kháº©u xÃ¡c nháº­n khÃ´ng khá»›p';
-                passwordMatch.className = 'mt-1.5 text-[11px] font-semibold text-red-500';
-            } else {
-                confirmPassword.setCustomValidity('');
-                passwordMatch.textContent = 'Máº­t kháº©u trÃ¹ng khá»›p';
-                passwordMatch.className = 'mt-1.5 text-[11px] font-semibold text-emerald-600';
-            }
-        }
-
-        if (password && confirmPassword && passwordMatch) {
-            password.addEventListener('input', checkMatch);
-            confirmPassword.addEventListener('input', checkMatch);
-        }
-    </script>
-}
-
